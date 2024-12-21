@@ -19,6 +19,8 @@ use App\Models\Blog;
 use App\Models\GalleryType;
 use App\Models\Gallery;
 use App\Models\GalleryAttachment;
+use App\Models\CourseType;
+use App\Models\Course;
 
 
 
@@ -74,6 +76,11 @@ class AdminController extends Controller
     public function gallery(Request $request){
         
         return view('admin/gallery_types');
+    }
+
+    public function courses(Request $request){
+        
+        return view('admin/courses');
     }
 
     public function forgetpassword(Request $request){
@@ -367,9 +374,17 @@ class AdminController extends Controller
     public function deleteAudioCategory(Request $request)
     {
         
-        AudioCategory::where('id', $request->category_id)->delete();
-        
-        return response()->json(['status' => 200, 'message' => "Audio Category Deleted Successfully."]);
+        $AudioCategory = AudioCategory::find($request->category_id);
+
+        if ($AudioCategory) {
+
+            $AudioCategory->audio_lectures()->delete();
+            $AudioCategory->delete();
+            
+            return response()->json(['status' => 200, 'message' => "Audio Category Deleted Successfully."]);
+        } else {
+            return response()->json(['status' => 400, 'message' => "Audio Category not found."]);
+        }
     }
 
     public function saveAudioLecture(Request $request)
@@ -821,6 +836,7 @@ class AdminController extends Controller
 
         if ($GalleryType) {
 
+            $GalleryType->galleries()->delete();
             $GalleryType->delete();
             
             return response()->json(['status' => 200, 'message' => "Type Deleted Successfully."]);
@@ -915,4 +931,152 @@ class AdminController extends Controller
         
     }
     /* ******************** Photo Gallery Page Code End Here ********************* */
+
+
+    /* ******************** Course Page Code Start Here ********************* */
+    public function getCourseTypesPageData(Request $request)
+    {
+        
+        $data['type_list'] = CourseType::get();
+        $data['course_list'] = Course::with(['type'])->get();
+        
+        return response()->json(['status' => 200, 'message' => "", 'data' => $data]);
+    }
+
+    public function saveCourseType(Request $request)
+    {
+        $validatedData = $request->validate([
+            'type_title' => 'required|max:50',
+            'type_description' => 'required|max:250',
+            'type_status' => 'required',
+        ]);
+
+        if($request->type_id != ''){
+            $CourseType = CourseType::find($request->type_id);
+        }else{
+            $CourseType = new CourseType;
+            $CourseType->date = Carbon::now()->format('Y-m-d');
+        }
+        
+        $CourseType->title = $request->type_title;
+        $CourseType->description = $request->type_description;
+        $CourseType->status = $request->type_status;
+        
+        $CourseType->save();
+
+        if($request->type_id != ''){
+            return response()->json(['status' => 200, 'message' => "Course Type Updated Successfully."]);
+        }else{
+            return response()->json(['status' => 200, 'message' => "Course Type Saved Successfully."]);
+        }
+    }
+    
+    public function getSpecificCourseType(Request $request)
+    {
+        
+        $data['type_detail'] = CourseType::where('id', $request->type_id)->first();
+        
+        return response()->json(['status' => 200, 'message' => "", 'data' => $data]);
+    }
+
+    public function deleteCourseType(Request $request)
+    {
+        
+        $CourseType = CourseType::find($request->type_id);
+
+        if ($CourseType) {
+            
+            $CourseType->courses()->delete();
+            $CourseType->delete();
+            
+            return response()->json(['status' => 200, 'message' => "Type Deleted Successfully."]);
+        } else {
+            return response()->json(['status' => 400, 'message' => "Type not found."]);
+        }
+    }
+
+    public function saveCourse(Request $request)
+    {
+        $validatedData = $request->validate([
+            'course_type' => 'required',
+            'course_title' => 'required|max:50',
+            'course_description' => 'required|string',
+            'course_instructor' => 'required|max:50',
+            'course_duration' => 'required|numeric|max_digits:5',
+            'course_total_lectures' => 'required|numeric|max_digits:3',
+            'course_level' => 'required',
+            'course_language' => 'required',
+            'course_certificate' => 'required',
+            'course_status' => 'required',
+            
+        ]);
+        if($request->course_id == ''){
+            $validatedData = $request->validate([
+               'thumbnail' => 'required|image|mimes:jpeg,png,jpg,gif|max:1024', // Must be an image file
+            ]);
+        }else{
+            $validatedData = $request->validate([
+                'thumbnail' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:1024', // Must be an image file
+            ]);
+        }
+
+
+        if($request->course_id != ''){
+            $Course = Course::find($request->course_id);
+        }else{
+            $Course = new Course;
+            $Course->date = Carbon::now()->format('Y-m-d');
+        }
+        
+        $Course->type_id = $request->course_type;
+        $Course->title = $request->course_title;
+        $Course->description = $request->course_description;
+        $Course->instructor_name = $request->course_instructor;
+        $Course->duration_minutes = $request->course_duration;
+        $Course->total_lectures = $request->course_total_lectures;
+        $Course->level = $request->course_level;
+        $Course->language = $request->course_language;
+        $Course->certificate = $request->course_certificate;
+        $Course->status = $request->course_status;
+        
+        // Save the thumbnail file
+        if ($request->hasFile('thumbnail')) {
+            $thumbnailFile = $request->file('thumbnail');
+            $thumbnailName = 'thumbnail_' . time() . '_' . $thumbnailFile->getClientOriginalName();
+            $thumbnailPath = 'uploads/images'; 
+            $thumbnailFile->move(public_path($thumbnailPath), $thumbnailName);
+            $Course->thumbnail = $thumbnailPath . '/' . $thumbnailName;
+        }
+
+        $Course->save();
+        
+        if($request->course_id != ''){
+            return response()->json(['status' => 200, 'message' => "Course Updated Successfully."]);
+        }else{
+            return response()->json(['status' => 200, 'message' => "Course Saved Successfully."]);
+        }
+    }
+
+    public function getSpecificCourse(Request $request)
+    {
+        
+        $data['course_detail'] = Course::where('id', $request->course_id)->first();
+        
+        return response()->json(['status' => 200, 'message' => "", 'data' => $data]);
+    }
+
+    public function deleteCourse(Request $request)
+    {
+        $Course = Course::find($request->course_id);
+
+        if ($Course) {
+
+            $Course->delete();
+            
+            return response()->json(['status' => 200, 'message' => "Course Deleted Successfully."]);
+        } else {
+            return response()->json(['status' => 400, 'message' => "Course not found."]);
+        }
+    }
+    /* ******************** Course Page Code End Here ********************* */
 }

@@ -34,6 +34,7 @@ Route::group(['middleware' => ['AdminAuth']], function () {
     Route::get('/books_library', [AdminController::class, 'books_library'])->name('books_library');
     Route::get('/blogs', [AdminController::class, 'blogs'])->name('blogs');
     Route::get('/gallery', [AdminController::class, 'gallery'])->name('gallery');
+    Route::get('/courses', [AdminController::class, 'courses'])->name('courses');
     
     // Route::post('/createStaticUser', [AdminController::class, 'createStaticUser'])->name('createStaticUser');
     
@@ -80,6 +81,18 @@ Route::group(['middleware' => ['AdminAuth']], function () {
     Route::post('/getSpecificGallery', [AdminController::class, 'getSpecificGallery'])->name('getSpecificGallery');
     Route::post('/deleteGalleryAtt', [AdminController::class, 'deleteGalleryAtt'])->name('deleteGalleryAtt');
     Route::post('/deleteGallery', [AdminController::class, 'deleteGallery'])->name('deleteGallery');
+
+    // Course Type Page Routes
+    Route::post('/getCourseTypesPageData', [AdminController::class, 'getCourseTypesPageData'])->name('getCourseTypesPageData');
+    Route::post('/saveCourseType', [AdminController::class, 'saveCourseType'])->name('saveCourseType');
+    Route::post('/getSpecificCourseType', [AdminController::class, 'getSpecificCourseType'])->name('getSpecificCourseType');
+    Route::post('/deleteCourseType', [AdminController::class, 'deleteCourseType'])->name('deleteCourseType');
+
+    // Gallery Page Routes
+    Route::post('/saveCourse', [AdminController::class, 'saveCourse'])->name('saveCourse');
+    Route::post('/getSpecificCourse', [AdminController::class, 'getSpecificCourse'])->name('getSpecificCourse');
+    // Route::post('/deleteGalleryAtt', [AdminController::class, 'deleteGalleryAtt'])->name('deleteGalleryAtt');
+    Route::post('/deleteCourse', [AdminController::class, 'deleteCourse'])->name('deleteCourse');
 });
 
 // Route::get('/', function () {

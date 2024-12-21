@@ -96,6 +96,19 @@
                 </a>
             </li>
 
+            <li class="nav-item">
+                <a href="{{ route('courses') }}" class="nav-link acc-link {{request()->is('courses') ? 'active-nav' : ''}}">
+
+                    <div class="d-flex align-items-center justify-content-between">
+                        <div class="d-flex align-items-center gap-2">
+                            <i class="fa-solid fa-images"></i>
+                            Course Types
+                        </div>
+                    </div>
+
+                </a>
+            </li>
+
             {{-- ADMIN-SECTION --}}
             <!-- <li class="nav-item">
                 <a class="nav-link acc-link" data-bs-toggle="collapse" href="#admin" role="button"
