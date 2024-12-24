@@ -98,14 +98,23 @@
 
             <li class="nav-item">
                 <a href="{{ route('courses') }}" class="nav-link acc-link {{request()->is('courses') ? 'active-nav' : ''}}">
-
                     <div class="d-flex align-items-center justify-content-between">
                         <div class="d-flex align-items-center gap-2">
-                            <i class="fa-solid fa-images"></i>
+                            <i class="fa-solid fa-user-graduate"></i>
                             Course Types
                         </div>
                     </div>
+                </a>
+            </li>
 
+            <li class="nav-item">
+                <a href="{{ route('news_events') }}" class="nav-link acc-link {{request()->is('news_events') ? 'active-nav' : ''}}">
+                    <div class="d-flex align-items-center justify-content-between">
+                        <div class="d-flex align-items-center gap-2">
+                        <i class="fa-solid fa-newspaper"></i>
+                            News & Events
+                        </div>
+                    </div>
                 </a>
             </li>
 

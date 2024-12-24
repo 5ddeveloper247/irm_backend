@@ -83,6 +83,11 @@ class AdminController extends Controller
         return view('admin/courses');
     }
 
+    public function news_events(Request $request){
+        
+        return view('admin/news_events');
+    }
+
     public function forgetpassword(Request $request){
         
         return view('forgetpassword');

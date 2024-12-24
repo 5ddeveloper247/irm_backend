@@ -35,6 +35,8 @@ Route::group(['middleware' => ['AdminAuth']], function () {
     Route::get('/blogs', [AdminController::class, 'blogs'])->name('blogs');
     Route::get('/gallery', [AdminController::class, 'gallery'])->name('gallery');
     Route::get('/courses', [AdminController::class, 'courses'])->name('courses');
+    Route::get('/news_events', [AdminController::class, 'news_events'])->name('news_events');
+    
     
     // Route::post('/createStaticUser', [AdminController::class, 'createStaticUser'])->name('createStaticUser');
     
@@ -93,6 +95,16 @@ Route::group(['middleware' => ['AdminAuth']], function () {
     Route::post('/getSpecificCourse', [AdminController::class, 'getSpecificCourse'])->name('getSpecificCourse');
     // Route::post('/deleteGalleryAtt', [AdminController::class, 'deleteGalleryAtt'])->name('deleteGalleryAtt');
     Route::post('/deleteCourse', [AdminController::class, 'deleteCourse'])->name('deleteCourse');
+
+     // News & Events Page Routes
+    //  Route::post('/getCourseTypesPageData', [AdminController::class, 'getCourseTypesPageData'])->name('getCourseTypesPageData');
+    //  Route::post('/saveCourseType', [AdminController::class, 'saveCourseType'])->name('saveCourseType');
+    //  Route::post('/getSpecificCourseType', [AdminController::class, 'getSpecificCourseType'])->name('getSpecificCourseType');
+    //  Route::post('/deleteCourseType', [AdminController::class, 'deleteCourseType'])->name('deleteCourseType');
+ 
+
+
+
 });
 
 // Route::get('/', function () {
