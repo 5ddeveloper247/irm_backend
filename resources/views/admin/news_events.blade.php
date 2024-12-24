@@ -119,8 +119,8 @@
                                                                     <th class="text-start text-nowrap" scope="col">Seq No.</th>
                                                                     <th class="text-start text-nowrap" scope="col">Title</th>
                                                                     <th class="text-start text-nowrap" scope="col">Type</th>
-                                                                    <th class="text-start text-nowrap" scope="col">Description</th>
-                                                                    <th class="text-start text-nowrap" scope="col">Date</th>
+                                                                    <th class="text-start text-nowrap" scope="col">Start Date</th>
+                                                                    <th class="text-start text-nowrap" scope="col">End Date</th>
                                                                     <th class="text-start text-nowrap" scope="col">Status</th>
                                                                     <th class="text-start text-nowrap" scope="col">Action</th>
                                                                 </tr>
@@ -218,8 +218,6 @@
                 
                 <div class="row g-3">
                     
-                    
-
                     <div class="form-floating">
                         <input type="text" class="form-control" id="title" name="title" placeholder="Title" maxlength="50">
                         <label class="ms-2" for="title">Title*</label>
@@ -268,7 +266,7 @@
                     </div>
 
                     <div class="form-floating" id="repeat_on_div" style="display:none;">
-                        <select class="form-control select2" id="repeat_on" name="repeat_on" multiple="multiple" placeholder="Choose Days">
+                        <select class="form-control select2" id="repeat_on" name="repeat_on[]" multiple="multiple" placeholder="Choose Days">
                             <option value="Mon">Mon</option>
                             <option value="Tue">Tue</option>
                             <option value="Wed">Wed</option>
@@ -313,7 +311,7 @@
                 <!-- Action Buttons -->
                 <div class="d-flex justify-content-end mt-3">
                     <button type="button" class="btn btn-secondary me-2 closeCanvas">Cancel</button>
-                    <button type="button" class="btn btn-purple" onclick="saveGallery();" id="saveGallery_btn">Add</button>
+                    <button type="button" class="btn btn-purple" onclick="saveEvent();" id="saveEvent_btn">Add</button>
                 </div>
             </form>
         </div>

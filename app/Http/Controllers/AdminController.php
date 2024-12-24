@@ -21,7 +21,8 @@ use App\Models\Gallery;
 use App\Models\GalleryAttachment;
 use App\Models\CourseType;
 use App\Models\Course;
-
+use App\Models\NewsEvent;
+use App\Models\NewsEventAttachment;
 
 
 
@@ -1084,4 +1085,121 @@ class AdminController extends Controller
         }
     }
     /* ******************** Course Page Code End Here ********************* */
+
+    /* ******************** News & Events Page Code Start Here ********************* */
+    public function getNewsEventsPageData(Request $request)
+    {
+        
+        $data['events_list'] = NewsEvent::get();
+        
+
+        return response()->json(['status' => 200, 'message' => "", 'data' => $data]);
+        
+    }
+
+    public function saveEvent(Request $request)
+    {
+        $validatedData = $request->validate([
+            'title' => 'required|max:50',
+            'description' => 'required|string',
+            'start_date' => 'required|date',
+            'end_date' => 'required|date',
+            'event_time' => 'required|date_format:H:i:s',
+            'event_type' => 'required',
+            'recurring_type' => 'required_if:event_type,Recurring',
+            'repeat_on' => 'required_if:recurring_type,Weekly|array',
+            'location' => 'required',
+            'status' => 'required',
+        ]);
+        if($request->event_id == ''){
+            $validatedData = $request->validate([
+                'images' => 'required|array',
+                'images.*' => 'mimes:jpeg,png,jpg,gif,svg|max:2048',
+            ]);
+        }
+
+        if($request->event_id != ''){
+            $NewsEvent = NewsEvent::find($request->event_id);
+        }else{
+            $NewsEvent = new NewsEvent;
+            $NewsEvent->date = Carbon::now()->format('Y-m-d');
+        }
+        
+        $NewsEvent->title = $request->title;
+        $NewsEvent->description = $request->description;
+        $NewsEvent->start_date = $request->start_date;
+        $NewsEvent->end_date = $request->end_date;
+        $NewsEvent->event_time = $request->event_time;
+        $NewsEvent->type = $request->event_type;
+        $NewsEvent->recurring_type = $request->recurring_type;
+        if($request->repeat_on != ''){
+            $NewsEvent->repeat_on = json_encode($request->repeat_on, true);
+        }else{
+            $NewsEvent->repeat_on = '[]';
+        }
+        
+        $NewsEvent->location = $request->location;
+        $NewsEvent->status = $request->status;
+        $NewsEvent->save();
+
+        // Save the image files
+        if ($request->hasFile('images')) {
+            foreach ($request->file('images') as $imageFile) {
+                $fileName = 'image_' . time() . '_' . $imageFile->getClientOriginalName(); 
+                $filePath = 'uploads/images'; 
+                $imageFile->move(public_path($filePath), $fileName); 
+
+                $NewsEventAttachment = new NewsEventAttachment();
+                $NewsEventAttachment->news_id = $NewsEvent->id; 
+                $NewsEventAttachment->name = $imageFile->getClientOriginalName();
+                $NewsEventAttachment->path = $filePath . '/' . $fileName;
+                $NewsEventAttachment->save(); 
+            }
+        }
+
+        if($request->event_id != ''){
+            return response()->json(['status' => 200, 'message' => "Event Updated Successfully."]);
+        }else{
+            return response()->json(['status' => 200, 'message' => "Event Saved Successfully."]);
+        }
+    }
+
+    public function getSpecificEvent(Request $request)
+    {
+        
+        $data['event_detail'] = NewsEvent::where('id', $request->event_id)->with(['attachments'])->first();
+        
+        return response()->json(['status' => 200, 'message' => "", 'data' => $data]);
+    }
+
+    public function deleteEventAtt(Request $request)
+    {
+        
+        $NewsEventAttachment = NewsEventAttachment::find($request->attachment_id);
+
+        if ($NewsEventAttachment) {
+
+            $NewsEventAttachment->delete();
+            
+            return response()->json(['status' => 200, 'message' => "Event image Deleted Successfully."]);
+        } else {
+            return response()->json(['status' => 400, 'message' => "Event image not found."]);
+        }
+    }
+
+    public function deleteEvent(Request $request)
+    {
+        $NewsEvent = NewsEvent::find($request->event_id);
+
+        if ($NewsEvent) {
+
+            $NewsEvent->attachments()->delete();
+            $NewsEvent->delete();
+            
+            return response()->json(['status' => 200, 'message' => "Event Deleted Successfully."]);
+        } else {
+            return response()->json(['status' => 400, 'message' => "Event not found."]);
+        }
+    }
+    /* ******************** News & Events Page Code End Here ********************* */
 }
