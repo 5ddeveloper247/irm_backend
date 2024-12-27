@@ -16,6 +16,7 @@ return new class extends Migration
             $table->string('title')->nullable();
             $table->string('description', 255)->nullable();
             $table->string('thumbnail', 255)->nullable();
+            $table->string('book', 255)->nullable();
             $table->decimal('price',8,2)->nullable()->default('0');
             $table->date('date')->nullable();
             $table->tinyInteger('status')->nullable()->default('1')->comment('0:inactive, 1:active');

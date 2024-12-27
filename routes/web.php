@@ -93,7 +93,7 @@ Route::group(['middleware' => ['AdminAuth']], function () {
     // Gallery Page Routes
     Route::post('/saveCourse', [AdminController::class, 'saveCourse'])->name('saveCourse');
     Route::post('/getSpecificCourse', [AdminController::class, 'getSpecificCourse'])->name('getSpecificCourse');
-    // Route::post('/deleteGalleryAtt', [AdminController::class, 'deleteGalleryAtt'])->name('deleteGalleryAtt');
+    Route::post('/deleteCourseVideo', [AdminController::class, 'deleteCourseVideo'])->name('deleteCourseVideo');
     Route::post('/deleteCourse', [AdminController::class, 'deleteCourse'])->name('deleteCourse');
 
      // News & Events Page Routes

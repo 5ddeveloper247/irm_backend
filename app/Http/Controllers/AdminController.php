@@ -21,8 +21,10 @@ use App\Models\Gallery;
 use App\Models\GalleryAttachment;
 use App\Models\CourseType;
 use App\Models\Course;
+use App\Models\CourseVideo;
 use App\Models\NewsEvent;
 use App\Models\NewsEventAttachment;
+
 
 
 
@@ -633,11 +635,13 @@ class AdminController extends Controller
         if($request->book_id == ''){
             
             $validatedData = $request->validate([
-                'thumbnail' => 'required|image|mimes:jpeg,png,jpg,gif|max:1024', // Must be an image file
+                'thumbnail' => 'required|image|mimes:jpeg,png,jpg,gif|max:1024',
+                'book' => 'required|mimes:pdf|max:10240',
             ]);
         }else{
             $validatedData = $request->validate([
-                'thumbnail' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:1024', // Must be an image file
+                'thumbnail' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:1024',
+                'book' => 'nullable|mimes:pdf|max:10240',
             ]);
         }
 
@@ -660,6 +664,15 @@ class AdminController extends Controller
             $thumbnailPath = 'uploads/images'; 
             $thumbnailFile->move(public_path($thumbnailPath), $thumbnailName);
             $BookLibrary->thumbnail = $thumbnailPath . '/' . $thumbnailName;
+        }
+
+        // Save the thumbnail file
+        if ($request->hasFile('book')) {
+            $file = $request->file('book');
+            $fileName = 'book' . time() . '_' . $file->getClientOriginalName();
+            $filePath = 'uploads/books'; 
+            $file->move(public_path($filePath), $fileName);
+            $BookLibrary->book = $filePath . '/' . $fileName;
         }
 
         $BookLibrary->save();
@@ -1015,14 +1028,33 @@ class AdminController extends Controller
             'course_certificate' => 'required',
             'course_status' => 'required',
             
+            
         ]);
         if($request->course_id == ''){
             $validatedData = $request->validate([
-               'thumbnail' => 'required|image|mimes:jpeg,png,jpg,gif|max:1024', // Must be an image file
+                'thumbnail' => 'required|image|mimes:jpeg,png,jpg,gif|max:1024', // Must be an image file
+                'videos' => 'required|array', // Videos array is required
+                'videos.*.url' => [
+                    'required', 
+                    'string', 
+                    'regex:/^(https?\:\/\/)?(www\.youtube\.com|youtu\.?be)\/.+$/'
+                ]
+            ], [
+                'videos.*.url.required' => 'Each video url field is required.', 
+                'videos.*.url.regex' => 'Each video url must be youtube video url.',
             ]);
         }else{
             $validatedData = $request->validate([
                 'thumbnail' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:1024', // Must be an image file
+                'videos' => 'nullable|array', // Videos array is required
+                'videos.*.url' => [
+                    'required_with:videos', 
+                    'string', 
+                    'regex:/^(https?\:\/\/)?(www\.youtube\.com|youtu\.?be)\/.+$/'
+                ]
+            ], [
+                'videos.*.url.required_with' => 'Each video url field is required.', 
+                'videos.*.url.regex' => 'Each video url must be youtube video url.',
             ]);
         }
 
@@ -1055,6 +1087,22 @@ class AdminController extends Controller
         }
 
         $Course->save();
+
+        $videosArr = isset($request->videos) ? $request->videos : [];
+
+        if(count($videosArr) > 0){
+            foreach($videosArr as $video){
+                if(isset($video['id']) && $video['id'] != ''){
+                    $CourseVideo = CourseVideo::where('id', $video['id'])->first();
+                }else{
+                    $CourseVideo = new CourseVideo();
+                }
+
+                $CourseVideo->course_id = $Course->id;
+                $CourseVideo->video_url = $video['url'];
+                $CourseVideo->save();
+            }
+        }
         
         if($request->course_id != ''){
             return response()->json(['status' => 200, 'message' => "Course Updated Successfully."]);
@@ -1066,9 +1114,23 @@ class AdminController extends Controller
     public function getSpecificCourse(Request $request)
     {
         
-        $data['course_detail'] = Course::where('id', $request->course_id)->first();
+        $data['course_detail'] = Course::where('id', $request->course_id)->with(['videos'])->first();
         
         return response()->json(['status' => 200, 'message' => "", 'data' => $data]);
+    }
+
+    public function deleteCourseVideo(Request $request)
+    {
+        $CourseVideo = CourseVideo::find($request->video_id);
+
+        if ($CourseVideo) {
+
+            $CourseVideo->delete();
+            
+            return response()->json(['status' => 200, 'message' => "Course Video Deleted Successfully."]);
+        } else {
+            return response()->json(['status' => 400, 'message' => "Course Video not found."]);
+        }
     }
 
     public function deleteCourse(Request $request)

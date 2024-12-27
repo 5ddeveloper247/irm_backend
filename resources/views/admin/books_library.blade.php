@@ -215,17 +215,19 @@
                         </div>
                     </div>
 
-                    <!-- <div class="row">
+                    <div class="row">
                         <div class="col-4 my-2">    
-                            <button class="col-6 py-1 px-2 w-100 mt-2 rounded-1" type="button" id="add_row">
-                                Add Task
+                            <button class="col-6 py-1 px-2 w-100 mt-2 rounded-1" type="button" id="addBook_btn">
+                                Add Book
                             </button>
                         </div>
                         
-                        <div class="col-12" id="tasks_container">
+                        <input type="file" id="book_file" name="book" accept=".pdf" style="display:none;">
 
+                        <div class="col-12 my-2">
+                            <a href="javascript:;" class="book_preview_a" download><img class="book_preview" src="{{asset('assets/images/pdf-placeholder.png')}}" style="display:none;width: 70px;height: 70px;object-fit: cover;border-radius: 10px;"></a>
                         </div>
-                    </div> -->
+                    </div>
 
                 </div>
                 <!-- Action Buttons -->

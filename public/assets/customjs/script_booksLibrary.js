@@ -93,6 +93,21 @@ $(document).on('change', '#thumbnail_file', function() {
     }
 });
 
+$(document).on('click', '#addBook_btn', function (e) {
+	$("#book_file").click();
+});
+
+$(document).on('change', '#book_file', function() {
+    var file = this.files[0];
+    var filePreview = $('.book_preview');
+
+    if (file) {
+        filePreview.show(); // Show the image preview
+    } else {
+        filePreview.hide();
+    }
+});
+
 function addNewBook(){
     resetBookForm();
     $('#addBook_canvas').addClass('show');
@@ -103,8 +118,10 @@ function resetBookForm(){
 	form.trigger("reset");
 
     $("#tasks_container").html('');
-    $("#book_id, #thumbnail_file").val('');
+    $("#book_id, #thumbnail_file, #book_file").val('');
     $(".thumbnail_preview").attr('src', '').hide();
+    $(".book_preview").hide();
+    $('.book_preview_a').attr('href', 'javascript:;');
 }
 
 $(document).on('click', '.closeCanvas', function (e) {
@@ -192,6 +209,14 @@ function editBookResponse(response) {
                 $(".thumbnail_preview").attr('src', bookDetail.thumbnail).show();
             }else{
                 $(".thumbnail_preview").attr('src', '').hide();
+            }
+
+            if(bookDetail.book != null){
+                $('.book_preview_a').attr('href', bookDetail.book);
+                $(".book_preview").show();
+            }else{
+                $('.book_preview_a').attr('href', 'javascript:;');
+                $(".book_preview").hide();
             }
 
             $('#addBook_canvas').addClass('show');
