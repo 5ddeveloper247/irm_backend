@@ -155,7 +155,8 @@ function resetCategoryForm(){
 
     let form = $('#category_form');
 	form.trigger("reset");
-
+    
+    $("#category_id").val('');
 }
 
 function saveAudioCategory(){
@@ -358,7 +359,7 @@ function resetLectureForm(){
 	form.trigger("reset");
 
     selectedFiles = [];
-    $("#audio_files, #thumbnail_file").val('');
+    $("#audio_id, #audio_files, #thumbnail_file").val('');
     $("#file-container").html('');
     $(".thumbnail_preview").attr('src', '').hide();
 }
