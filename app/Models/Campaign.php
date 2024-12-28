@@ -13,4 +13,9 @@ class Campaign extends Model
     {
         return $this->hasMany(CampaignTask::class,'campaign_id');
     }
+    // get comapaign total amount in payments table
+    public function totalAmount()
+    {
+        return $this->hasMany('App\Models\Payment','campaign_id')->sum('amount');
+    }
 }

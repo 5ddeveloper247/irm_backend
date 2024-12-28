@@ -117,6 +117,16 @@
                     </div>
                 </a>
             </li>
+            <li class="nav-item">
+                <a href="{{ route('irm_settings') }}" class="nav-link acc-link {{request()->is('settings') ? 'active-nav' : ''}}">
+                    <div class="d-flex align-items-center justify-content-between">
+                        <div class="d-flex align-items-center gap-2">
+                        <i class="fa-solid fa-newspaper"></i>
+                            Settings
+                        </div>
+                    </div>
+                </a>
+            </li>
 
             {{-- ADMIN-SECTION --}}
             <!-- <li class="nav-item">

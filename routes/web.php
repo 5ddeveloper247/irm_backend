@@ -23,7 +23,8 @@ Route::get('/forgetpassword', [AdminController::class, 'forgetpassword'])->name(
 Route::post('/verifyForgetEmail', [AdminController::class, 'verifyForgetEmail'])->name('verifyForgetEmail');
 Route::post('/verifyForgetOtp', [AdminController::class, 'verifyForgetOtp'])->name('verifyForgetOtp');
 Route::post('/verifyForgetPassword', [AdminController::class, 'verifyForgetPassword'])->name('verifyForgetPassword');
-
+//testApi
+Route::get('/test1', [AdminController::class, 'testApi'])->name('testApi');
 
 Route::group(['middleware' => ['AdminAuth']], function () {
 
@@ -36,6 +37,9 @@ Route::group(['middleware' => ['AdminAuth']], function () {
     Route::get('/gallery', [AdminController::class, 'gallery'])->name('gallery');
     Route::get('/courses', [AdminController::class, 'courses'])->name('courses');
     Route::get('/news_events', [AdminController::class, 'news_events'])->name('news_events');
+    Route::get('/settings', [AdminController::class, 'settings'])->name('irm_settings');
+    // admin.settings.update
+    Route::post('/settings/update', [AdminController::class, 'updateSettings'])->name('admin.settings.update');
     
     
     // Route::post('/createStaticUser', [AdminController::class, 'createStaticUser'])->name('createStaticUser');

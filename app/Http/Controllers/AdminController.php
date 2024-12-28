@@ -21,6 +21,7 @@ use App\Models\Gallery;
 use App\Models\GalleryAttachment;
 use App\Models\CourseType;
 use App\Models\Course;
+use App\Models\Setting;
 
 
 
@@ -46,6 +47,105 @@ class AdminController extends Controller
         // $User->save();
         
         // return 'User Created Successfully...';
+    }
+    // for api testing
+    public function get_settings(Request $request){
+        $settings = Setting::first();
+        if($settings == null){
+            $settings = new \stdClass();
+            $settings->company_name = '';
+            $settings->company_logo = '';
+            $settings->company_address = '';
+            $settings->company_phone = '';
+            $settings->company_email = '';
+            $settings->company_website = '';
+            $settings->facebook_link = '';
+            $settings->twitter_link = '';
+            $settings->instagram_link = '';
+            $settings->linkedin_link = '';
+            $settings->youtube_link = '';
+        }
+        if($settings->company_logo != ''){
+            $settings->company_logo = url($settings->company_logo);
+        }
+        return response()->json(['status' => 200, 'message' => 'Settings Fetched Successfully.', 'data' => $settings]);
+    }
+    // settings
+    public function settings(Request $request){
+        // dd('settings');
+        $settings = \DB::table('settings')->first();
+        if($settings == null){
+            $settings = new \stdClass();
+            $settings->company_name = '';
+            $settings->company_logo = '';
+            $settings->company_address = '';
+            $settings->company_phone = '';
+            $settings->company_email = '';
+            $settings->company_website = '';
+            $settings->facebook_link = '';
+            $settings->twitter_link = '';
+            $settings->instagram_link = '';
+            $settings->linkedin_link = '';
+            $settings->youtube_link = '';
+        }
+        // dd($settings);        
+        return view('admin/settings', ['settings' => $settings]);
+    }
+    // updateSettings
+    public function updateSettings(Request $request){
+        $validator = Validator::make($request->all(), [
+            'company_logo' => 'nullable|image|mimes:jpeg,png,jpg|dimensions:width=128,height=128', // Must be an image file
+            'company_name' => 'required|max:50|string',
+            'company_address' => 'required',
+            'company_phone' => 'required',
+            'company_email' => 'required|email',
+
+        ]);
+        
+        if ($validator->fails()) {
+            return response()->json(['status' => 400, 'message' => $validator->errors()->first()]);
+        }
+        // image upload
+        if($request->hasFile('company_logo')){
+            $company_logo = 'uploads/images/' . time() . '_' . $request->file('company_logo')->getClientOriginalName();
+            $request->file('company_logo')->move(public_path('uploads/images'), $company_logo);
+        }
+        // save settings
+        $settings = \DB::table('settings')->first();
+        if($settings == null){
+            \DB::table('settings')->insert([
+                'company_name' => $request->company_name,
+                'company_address' => $request->company_address,
+                'company_phone' => $request->company_phone,
+                'company_email' => $request->company_email,
+                'company_logo' => $company_logo,
+                'company_website' => $request->company_website,
+                'facebook_link' => $request->facebook_link,
+                'twitter_link' => $request->twitter_link,
+                'instagram_link' => $request->instagram_link,
+                'linkedin_link' => $request->linkedin_link,
+                'youtube_link' => $request->youtube_link,
+                'created_at' => Carbon::now(),
+                'updated_at' => Carbon::now(),
+            ]);
+        }else{
+            $company_logo = $settings->company_logo;
+            \DB::table('settings')->where('id', $settings->id)->update([
+                'company_name' => $request->company_name,
+                'company_address' => $request->company_address,
+                'company_phone' => $request->company_phone,
+                'company_email' => $request->company_email,
+                'company_logo' => $company_logo,
+                'company_website' => $request->company_website,
+                'facebook_link' => $request->facebook_link,
+                'twitter_link' => $request->twitter_link,
+                'instagram_link' => $request->instagram_link,
+                'linkedin_link' => $request->linkedin_link,
+                'youtube_link' => $request->youtube_link,
+                'updated_at' => Carbon::now(),
+            ]);
+        }
+        return response()->json(['status' => 200, 'message' => 'Settings Updated Successfully.']);
     }
 
     public function dashboard(Request $request){
