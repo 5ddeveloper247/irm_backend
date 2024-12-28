@@ -97,14 +97,15 @@ Route::group(['middleware' => ['AdminAuth']], function () {
     // Gallery Page Routes
     Route::post('/saveCourse', [AdminController::class, 'saveCourse'])->name('saveCourse');
     Route::post('/getSpecificCourse', [AdminController::class, 'getSpecificCourse'])->name('getSpecificCourse');
-    // Route::post('/deleteGalleryAtt', [AdminController::class, 'deleteGalleryAtt'])->name('deleteGalleryAtt');
+    Route::post('/deleteCourseVideo', [AdminController::class, 'deleteCourseVideo'])->name('deleteCourseVideo');
     Route::post('/deleteCourse', [AdminController::class, 'deleteCourse'])->name('deleteCourse');
 
      // News & Events Page Routes
-    //  Route::post('/getCourseTypesPageData', [AdminController::class, 'getCourseTypesPageData'])->name('getCourseTypesPageData');
-    //  Route::post('/saveCourseType', [AdminController::class, 'saveCourseType'])->name('saveCourseType');
-    //  Route::post('/getSpecificCourseType', [AdminController::class, 'getSpecificCourseType'])->name('getSpecificCourseType');
-    //  Route::post('/deleteCourseType', [AdminController::class, 'deleteCourseType'])->name('deleteCourseType');
+     Route::post('/getNewsEventsPageData', [AdminController::class, 'getNewsEventsPageData'])->name('getNewsEventsPageData');
+     Route::post('/saveEvent', [AdminController::class, 'saveEvent'])->name('saveEvent');
+     Route::post('/getSpecificEvent', [AdminController::class, 'getSpecificEvent'])->name('getSpecificEvent');
+     Route::post('/deleteEventAtt', [AdminController::class, 'deleteEventAtt'])->name('deleteEventAtt');
+     Route::post('/deleteEvent', [AdminController::class, 'deleteEvent'])->name('deleteEvent');
  
 
 

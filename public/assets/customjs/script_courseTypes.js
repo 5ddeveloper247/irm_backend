@@ -316,8 +316,9 @@ function resetCourseForm(){
 	form.trigger("reset");
 
     // selectedFiles = [];
+    $("#fields_container").html('');
     $("#thumbnail_file, #course_id").val('');
-    $("#thumbnail_preview").hide();
+    $(".thumbnail_preview").hide();
 }
 
 $(document).on('click', '.closeCanvas1', function (e) {
@@ -413,8 +414,65 @@ function editCourseResponse(response) {
             }else{
                 $(".thumbnail_preview").attr('src', '').hide();
             }
+
+            var videos = courseDetail.videos;
+            var html = '';
+            $("#fields_container").html('');
+            if (videos.length > 0) {
+                $.each(videos, function (index, video) {
+                    
+                    html += `<div class="d-flex align-items-center justify-content-between field_div" id="field_div_${video.id}">
+                                <div class="form-floating col-11 my-2">
+                                    <input type="hidden" name="videos[${index+1}][id]" value="${video.id}">
+                                    <input class="form-control" type="text" id="course_video_url${index+1}" name="videos[${index+1}][url]" value="${video.video_url}" placeholder="Enter Youtube URL ${index+1}">
+                                    <label class="ms-2" for="course_video_url${index+1}">Youtube URL ${index+1}</label>
+                                </div>
+                                
+                                <svg class="cross-svg" onclick="deleteCourseVideoConfirm(${video.id})" xmlns="http://www.w3.org/2000/svg" width="0.9em" height="0.9em" viewBox="0 0 15 15">
+                                    <path fill="currentColor" d="M3.64 2.27L7.5 6.13l3.84-3.84A.92.92 0 0 1 12 2a1 1 0 0 1 1 1a.9.9 0 0 1-.27.66L8.84 7.5l3.89 3.89A.9.9 0 0 1 13 12a1 1 0 0 1-1 1a.92.92 0 0 1-.69-.27L7.5 8.87l-3.85 3.85A.92.92 0 0 1 3 13a1 1 0 0 1-1-1a.9.9 0 0 1 .27-.66L6.16 7.5L2.27 3.61A.9.9 0 0 1 2 3a1 1 0 0 1 1-1c.24.003.47.1.64.27"></path>
+                                </svg>
+                            </div>`;
+                });
+            }
+            $("#fields_container").html(html);
+
             $('#addCourse_canvas').addClass('show');
         }
+    } 
+}
+
+function deleteCourseVideoConfirm(id){
+    tempId = id;
+    $("#deleteConfirm_btn").attr('onclick', 'deleteCourseVideoConfirmed()');
+    $("#delete_confirm_modal").modal('show');
+}
+
+function deleteCourseVideoConfirmed(){
+
+    let type = 'POST';
+    let url = '/deleteCourseVideo';
+    let message = '';
+    let form = '';
+    let data = new FormData();
+    data.append('video_id', tempId);
+    // PASSING DATA TO FUNCTION
+    SendAjaxRequestToServer(type, url, data, '', deleteCourseVideoConfirmedResponse, '', '');
+}
+
+function deleteCourseVideoConfirmedResponse(response) {
+
+    // SHOWING MESSAGE ACCORDING TO RESPONSE
+    if (response.status == 200  || response.status == '200') {
+
+        $("#field_div_"+tempId).remove();
+        
+        $("#deleteConfirm_btn").attr('onclick', '');
+        $("#delete_confirm_modal").modal('hide');
+        tempId = '';
+
+        toastr.success(response.message, '', {
+            timeOut: 3000
+        });
     } 
 }
 
@@ -451,6 +509,27 @@ function deleteCourseConfirmedResponse(response) {
         });
     } 
 }
+
+$(document).on('click', '.remove_field', function (e) {
+    $(this).closest('.field_div').remove();
+});
+
+$('#add_row').on('click',function(){
+    
+    let count = $('.field_div').length;
+    count++;
+    let html = `<div class="d-flex align-items-center justify-content-between field_div">
+                    <div class="form-floating col-11 my-2">
+                        <input class="form-control course_video_url" type="text" id="course_video_url${count}" name="videos[${count}][url]" placeholder="Enter Youtube URL ${count}">
+                        <label class="ms-2" for="course_video_url${count}">Youtube URL ${count}</label>
+                    </div>
+                    <svg class="cross-svg remove_field" xmlns="http://www.w3.org/2000/svg" width="0.9em" height="0.9em" viewBox="0 0 15 15">
+                        <path fill="currentColor" d="M3.64 2.27L7.5 6.13l3.84-3.84A.92.92 0 0 1 12 2a1 1 0 0 1 1 1a.9.9 0 0 1-.27.66L8.84 7.5l3.89 3.89A.9.9 0 0 1 13 12a1 1 0 0 1-1 1a.92.92 0 0 1-.69-.27L7.5 8.87l-3.85 3.85A.92.92 0 0 1 3 13a1 1 0 0 1-1-1a.9.9 0 0 1 .27-.66L6.16 7.5L2.27 3.61A.9.9 0 0 1 2 3a1 1 0 0 1 1-1c.24.003.47.1.64.27"></path>
+                    </svg>
+                </div>`;
+    
+    $('#fields_container').append(html);
+});
 
 $(document).on('change', 'input, textarea, select', function (e) {
 	$(this).removeClass('is-invalid');

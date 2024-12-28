@@ -13,4 +13,9 @@ class Course extends Model
     {
         return $this->belongsTo(CourseType::class, 'type_id');
     }
+
+    public function videos()
+    {
+        return $this->hasMany(CourseVideo::class,'course_id');
+    }
 }
