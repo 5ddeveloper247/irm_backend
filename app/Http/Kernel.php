@@ -46,6 +46,9 @@ class Kernel extends HttpKernel
         'AdminAuth' => [
     		'AdminAuth'=>\App\Http\Middleware\AdminAuth::class,
     	],
+        'CheckSubAdminAccess' => [
+            'CheckSubAdminAccess'=>\App\Http\Middleware\CheckSubAdminAccess::class,
+        ],
     ];
 
     /**
@@ -66,5 +69,8 @@ class Kernel extends HttpKernel
         'signed' => \App\Http\Middleware\ValidateSignature::class,
         'throttle' => \Illuminate\Routing\Middleware\ThrottleRequests::class,
         'verified' => \Illuminate\Auth\Middleware\EnsureEmailIsVerified::class,
+    ];
+    protected $routeMiddleware = [
+        'jwt.verify' => \Tymon\JWTAuth\Http\Middleware\Authenticate::class, // or \Tymon\JWTAuth\Http\Middleware\Check::class
     ];
 }

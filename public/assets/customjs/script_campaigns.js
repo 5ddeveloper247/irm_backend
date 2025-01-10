@@ -333,3 +333,45 @@ $(document).ready(function () {
 
     getCampaignsPageData();
 });
+
+$(document).ready(function () {
+    $('#search_filter').on('keyup', function () {
+        $(".no_result_row").remove(); // Remove 'No result found' row
+        var value = $(this).val().toLowerCase(); // Get the input value
+    
+        // Iterate through each row
+        $("#campaign_table_body tr").each(function () {
+            var row = $(this);
+            var hasMatch = false;
+    
+            // Iterate through each cell in the row
+            row.find("td").each(function () {
+                var cell = $(this);
+                if (cell.text().toLowerCase().indexOf(value) > -1) {
+                    cell.addClass("table-highlight"); // Highlight matching cell
+                    hasMatch = true; // Mark the row as having a match
+                } else {
+                    cell.removeClass("table-highlight"); // Remove table-highlight from non-matching cells
+                }
+            });
+    
+            // Toggle the visibility of the row based on whether it has a match
+            row.toggle(hasMatch);
+        });
+    
+        // Display 'No result found' if no rows are visible
+        if ($("#campaign_table_body tr:visible").length === 0) {
+            var no_result_row = `
+                <tr class="no_result_row">
+                    <td class="text-start text-danger text-center" colspan="8">No result found</td>
+                </tr>`;
+            $("#campaign_table_body").append(no_result_row);
+        }
+        // remove table-highlight class from all td when input is empty
+        if($(this).val()== ''){
+            $(".no_result_row").remove();
+            // remove table-highlight class from all td
+            $("#campaign_table_body tr td").removeClass("table-highlight");
+        }
+    });
+});

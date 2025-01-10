@@ -76,7 +76,8 @@ class AdminController extends Controller
     // settings
     public function settings(Request $request){
         // dd('settings');
-        $settings = \DB::table('settings')->first();
+        // $settings = \DB::table('settings')->first();
+        $settings = Setting::first();
         if($settings == null){
             $settings = new \stdClass();
             $settings->company_name = '';
@@ -108,13 +109,18 @@ class AdminController extends Controller
         if ($validator->fails()) {
             return response()->json(['status' => 400, 'message' => $validator->errors()->first()]);
         }
-        // image upload
-        if($request->hasFile('company_logo')){
+       
+        // save settings
+        // $settings = \DB::table('settings')->first();
+        $settings = Setting::first();
+         // image upload
+         if($request->hasFile('company_logo')){
             $company_logo = 'uploads/images/' . time() . '_' . $request->file('company_logo')->getClientOriginalName();
             $request->file('company_logo')->move(public_path('uploads/images'), $company_logo);
+            $settings->company_logo = $company_logo;
+        }else{
+            $company_logo = $settings->company_logo;
         }
-        // save settings
-        $settings = \DB::table('settings')->first();
         if($settings == null){
             \DB::table('settings')->insert([
                 'company_name' => $request->company_name,
@@ -132,7 +138,7 @@ class AdminController extends Controller
                 'updated_at' => Carbon::now(),
             ]);
         }else{
-            $company_logo = $settings->company_logo;
+            // $company_logo = $settings->company_logo;
             \DB::table('settings')->where('id', $settings->id)->update([
                 'company_name' => $request->company_name,
                 'company_address' => $request->company_address,
@@ -204,8 +210,7 @@ class AdminController extends Controller
         if (Auth::attempt($credentials)) {
             // Authentication passed
             $user = Auth::user();
-            if($user->role == 1){
-            
+            if($user->role == 1 || $user->role == 3){
                 return redirect()->intended('/dashboard');
 
             }else{
@@ -1266,7 +1271,9 @@ class AdminController extends Controller
             'description' => 'required|string',
             'start_date' => 'required|date',
             'end_date' => 'required|date',
-            'event_time' => 'required|date_format:H:i:s',
+            // add validation on event date between start and end date
+            'event_date' => 'required|date|after_or_equal:start_date|before_or_equal:end_date',
+            'event_time' => 'required',
             'event_type' => 'required',
             'recurring_type' => 'required_if:event_type,Recurring',
             'repeat_on' => 'required_if:recurring_type,Weekly|array',
@@ -1289,6 +1296,7 @@ class AdminController extends Controller
         
         $NewsEvent->title = $request->title;
         $NewsEvent->description = $request->description;
+        $NewsEvent->event_date = $request->event_date;
         $NewsEvent->start_date = $request->start_date;
         $NewsEvent->end_date = $request->end_date;
         $NewsEvent->event_time = $request->event_time;

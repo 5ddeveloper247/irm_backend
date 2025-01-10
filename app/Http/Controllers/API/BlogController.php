@@ -18,7 +18,7 @@ class BlogController extends Controller
         // set base url on image
         foreach($data['blog_list'] as $key => $value){
             // remove description tags and show 30 characters
-            $data['blog_list'][$key]->description = substr(strip_tags($value->description), 0, 30);
+            $data['blog_list'][$key]->description = substr(strip_tags($value->description), 0, 110);
             $data['blog_list'][$key]->image = url('/'.$value->thumbnail);
         }
         return response()->json(['status' => 200, 'message' => "", 'data' => $data]);
@@ -28,6 +28,8 @@ class BlogController extends Controller
         $data['blog_detail'] = Blog::where('id', $id)->first();
         // set base url on image
         $data['blog_detail']->image = url('/'.$data['blog_detail']->thumbnail);
+        // created_at to human readable
+        $data['blog_detail']->created_at2 = $data['blog_detail']->created_at->diffForHumans();
         return response()->json(['status' => 200, 'message' => "", 'data' => $data]);
     }
 }

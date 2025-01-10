@@ -12,7 +12,11 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
+        // CountrySeeder
         $this->call(CountrySeeder::class);
+        // MenuSeeder
+        $this->call(MenuSeeder::class);
+
         // \App\Models\User::factory(10)->create();
 
         // \App\Models\User::factory()->create([

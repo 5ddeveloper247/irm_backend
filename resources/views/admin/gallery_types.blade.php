@@ -82,7 +82,7 @@
                                                     <div class="col-sm-4">
                                                         <div class="icon-form mb-3 mb-sm-0">
                                                             <span class="form-icon"></span>
-                                                            <input type="text" class="form-control" placeholder="Search Here...">
+                                                            <input id="search_filter" type="text" class="form-control" placeholder="Search Here...">
                                                         </div>
                                                     </div>
                         
@@ -139,7 +139,7 @@
                                                     <div class="col-sm-4">
                                                         <div class="icon-form mb-3 mb-sm-0">
                                                             <span class="form-icon"></span>
-                                                            <input type="text" class="form-control" placeholder="Search Here...">
+                                                            <input id="search_filter_02" type="text" class="form-control" placeholder="Search Here...">
                                                         </div>
                                                     </div>
                         

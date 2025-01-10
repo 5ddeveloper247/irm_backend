@@ -23,12 +23,13 @@ class AdminAuth
     		return redirect('login');
     		 
     	}
-    	else if(Auth::user()->role != '1'){
+    	else if(Auth::user()->role != '1' && Auth::user()->role != '3' ){
     		 
             $request->session()->flash('error', 'Access Denied');
     		return redirect('login');
     	
     	}
+        
         return $next($request);
     }
 }

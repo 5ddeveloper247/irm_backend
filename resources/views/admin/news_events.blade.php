@@ -90,7 +90,7 @@
                                                     <div class="col-sm-4">
                                                         <div class="icon-form mb-3 mb-sm-0">
                                                             <span class="form-icon"></span>
-                                                            <input type="text" class="form-control" placeholder="Search Here...">
+                                                            <input id="search_filter" type="text" class="form-control" placeholder="Search Here...">
                                                         </div>
                                                     </div>
                         
@@ -240,9 +240,13 @@
                         <label class="ms-2" for="end_date">End Date*</label>
                     </div>
                     
-                    <div class="form-floating">
+                    <div class="col-6 form-floating">
                         <input type="time" class="form-control" id="event_time" name="event_time" placeholder="Event Time">
                         <label class="ms-2" for="event_time">Event Time*</label>
+                    </div>
+                    <div class="col-6 form-floating">
+                        <input type="date" class="form-control" id="event_date" name="event_date" placeholder="Event Date">
+                        <label class="ms-2" for="event_date">Event Date*</label>
                     </div>
 
                     <div class="form-floating">

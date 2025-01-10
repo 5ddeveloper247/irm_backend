@@ -13,4 +13,5 @@ class Payment extends Model
     {
         return $this->belongsTo('App\Models\Campaign','campaign_id');
     }
+    
 }

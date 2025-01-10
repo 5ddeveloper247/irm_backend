@@ -2,7 +2,17 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AdminController;
-
+use App\Http\Controllers\API\ContactController;
+// Payment
+use App\Http\Controllers\PaymentController;
+use App\Http\Controllers\BookOrderController;
+use App\Http\Controllers\EnrollCourseController;
+use App\Http\Controllers\ContactController as WebContactController;
+use App\Http\Controllers\MembershipController;
+use App\Http\Controllers\WorkLocationController;
+use App\Http\Controllers\YoutubeController;
+use App\Http\Controllers\UserController;
+use App\Http\Controllers\JoinUsController;
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -27,23 +37,108 @@ Route::post('/verifyForgetPassword', [AdminController::class, 'verifyForgetPassw
 Route::get('/test1', [AdminController::class, 'testApi'])->name('testApi');
 
 Route::group(['middleware' => ['AdminAuth']], function () {
+   
+    Route::group(['middleware' => ['CheckSubAdminAccess']], function () {
+        // add third group middleware sections
+        /************** PAGE ROUTES ******************/
+        Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('dashboard');
+        Route::get('/audio_lectures', [AdminController::class, 'audio_lectures'])->name('audio_lectures');
+        Route::get('/campaigns', [AdminController::class, 'campaigns'])->name('campaigns');
+        Route::get('/books_library', [AdminController::class, 'books_library'])->name('books_library');
+        Route::get('/blogs', [AdminController::class, 'blogs'])->name('blogs');
+        Route::get('/gallery', [AdminController::class, 'gallery'])->name('gallery');
+        Route::get('/courses', [AdminController::class, 'courses'])->name('courses');
+        Route::get('/news_events', [AdminController::class, 'news_events'])->name('news_events');
+        Route::get('/irm_settings', [AdminController::class, 'settings'])->name('irm_settings');
+        // payments
+        Route::get('/payments', [PaymentController::class, 'payments'])->name('payments');
+        // bookorders
+        Route::get('/bookorders', [BookOrderController::class, 'bookorders'])->name('bookorders');
+        // enrollCourses
+        Route::get('/enrollCourses', [EnrollCourseController::class, 'enrollCourses'])->name('enrollCourses');
+        // viewContact
+        Route::get('/viewContact', [WebContactController::class, 'viewContact'])->name('viewContact');
+        // memberships
+        Route::get('/memberships', [MembershipController::class, 'memberships'])->name('memberships');
+        // youtube
+        Route::get('/youtube', [YoutubeController::class, 'youtube'])->name('youtube');
+        // worklocations
+        Route::get('/worklocation', [WorkLocationController::class, 'worklocation'])->name('worklocation');
+        // sub-admins
+        Route::get('/sub-admins', [UserController::class, 'subAdmins'])->name('sub-admins');
+        // joinUs
+        Route::get('/joinUs', [JoinUsController::class, 'joinUs'])->name('joinUs');
+    });
 
-    /************** PAGE ROUTES ******************/
-    Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('dashboard');
-    Route::get('/audio_lectures', [AdminController::class, 'audio_lectures'])->name('audio_lectures');
-    Route::get('/campaigns', [AdminController::class, 'campaigns'])->name('campaigns');
-    Route::get('/books_library', [AdminController::class, 'books_library'])->name('books_library');
-    Route::get('/blogs', [AdminController::class, 'blogs'])->name('blogs');
-    Route::get('/gallery', [AdminController::class, 'gallery'])->name('gallery');
-    Route::get('/courses', [AdminController::class, 'courses'])->name('courses');
-    Route::get('/news_events', [AdminController::class, 'news_events'])->name('news_events');
-    Route::get('/settings', [AdminController::class, 'settings'])->name('irm_settings');
+    // saveAdminProfile
+    Route::post('/saveAdminProfile', [UserController::class, 'saveAdminProfile'])->name('saveAdminProfile');
     // admin.settings.update
     Route::post('/settings/update', [AdminController::class, 'updateSettings'])->name('admin.settings.update');
-    
-    
+
+    // getPaymentsPageData
+    Route::post('/getPaymentsPageData', [PaymentController::class, 'getPaymentsPageData'])->name('getPaymentsPageData');
+
+    // getBookOrdersPageData
+    Route::post('/getBookOrdersPageData', [BookOrderController::class, 'getBookOrdersPageData'])->name('getBookOrdersPageData');
+    // getBookOrders
+    Route::post('/getBookOrders', [BookOrderController::class, 'getBookOrders'])->name('getBookOrders');
+    // changeStatus
+    Route::post('/changeStatus', [BookOrderController::class, 'changeStatus'])->name('changeStatus');
+    // viewBookOrder
+    Route::post('/viewBookOrder', [BookOrderController::class, 'viewBookOrder'])->name('viewBookOrder');
+
+    // getAllEnrollCourse
+    Route::post('/getEnrollCoursesPageData', [EnrollCourseController::class, 'getEnrollCoursesPageData'])->name('getEnrollCoursesPageData');
+
+
+    // Contact
+
+    // getContactPageData 
+    Route::post('/getContactPageData', [WebContactController::class, 'getContactPageData'])->name('getContactPageData');
+    // getContactDetail
+    Route::post('/getContactDetail', [WebContactController::class, 'getContactDetail'])->name('getContactDetail');
+    // saveRelyContact
+    Route::post('/saveRelyContact', [WebContactController::class, 'saveRelyContact'])->name('saveRelyContact');
+
+
+    // Memberships
+
+    // getMembershipsPageData
+    Route::post('/getMembershipsPageData', [MembershipController::class, 'getMembershipsPageData'])->name('getMembershipsPageData');
+
+
+    // saveYoutube
+    Route::post('/saveYoutube', [YoutubeController::class, 'saveYoutube'])->name('saveYoutube');
+    // getYoutubePageData
+    Route::post('/getYoutubePageData', [YoutubeController::class, 'getYoutubePageData'])->name('getYoutubePageData');
+    // getSpecificYoutube
+    Route::post('/getSpecificYoutube', [YoutubeController::class, 'getSpecificYoutube'])->name('getSpecificYoutube');
+    // deleteYoutubePlaylist
+    Route::post('/deleteYoutubePlaylist', [YoutubeController::class, 'deleteYoutubePlaylist'])->name('deleteYoutubePlaylist');
+
+
+    // saveWorklocation
+    Route::post('/saveWorklocation', [WorkLocationController::class, 'saveWorklocation'])->name('saveWorklocation');
+    // getWorklocationPageData
+    Route::post('/getWorklocationPageData', [WorkLocationController::class, 'getWorklocationPageData'])->name('getWorklocationPageData');
+    // getSpecificWorklocation
+    Route::post('/getSpecificWorklocation', [WorkLocationController::class, 'getSpecificWorklocation'])->name('getSpecificWorklocation');
+    // deleteWorklocation
+    Route::post('/deleteWorklocation', [WorkLocationController::class, 'deleteWorklocation'])->name('deleteWorklocation');
+
+
+    // getUsersPageData
+    Route::post('/getUsersPageData', [UserController::class, 'getUsersPageData'])->name('getUsersPageData');
+    // getSpecificUser
+    Route::post('/getSpecificUser', [UserController::class, 'getSpecificUser'])->name('getSpecificUser');
+    // saveUser
+    Route::post('/saveUser', [UserController::class, 'saveUser'])->name('saveUser');
+    // deleteUser
+    Route::post('/deleteUser', [UserController::class, 'deleteUser'])->name('deleteUser');
+    // getJoinUsPageData
+    Route::post('/getJoinUsPageData', [JoinUsController::class, 'getJoinUsPageData'])->name('getJoinUsPageData');
     // Route::post('/createStaticUser', [AdminController::class, 'createStaticUser'])->name('createStaticUser');
-    
+
 
     /*************** AJAX ROUTES ****************** */
     Route::post('/getAudioLecturesPageData', [AdminController::class, 'getAudioLecturesPageData'])->name('getAudioLecturesPageData');
@@ -56,26 +151,26 @@ Route::group(['middleware' => ['AdminAuth']], function () {
     Route::post('/getSpecificAudioLecture', [AdminController::class, 'getSpecificAudioLecture'])->name('getSpecificAudioLecture');
     Route::post('/deleteAudioLectureAtt', [AdminController::class, 'deleteAudioLectureAtt'])->name('deleteAudioLectureAtt');
     Route::post('/deleteAudioLecture', [AdminController::class, 'deleteAudioLecture'])->name('deleteAudioLecture');
-    
+
     // Campaigns Page Routes
     Route::post('/getCampaignsPageData', [AdminController::class, 'getCampaignsPageData'])->name('getCampaignsPageData');
     Route::post('/saveCampaign', [AdminController::class, 'saveCampaign'])->name('saveCampaign');
     Route::post('/getSpecificCampaign', [AdminController::class, 'getSpecificCampaign'])->name('getSpecificCampaign');
     Route::post('/deleteCampaign', [AdminController::class, 'deleteCampaign'])->name('deleteCampaign');
     Route::post('/deleteCampaignTask', [AdminController::class, 'deleteCampaignTask'])->name('deleteCampaignTask');
-    
+
     // Books Library Page Routes
     Route::post('/getBooksPageData', [AdminController::class, 'getBooksPageData'])->name('getBooksPageData');
     Route::post('/saveBook', [AdminController::class, 'saveBook'])->name('saveBook');
     Route::post('/getSpecificBook', [AdminController::class, 'getSpecificBook'])->name('getSpecificBook');
     Route::post('/deleteBook', [AdminController::class, 'deleteBook'])->name('deleteBook');
-    
+
     // Blogs Page Routes
     Route::post('/getBlogsPageData', [AdminController::class, 'getBlogsPageData'])->name('getBlogsPageData');
     Route::post('/saveBlog', [AdminController::class, 'saveBlog'])->name('saveBlog');
     Route::post('/getSpecificBlog', [AdminController::class, 'getSpecificBlog'])->name('getSpecificBlog');
     Route::post('/deleteBlog', [AdminController::class, 'deleteBlog'])->name('deleteBlog');
-    
+
     // Gallery Type Page Routes
     Route::post('/getGalleryTypesPageData', [AdminController::class, 'getGalleryTypesPageData'])->name('getGalleryTypesPageData');
     Route::post('/saveGalleryType', [AdminController::class, 'saveGalleryType'])->name('saveGalleryType');
@@ -100,16 +195,12 @@ Route::group(['middleware' => ['AdminAuth']], function () {
     Route::post('/deleteCourseVideo', [AdminController::class, 'deleteCourseVideo'])->name('deleteCourseVideo');
     Route::post('/deleteCourse', [AdminController::class, 'deleteCourse'])->name('deleteCourse');
 
-     // News & Events Page Routes
-     Route::post('/getNewsEventsPageData', [AdminController::class, 'getNewsEventsPageData'])->name('getNewsEventsPageData');
-     Route::post('/saveEvent', [AdminController::class, 'saveEvent'])->name('saveEvent');
-     Route::post('/getSpecificEvent', [AdminController::class, 'getSpecificEvent'])->name('getSpecificEvent');
-     Route::post('/deleteEventAtt', [AdminController::class, 'deleteEventAtt'])->name('deleteEventAtt');
-     Route::post('/deleteEvent', [AdminController::class, 'deleteEvent'])->name('deleteEvent');
- 
-
-
-
+    // News & Events Page Routes
+    Route::post('/getNewsEventsPageData', [AdminController::class, 'getNewsEventsPageData'])->name('getNewsEventsPageData');
+    Route::post('/saveEvent', [AdminController::class, 'saveEvent'])->name('saveEvent');
+    Route::post('/getSpecificEvent', [AdminController::class, 'getSpecificEvent'])->name('getSpecificEvent');
+    Route::post('/deleteEventAtt', [AdminController::class, 'deleteEventAtt'])->name('deleteEventAtt');
+    Route::post('/deleteEvent', [AdminController::class, 'deleteEvent'])->name('deleteEvent');
 });
 
 // Route::get('/', function () {

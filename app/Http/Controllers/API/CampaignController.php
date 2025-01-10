@@ -45,13 +45,17 @@ class CampaignController extends Controller
 
     public function stripePayment(Request $request)
     {
-        
+        // Remove extra ".00" from the amount string
+        $amountString = $request->input('amount');
+        $amountString = preg_replace('/\.00$/', '', $amountString);
+        $amount = floatval($amountString) * 100; // Amount in cents
+        $data['amount'] = $amount;
         // Set your Stripe secret key
         Stripe::setApiKey(env('STRIPE_SECRET'));
 
         // Retrieve the payment method ID from the request
         $paymentMethodId = $request->input('paymentMethodId');
-        $amount = $request->input('amount') * 100; // Amount in cents
+        // $amount = $request->input('amount') * 100; // Amount in cents
         // return response()->json(['status' => 200, 'message' => "", 'data' => $amount,'amount' => $amount,
         //         'currency' => 'pkr',
         //         'payment_method' => $paymentMethodId,
@@ -89,7 +93,7 @@ class CampaignController extends Controller
             $task_id = implode(',', $task_id);
             // convert data to json
             $json = json_encode($data, true);
-            DB::table('payments')->insert([
+            $payment = DB::table('payments')->insertGetId([
                 'client_secret' => $paymentIntent->client_secret,
                 'data' => $json,
                 'task_id' => $task_id,
@@ -101,12 +105,27 @@ class CampaignController extends Controller
                 'created_at' => date('Y-m-d H:i:s'),
                 'updated_at' => date('Y-m-d H:i:s')
             ]);
+            // get payment id
+            $data['shipping'] = $data['donatation_submit'];
+            $json = json_encode($data, true);
+            if($data['donatation_submit']['module_code'] == 'BOOK'){
+                DB::table('book_orders')->insert([
+                    'amount' => $paymentIntent->amount/100,
+                    'payment_id' => $payment,
+                    'book_id' => $compaign_id,
+                    'status' => 1,
+                    'data' => $json,
+                    'created_at' => date('Y-m-d H:i:s'),
+                    'updated_at' => date('Y-m-d H:i:s')
+                ]);
+            }
             return response()->json([
                 'clientSecret' => $paymentIntent->client_secret,
                 'details' => $paymentIntent,
                  'status' => 200, 'message' => "", 
                  'data' => $data, 
-                 'success' => true
+                 'success' => true,
+                 'payment'=> $payment
                 ]);
         } catch (ApiErrorException $e) {
             return response()->json(['error' => $e->getMessage()]);

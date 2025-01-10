@@ -18,4 +18,9 @@ class Course extends Model
     {
         return $this->hasMany(CourseVideo::class,'course_id');
     }
+    // enroll courses
+    public function enrollCourses()
+    {
+        return $this->hasMany(EnrollCourse::class,'course_id');
+    }
 }

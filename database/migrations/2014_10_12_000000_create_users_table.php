@@ -16,7 +16,7 @@ return new class extends Migration
             $table->string('name');
             $table->string('username')->nullable;
             $table->string('email')->unique();
-            $table->tinyInteger('role')->nullable()->comment('1:superadmin');
+            $table->tinyInteger('role')->nullable()->comment('1:superadmin, 2:customer, 3:sub-admin');
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
             $table->string('otp', 10)->nullable();
