@@ -17,6 +17,8 @@ class BlogController extends Controller
         ->get();
         // set base url on image
         foreach($data['blog_list'] as $key => $value){
+            // published_date convert 08 Mar 2025
+            $data['blog_list'][$key]->published_date = \Carbon\Carbon::parse($value->published_date)->format('d M Y');
             // remove description tags and show 30 characters
             $data['blog_list'][$key]->description = substr(strip_tags($value->description), 0, 110);
             $data['blog_list'][$key]->image = url('/'.$value->thumbnail);

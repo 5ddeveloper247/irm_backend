@@ -315,35 +315,47 @@ $(document).on('click', '#addAudio_btn', function (e) {
 
 $('#audio_files').on('change', function (event) {
     const files = event.target.files;
-    var allfileslength = files.length + selectedFiles.length;
+    // get audio duration
+    var audio = document.createElement('audio');
+    var duration;
+    audio.src = URL.createObjectURL(files[0]);
+    audio.addEventListener('loadedmetadata', function() {
+        duration = audio.duration;
+        // convert to int
+        duration = parseInt(duration);
+        // set audio duration on hidden input
+        $('#audio_duration').val(duration);
+        // .audio_duration show
+        $('.audio_duration').show();
+        console.log(duration);
+    });
+    // Check if more than one file is selected
+    if (files.length > 1) {
+        toastr.error('You can upload only one audio file.');
+        // Clear the file input value to allow re-uploading the same file later
+        $('#audio_files').val('');
+        return;
+    }
 
-    // Check if total files exceed the limit
-    if (allfileslength > 7) {
-        toastr.error('You can upload a maximum of 7 audio files.');
+    // Validate and add the selected file to selectedFiles array
+    const file = files[0];
+    const fileType = file.type;
+
+    // Check if the file is an audio of the allowed types
+    if (!fileType.match('audio/mpeg') && !fileType.match('audio/wav') && !fileType.match('audio/ogg')) {
+        toastr.error('Only MP3, WAV, and OGG audio files are allowed.');
         // Clear the file input value to allow re-uploading the same file later
         $('#audio_files').val('');
         return;
     }
 
     // Clear previous items in the container
-    $('#file-container').empty();
+    $('#file-container-uploaded').empty();
 
-    // Validate and add selected files to selectedFiles array
-    for (let i = 0; i < files.length; i++) {
-        const file = files[i];
-        const fileType = file.type;
+    // Add the valid audio file to the selectedFiles array
+    selectedFiles = [file];
 
-        // Check if the file is an audio of the allowed types
-        if (!fileType.match('audio/mpeg') && !fileType.match('audio/wav') && !fileType.match('audio/ogg')) {
-            toastr.error('Only MP3, WAV, and OGG audio files are allowed.');
-            continue;
-        }
-
-        // Add the valid audio file to the selectedFiles array
-        selectedFiles.push(file);
-    }
-
-    // Display selected files
+    // Display selected file
     displaySelectedFiles();
     // Clear the file input value to allow re-uploading the same file later
     $('#audio_files').val('');
@@ -360,8 +372,12 @@ function resetLectureForm(){
 
     selectedFiles = [];
     $("#audio_id, #audio_files, #thumbnail_file").val('');
-    $("#file-container").html('');
+    $("#file-container-uploaded").html('');
     $(".thumbnail_preview").attr('src', '').hide();
+    // duration
+    $("#audio_duration").val('');
+    // show it
+    $('.audio_duration').hide();
 }
 
 $(document).on('click', '.closeCanvas1', function (e) {
@@ -454,6 +470,10 @@ function editAudioLectureResponse(response) {
             $("#audio_title").val(lectureDetail.title);
             $("#audio_description").val(lectureDetail.description);
             $("#audio_status").val(lectureDetail.status);
+            // duration
+            $("#audio_duration").val(lectureDetail.duration);
+            // show it
+            $('.audio_duration').show();
             
             if(lectureDetail.thumbnail != null){
                 $(".thumbnail_preview").attr('src', lectureDetail.thumbnail).show();
@@ -466,7 +486,7 @@ function editAudioLectureResponse(response) {
             if (attachments.length > 0) {
                 $.each(attachments, function (index, attachment) {
                     
-                    html += `<div class="col-3 my-3" id="att_${attachment.id}">
+                    html = `<div class="col-3 my-3" id="att_${attachment.id}">
                                 <img src="/assets/images/audio-placeholder.png" class="img-prev">
                                 <span class="cancel-icon" onclick="deleteAudioLectureAttConfirm(${attachment.id});">×</span>
                             </div>`;
@@ -551,7 +571,7 @@ function deleteAudioLectureConfirmedResponse(response) {
 
 
 function displaySelectedFiles() {
-    const $imageContainer = $('#file-container');
+    const $imageContainer = $('#file-container-uploaded');
     $imageContainer.empty()
     if (selectedFiles.length < 8) {
         $imageContainer.empty() // Clear previous images

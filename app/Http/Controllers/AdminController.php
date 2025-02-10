@@ -25,6 +25,7 @@ use App\Models\Setting;
 use App\Models\CourseVideo;
 use App\Models\NewsEvent;
 use App\Models\NewsEventAttachment;
+use App\Models\Payment;
 
 
 
@@ -168,7 +169,8 @@ class AdminController extends Controller
     }
 
     public function campaigns(Request $request){
-        
+        // get all campaigns
+
         return view('admin/campaigns');
     }
 
@@ -507,6 +509,7 @@ class AdminController extends Controller
             'audio_title' => 'required|max:50',
             'audio_description' => 'required|max:250',
             'audio_status' => 'required',
+            'audio_duration' => 'required',
             
         ]);
         if($request->audio_id == ''){
@@ -530,6 +533,8 @@ class AdminController extends Controller
         $AudioLecture->description = $request->audio_description;
         $AudioLecture->date = Carbon::now()->format('Y-m-d');
         $AudioLecture->status = $request->audio_status;
+        // audio_duration
+        $AudioLecture->duration = $request->audio_duration;
         
         // Save the thumbnail file
         if ($request->hasFile('thumbnail')) {
@@ -544,6 +549,8 @@ class AdminController extends Controller
 
         // Save the audio files
         if ($request->hasFile('audio_files')) {
+            // delete previous attachments
+            $AudioLecture->attachments()->delete();
             foreach ($request->file('audio_files') as $audioFile) {
                 $audioName = 'audio_' . time() . '_' . $audioFile->getClientOriginalName(); 
                 $audioPath = 'uploads/audio'; 
@@ -606,9 +613,37 @@ class AdminController extends Controller
     {
         
         $data['campaign_list'] = Campaign::get();
-        
         return response()->json(['status' => 200, 'message' => "", 'data' => $data]);
         
+    }
+    // getTasks
+    public function getTasks(Request $request)
+    {
+        $tasks = CampaignTask::where('campaign_id', $request->campaign_id)->get();
+        return response()->json(['status' => 200, 'message' => "", 'data' => $tasks]);
+    }
+    // manual_payment_form
+    public function manual_payment_form(Request $request)
+    {
+        $request->validate([
+            'payment_campaign_id' => 'required',
+            // 'payment_task_id' => 'required',
+            'campaign_amount' => 'required',
+
+        ], [
+            'payment_campaign_id.required' => 'Campaign Title is required.',
+            // 'payment_task_id.required' => 'Task ID is required.',
+            // 'campaign_amount.required' => 'Amount is required.',
+        ]);
+        $Payment = new Payment();
+        $Payment->module_code = 'CAMPAIGN';
+        $Payment->compaign_id = $request->payment_campaign_id;
+        $Payment->task_id = $request->payment_task_id;
+        $Payment->amount = $request->campaign_amount;
+        $Payment->status = 'succeeded';
+        $Payment->is_manual_payment = 1;
+        $Payment->save();
+        return response()->json(['status' => 200, 'message' => "Payment Added Successfully."]);
     }
 
     public function saveCampaign(Request $request)
@@ -1121,20 +1156,24 @@ class AdminController extends Controller
 
     public function saveCourse(Request $request)
     {
+        // dd($request->all());
         $validatedData = $request->validate([
             'course_type' => 'required',
             'course_title' => 'required|max:50',
             'course_description' => 'required|string',
-            'course_instructor' => 'required|max:50',
+            'instructor_name' => 'required|max:50',
             'course_duration' => 'required|numeric|max_digits:5',
             'course_total_lectures' => 'required|numeric|max_digits:3',
             'course_level' => 'required',
             'course_language' => 'required',
             'course_certificate' => 'required',
-            'course_status' => 'required',
-            
-            
+            'course_status' => 'required', 
         ]);
+        // $instructorNames = array_column($request->input('instructor_name'), 'name');
+        // $instructorNamesJson = json_encode($instructorNames);
+        // // set to instructor_name
+        // $request->merge(['instructor_name' => $instructorNamesJson]);
+        // dd($request->all());
         if($request->course_id == ''){
             $validatedData = $request->validate([
                 'thumbnail' => 'required|image|mimes:jpeg,png,jpg,gif|max:1024', // Must be an image file
@@ -1174,7 +1213,7 @@ class AdminController extends Controller
         $Course->type_id = $request->course_type;
         $Course->title = $request->course_title;
         $Course->description = $request->course_description;
-        $Course->instructor_name = $request->course_instructor;
+        $Course->instructor_name = $request->instructor_name;
         $Course->duration_minutes = $request->course_duration;
         $Course->total_lectures = $request->course_total_lectures;
         $Course->level = $request->course_level;

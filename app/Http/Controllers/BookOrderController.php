@@ -119,8 +119,10 @@ class BookOrderController extends Controller
                 'action' => $this->_getStatusActions($row->status, $row->id)
             ];
         });
+        // book payments
+        $payments = BookOrder::with('book', 'payment')->latest()->get();
 
-        return response()->json(['status' => 200, 'message' => "", 'data' => $data]);
+        return response()->json(['status' => 200, 'message' => "", 'data' => $data, 'payments'=> $payments]);
     }
     // get book orders page data
     public function getBookOrdersPageData(Request $request)

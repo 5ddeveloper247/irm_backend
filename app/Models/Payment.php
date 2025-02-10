@@ -11,7 +11,8 @@ class Payment extends Model
     // get campaign total amount in payments table
     public function campaign()
     {
-        return $this->belongsTo('App\Models\Campaign','campaign_id');
+        return $this->belongsTo('App\Models\Campaign','compaign_id');
     }
+    
     
 }

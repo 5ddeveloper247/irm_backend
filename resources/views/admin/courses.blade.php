@@ -269,10 +269,10 @@
                         <!-- <label class="ms-2" for="course_description">Course Description</label> -->
                     </div>
                     
-                    <div class="form-floating">
+                    {{-- <div class="form-floating">
                         <input type="text" class="form-control" id="course_instructor" name="course_instructor" placeholder="Course Instructor" maxlength="50">
                         <label class="ms-2" for="course_instructor">Course Instructor</label>
-                    </div>
+                    </div> --}}
 
                     <div class="form-floating">
                         <input type="number" class="form-control" id="course_duration" name="course_duration" placeholder="Course Duration" maxlength="50">
@@ -322,7 +322,28 @@
                         </select>
                         <label class="ms-2" for="course_status">Status</label>
                     </div>
+                    {{-- add instructor --}}
+                    <div class="row">
+                        <div class="col-4 my-2">    
+                            <button class="col-6 py-1 px-2 w-100 mt-2 rounded-1" type="button" id="add_instructor_row">
+                                Add Instructor
+                            </button>
+                        </div>
+                        
+                        <div class="col-12" id="instructor_fields_container">
 
+                            <!-- <div class="d-flex align-items-center justify-content-between field_div">
+                                <div class="form-floating col-11 my-2">
+                                    <input class="form-control" type="text" id="course_video_url1" name="video[1][url]" placeholder="Enter Youtube URL 1">
+                                    <label class="ms-2" for="course_video_url1">Youtube URL</label>
+                                </div>
+                                <svg class="cross-svg remove_task" xmlns="http://www.w3.org/2000/svg" width="0.9em" height="0.9em" viewBox="0 0 15 15">
+                                    <path fill="currentColor" d="M3.64 2.27L7.5 6.13l3.84-3.84A.92.92 0 0 1 12 2a1 1 0 0 1 1 1a.9.9 0 0 1-.27.66L8.84 7.5l3.89 3.89A.9.9 0 0 1 13 12a1 1 0 0 1-1 1a.92.92 0 0 1-.69-.27L7.5 8.87l-3.85 3.85A.92.92 0 0 1 3 13a1 1 0 0 1-1-1a.9.9 0 0 1 .27-.66L6.16 7.5L2.27 3.61A.9.9 0 0 1 2 3a1 1 0 0 1 1-1c.24.003.47.1.64.27"></path>
+                                </svg>
+                            </div> -->
+                        </div>
+                    </div>
+                    {{-- add instructor end --}}
                     <div class="row">
                         <div class="col-4 my-2">    
                             <button class="col-6 py-1 px-2 w-100 mt-2 rounded-1" type="button" id="addthumbnail_btn">
@@ -335,6 +356,7 @@
                             <img class="thumbnail_preview" src="" style="display:none;width: 70px;height: 70px;object-fit: cover;border-radius: 10px;">
                         </div>
                     </div>
+                    
 
                     <div class="row">
                         <div class="col-4 my-2">    

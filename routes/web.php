@@ -81,10 +81,12 @@ Route::group(['middleware' => ['AdminAuth']], function () {
     Route::post('/saveAdminProfile', [UserController::class, 'saveAdminProfile'])->name('saveAdminProfile');
     // admin.settings.update
     Route::post('/settings/update', [AdminController::class, 'updateSettings'])->name('admin.settings.update');
-
+    // getTasks
+    Route::post('/getTasks', [AdminController::class, 'getTasks'])->name('getTasks');
     // getPaymentsPageData
     Route::post('/getPaymentsPageData', [PaymentController::class, 'getPaymentsPageData'])->name('getPaymentsPageData');
-
+    // getCampaignPayments
+    Route::post('/getCampaignPayments', [PaymentController::class, 'getCampaignPayments'])->name('getCampaignPayments');
     // getBookOrdersPageData
     Route::post('/getBookOrdersPageData', [BookOrderController::class, 'getBookOrdersPageData'])->name('getBookOrdersPageData');
     // getBookOrders
@@ -162,6 +164,8 @@ Route::group(['middleware' => ['AdminAuth']], function () {
     // Campaigns Page Routes
     Route::post('/getCampaignsPageData', [AdminController::class, 'getCampaignsPageData'])->name('getCampaignsPageData');
     Route::post('/saveCampaign', [AdminController::class, 'saveCampaign'])->name('saveCampaign');
+    // manual_payment_form
+    Route::post('/manual_payment_form', [AdminController::class, 'manual_payment_form'])->name('manual_payment_form');
     Route::post('/getSpecificCampaign', [AdminController::class, 'getSpecificCampaign'])->name('getSpecificCampaign');
     Route::post('/deleteCampaign', [AdminController::class, 'deleteCampaign'])->name('deleteCampaign');
     Route::post('/deleteCampaignTask', [AdminController::class, 'deleteCampaignTask'])->name('deleteCampaignTask');

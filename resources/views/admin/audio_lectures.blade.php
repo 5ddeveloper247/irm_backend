@@ -389,6 +389,11 @@
                            <!-- Audio Files Container --> 
                         </div>
                     </div>
+                    {{-- audio_duration --}}
+                    <div class="form-floating audio_duration" style="display: none;">
+                        <input type="text" class="form-control" id="audio_duration" readonly name="audio_duration" placeholder="Audio Duration" maxlength="50">
+                        <label class="ms-2" for="audio_duration">Audio Duration Sec</label>
+                    </div>
                 </div>
                 <!-- Action Buttons -->
                 <div class="d-flex justify-content-end mt-3">

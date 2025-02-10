@@ -401,7 +401,27 @@ function editCourseResponse(response) {
             $("#course_title").val(courseDetail.title);
             $("#course_description").val(courseDetail.description);
             editorInstance.course_description.setData(courseDetail.description);
-            $("#course_instructor").val(courseDetail.instructor_name);
+            // $("#instructor_name").val(courseDetail.instructor_name);
+            // add_instructor_row
+            var instructors = courseDetail.instructor_name;
+            console.log(instructors);
+            var html = '';
+            $("#instructor_fields_container").html('');
+            if (instructors.length > 0) {
+                $.each(instructors, function (index, instructor) {
+                    console.log(instructor);
+                    html += `<div class="d-flex align-items-center justify-content-between instructor_field_div">
+                                <div class="form-floating col-11 my-2">
+                                    <input class="form-control" type="text" id="instructor_name${index+1}" name="instructor_name[${index+1}][name]" value="${instructor}" placeholder="Enter Instructor Name ${index+1}">
+                                    <label class="ms-2" for="instructor_name${index+1}">Instructor Name ${index+1}</label>
+                                </div>
+                                <svg class="cross-svg remove_instructor_field" xmlns="http://www.w3.org/2000/svg" width="0.9em" height="0.9em" viewBox="0 0 15 15">
+                                    <path fill="currentColor" d="M3.64 2.27L7.5 6.13l3.84-3.84A.92.92 0 0 1 12 2a1 1 0 0 1 1 1a.9.9 0 0 1-.27.66L8.84 7.5l3.89 3.89A.9.9 0 0 1 13 12a1 1 0 0 1-1 1a.92.92 0 0 1-.69-.27L7.5 8.87l-3.85 3.85A.92.92 0 0 1 3 13a1 1 0 0 1-1-1a.9.9 0 0 1 .27-.66L6.16 7.5L2.27 3.61A.9.9 0 0 1 2 3a1 1 0 0 1 1-1c.24.003.47.1.64.27"></path>
+                                </svg>
+                            </div>`;
+                });
+                $("#instructor_fields_container").html(html);
+            }
             $("#course_duration").val(courseDetail.duration_minutes);
             $("#course_total_lectures").val(courseDetail.total_lectures);
             $("#course_level").val(courseDetail.level);
@@ -512,6 +532,26 @@ function deleteCourseConfirmedResponse(response) {
 
 $(document).on('click', '.remove_field', function (e) {
     $(this).closest('.field_div').remove();
+});
+// add_instructor_row
+$('#add_instructor_row').on('click',function(){
+    // instructor_fields_container on this part
+    let count = $('.instructor_field_div').length;
+    count++;
+    let html = `<div class="d-flex align-items-center justify-content-between instructor_field_div">
+                    <div class="form-floating col-11 my-2">
+                        <input class="form-control" type="text" id="instructor_name${count}" name="instructor_name[${count}][name]" placeholder="Enter Instructor Name ${count}">
+                        <label class="ms-2" for="instructor_name${count}">Instructor Name ${count}</label>
+                    </div>
+                    <svg class="cross-svg remove_instructor_field" xmlns="http://www.w3.org/2000/svg" width="0.9em" height="0.9em" viewBox="0 0 15 15">
+                        <path fill="currentColor" d="M3.64 2.27L7.5 6.13l3.84-3.84A.92.92 0 0 1 12 2a1 1 0 0 1 1 1a.9.9 0 0 1-.27.66L8.84 7.5l3.89 3.89A.9.9 0 0 1 13 12a1 1 0 0 1-1 1a.92.92 0 0 1-.69-.27L7.5 8.87l-3.85 3.85A.92.92 0 0 1 3 13a1 1 0 0 1-1-1a.9.9 0 0 1 .27-.66L6.16 7.5L2.27 3.61A.9.9 0 0 1 2 3a1 1 0 0 1 1-1c.24.003.47.1.64.27"></path>
+                    </svg>
+                </div>`;
+                $('#instructor_fields_container').append(html);
+});
+// remove_instructor_field
+$(document).on('click', '.remove_instructor_field', function (e) {
+    $(this).closest('.instructor_field_div').remove();
 });
 
 $('#add_row').on('click',function(){

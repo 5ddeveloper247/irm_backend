@@ -20,14 +20,66 @@ function getBookOrdersPageDataResponse(response) {
         var bookOrdersList = data.book_orders;
         // console.log(bookOrdersList);
         makeBookOrdersListing(bookOrdersList);
+        BookPaymentsListing(response.payments);
     } 
 }
-
+function BookPaymentsListing(payments) {
+    console.log(payments);  
+    var html = "";
+    if (payments.length > 0) {
+        $.each(payments, function (index, payment) {
+            html += `<tr>
+                        <td class="text-start text-nowrap">${index + 1}</td>
+                        <td class="text-start text-nowrap">${
+                            payment?.book?.title ?? ""
+                        }</td>
+                        <td class="text-start text-nowrap">${
+                            payment?.amount ?? ""
+                        }</td>
+                        <td class="text-start text-nowrap">${
+                            payment?.payment?.payment_intent ?? "MANUAL PAYMENT"
+                        }</td>
+                        <td class="text-start text-nowrap">${formatDate(
+                            payment?.created_at ?? ""
+                        )}</td>
+                        <td class="text-start text-nowrap">
+                            ${
+                                payment?.payment?.status == "succeeded"
+                                    ? '<span class="badge bg-success">Success</span>'
+                                    : '<span class="badge bg-danger">Failed</span>'
+                            }
+                            
+                        </td>
+                    </tr>`;
+        });
+    }
+    $("#payment_table_body").html(html);
+    // destroy datatable if already created
+    // if ($.fn.DataTable.isDataTable("#payment_table")) {
+    //     $("#payment_table").DataTable().destroy();
+    // }
+    // if (campaignPayments.length > 0) {
+    //     // payment_table datatable
+    //     $("#payment_table").DataTable({
+    //         paging: false,
+    //         lengthChange: false,
+    //         searching: true,
+    //         info: true,
+    //         scrollY: "400px",
+    //         scrollCollapse: true,
+    //         responsive: true,
+    //     });
+    // }
+}
 function makeBookOrdersListing(bookOrdersList){
     console.log(bookOrdersList);
    
     var html = '';
-   
+    var htmlPending = '';
+    var htmlDelivered = '';
+    var htmlShipped = '';
+    var htmlCompleted = '';
+    // 	status => 1:pendding, 2:shipped, 3:delivered, 4:completed	
     if (bookOrdersList.length > 0) {
         $.each(bookOrdersList, function (index, bookOrder) {
             
@@ -42,9 +94,78 @@ function makeBookOrdersListing(bookOrdersList){
                         <td class="text-start text-nowrap">${bookOrder.action}</td>
                         
                     </tr>`;
+                    // pending
+                    if(bookOrder.status == 1){
+                        htmlPending += `<tr>
+                            <td class="text-start text-nowrap">${index+1}</td>
+                            <td class="text-start text-nowrap">${bookOrder.book.title}</td>
+                            <td class="text-start text-nowrap">${bookOrder.amount}</td>
+                            <td class="text-start text-nowrap">${bookOrder.json_data.shipping.firstName + bookOrder.json_data.shipping.lastName}</td>
+                            <td class="text-start text-nowrap">${bookOrder.json_data.shipping.email}</td>
+                            <td class="text-start text-nowrap">${bookOrder.statusName}</td>
+                            <td class="text-start text-nowrap">${formatDate(bookOrder.created_at)}</td>
+                            <td class="text-start text-nowrap">${bookOrder.action}</td>
+                        </tr>`;
+                    }
+                    // pending end
+                    // delivered
+                    if(bookOrder.status == 3){
+                        htmlDelivered += `<tr>
+                            <td class="text-start text-nowrap">${index+1}</td>
+                            <td class="text-start text-nowrap">${bookOrder.book.title}</td>
+                            <td class="text-start text-nowrap">${bookOrder.amount}</td>
+                            <td class="text-start text-nowrap">${bookOrder.json_data.shipping.firstName + bookOrder.json_data.shipping.lastName}</td>
+                            <td class="text-start text-nowrap">${bookOrder.json_data.shipping.email}</td>
+                            <td class="text-start text-nowrap">${bookOrder.statusName}</td>
+                            <td class="text-start text-nowrap">${formatDate(bookOrder.created_at)}</td>
+                            <td class="text-start text-nowrap">${bookOrder.action}</td>
+                        </tr>`;
+                    }
+                    // delivered end
+                    // shipped
+                    if(bookOrder.status == 2){
+                        htmlShipped += `<tr>
+                            <td class="text-start text-nowrap">${index+1}</td>
+                            <td class="text-start text-nowrap">${bookOrder.book.title}</td>
+                            <td class="text-start text-nowrap">${bookOrder.amount}</td>
+                            <td class="text-start text-nowrap">${bookOrder.json_data.shipping.firstName + bookOrder.json_data.shipping.lastName}</td>
+                            <td class="text-start text-nowrap">${bookOrder.json_data.shipping.email}</td>
+                            <td class="text-start text-nowrap">${bookOrder.statusName}</td>
+                            <td class="text-start text-nowrap">${formatDate(bookOrder.created_at)}</td>
+                            <td class="text-start text-nowrap">${bookOrder.action}</td>
+                        </tr>`;
+                    }
+                    // shipped end
+                    // completed
+                    if(bookOrder.status == 4){
+                        htmlCompleted += `<tr>
+                            <td class="text-start text-nowrap">${index+1}</td>
+                            <td class="text-start text-nowrap">${bookOrder.book.title}</td>
+                            <td class="text-start text-nowrap">${bookOrder.amount}</td>
+                            <td class="text-start text-nowrap">${bookOrder.json_data.shipping.firstName + bookOrder.json_data.shipping.lastName}</td>
+                            <td class="text-start text-nowrap">${bookOrder.json_data.shipping.email}</td>
+                            <td class="text-start text-nowrap">${bookOrder.statusName}</td>
+                            <td class="text-start text-nowrap">${formatDate(bookOrder.created_at)}</td>
+                            <td class="text-start text-nowrap">${bookOrder.action}</td>
+                        </tr>`;
+                    }
+                    // completed end
+
         });
     }
     $("#bookOrders_table_body").html(html);
+    // pending
+    $("#pending_table_body").html(htmlPending);
+    // pending end
+    // delivered 
+    $("#delivered_table_body").html(htmlDelivered);
+    // delivered end
+    // shipped
+    $("#shipped_table_body").html(htmlShipped);
+    // shipped end
+    // completed
+    $("#completed_table_body").html(htmlCompleted);
+    // completed end
 }
 var bookOrderTempId = '';
 var bookOrderOpenDetailsPage = false;
@@ -199,6 +320,162 @@ $(document).ready(function () {
             $(".no_result_row").remove();
             // remove table-highlight class from all td
             $("#bookOrders_table_body tr td").removeClass("table-highlight");
+        }
+    });
+    $('#search_filter_2').on('keyup', function () {
+        $(".no_result_row").remove(); // Remove 'No result found' row
+        var value = $(this).val().toLowerCase(); // Get the input value
+    
+        // Iterate through each row
+        $("#pending_table_body tr").each(function () {
+            var row = $(this);
+            var hasMatch = false;
+    
+            // Iterate through each cell in the row
+            row.find("td").each(function () {
+                var cell = $(this);
+                if (cell.text().toLowerCase().indexOf(value) > -1) {
+                    cell.addClass("table-highlight"); // Highlight matching cell
+                    hasMatch = true; // Mark the row as having a match
+                } else {
+                    cell.removeClass("table-highlight"); // Remove table-highlight from non-matching cells
+                }
+            });
+    
+            // Toggle the visibility of the row based on whether it has a match
+            row.toggle(hasMatch);
+        });
+    
+        // Display 'No result found' if no rows are visible
+        if ($("#pending_table_body tr:visible").length === 0) {
+            var no_result_row = `
+                <tr class="no_result_row">
+                    <td class="text-start text-danger text-center" colspan="8">No result found</td>
+                </tr>`;
+            $("#pending_table_body").append(no_result_row);
+        }
+        // remove table-highlight class from all td when input is empty
+        if($(this).val()== ''){
+            $(".no_result_row").remove();
+            // remove table-highlight class from all td
+            $("#pending_table_body tr td").removeClass("table-highlight");
+        }
+    });
+    $('#search_filter_3').on('keyup', function () {
+        $(".no_result_row").remove(); // Remove 'No result found' row
+        var value = $(this).val().toLowerCase(); // Get the input value
+    
+        // Iterate through each row
+        $("#delivered_table_body tr").each(function () {
+            var row = $(this);
+            var hasMatch = false;
+    
+            // Iterate through each cell in the row
+            row.find("td").each(function () {
+                var cell = $(this);
+                if (cell.text().toLowerCase().indexOf(value) > -1) {
+                    cell.addClass("table-highlight"); // Highlight matching cell
+                    hasMatch = true; // Mark the row as having a match
+                } else {
+                    cell.removeClass("table-highlight"); // Remove table-highlight from non-matching cells
+                }
+            });
+    
+            // Toggle the visibility of the row based on whether it has a match
+            row.toggle(hasMatch);
+        });
+    
+        // Display 'No result found' if no rows are visible
+        if ($("#delivered_table_body tr:visible").length === 0) {
+            var no_result_row = `
+                <tr class="no_result_row">
+                    <td class="text-start text-danger text-center" colspan="8">No result found</td>
+                </tr>`;
+            $("#delivered_table_body").append(no_result_row);
+        }
+        // remove table-highlight class from all td when input is empty
+        if($(this).val()== ''){
+            $(".no_result_row").remove();
+            // remove table-highlight class from all td
+            $("#delivered_table_body tr td").removeClass("table-highlight");
+        }
+    });
+    $('#search_filter_4').on('keyup', function () {
+        $(".no_result_row").remove(); // Remove 'No result found' row
+        var value = $(this).val().toLowerCase(); // Get the input value
+    
+        // Iterate through each row
+        $("#shipped_table_body tr").each(function () {
+            var row = $(this);
+            var hasMatch = false;
+    
+            // Iterate through each cell in the row
+            row.find("td").each(function () {
+                var cell = $(this);
+                if (cell.text().toLowerCase().indexOf(value) > -1) {
+                    cell.addClass("table-highlight"); // Highlight matching cell
+                    hasMatch = true; // Mark the row as having a match
+                } else {
+                    cell.removeClass("table-highlight"); // Remove table-highlight from non-matching cells
+                }
+            });
+    
+            // Toggle the visibility of the row based on whether it has a match
+            row.toggle(hasMatch);
+        });
+    
+        // Display 'No result found' if no rows are visible
+        if ($("#shipped_table_body tr:visible").length === 0) {
+            var no_result_row = `
+                <tr class="no_result_row">
+                    <td class="text-start text-danger text-center" colspan="8">No result found</td>
+                </tr>`;
+            $("#shipped_table_body").append(no_result_row);
+        }
+        // remove table-highlight class from all td when input is empty
+        if($(this).val()== ''){
+            $(".no_result_row").remove();
+            // remove table-highlight class from all td
+            $("#shipped_table_body tr td").removeClass("table-highlight");
+        }
+    });
+    $('#search_filter_5').on('keyup', function () {
+        $(".no_result_row").remove(); // Remove 'No result found' row
+        var value = $(this).val().toLowerCase(); // Get the input value
+    
+        // Iterate through each row
+        $("#completed_table_body tr").each(function () {
+            var row = $(this);
+            var hasMatch = false;
+    
+            // Iterate through each cell in the row
+            row.find("td").each(function () {
+                var cell = $(this);
+                if (cell.text().toLowerCase().indexOf(value) > -1) {
+                    cell.addClass("table-highlight"); // Highlight matching cell
+                    hasMatch = true; // Mark the row as having a match
+                } else {
+                    cell.removeClass("table-highlight"); // Remove table-highlight from non-matching cells
+                }
+            });
+    
+            // Toggle the visibility of the row based on whether it has a match
+            row.toggle(hasMatch);
+        });
+    
+        // Display 'No result found' if no rows are visible
+        if ($("#completed_table_body tr:visible").length === 0) {
+            var no_result_row = `
+                <tr class="no_result_row">
+                    <td class="text-start text-danger text-center" colspan="8">No result found</td>
+                </tr>`;
+            $("#completed_table_body").append(no_result_row);
+        }
+        // remove table-highlight class from all td when input is empty
+        if($(this).val()== ''){
+            $(".no_result_row").remove();
+            // remove table-highlight class from all td
+            $("#completed_table_body tr td").removeClass("table-highlight");
         }
     });
 });

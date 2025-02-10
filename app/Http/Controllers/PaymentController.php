@@ -19,4 +19,11 @@ class PaymentController extends Controller
         // $data['payment_list'] = Payment::all();
         return response()->json(['status' => 200, 'message' => "", 'data' => $data]);
     }
+    // get only book payments
+    public function getCampaignPayments(Request $request)
+    {
+        // get all payments with order by id desc
+        $data['payment_list'] = Payment::with('campaign')->where('module_code', 'CAMPAIGN')->orderBy('id', 'desc')->get();
+        return response()->json(['status' => 200, 'message' => "", 'data' => $data]);
+    }
 }
