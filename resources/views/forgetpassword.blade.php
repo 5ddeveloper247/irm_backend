@@ -15,17 +15,17 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@200..800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.1/css/all.min.css" />
-    <link rel="stylesheet" href="{{asset('assets/css/style.css')}}">
-    <link rel="stylesheet" href="{{asset('assets/css/select2.css')}}">
-    <link rel="stylesheet" href="{{ asset('assets/plugins/datatables/css/dataTables.dataTables.min.css') }}" />
-    <link rel="stylesheet" href="{{ asset('assets/plugins/datatables/css/buttons.dataTables.min.css') }}" />
+    <link rel="stylesheet" href="{{url('assets/css/style.css')}}">
+    <link rel="stylesheet" href="{{url('assets/css/select2.css')}}">
+    <link rel="stylesheet" href="{{ url('assets/plugins/datatables/css/dataTables.dataTables.min.css') }}" />
+    <link rel="stylesheet" href="{{ url('assets/plugins/datatables/css/buttons.dataTables.min.css') }}" />
     <link href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" rel="stylesheet">
-    <link rel="stylesheet" href="{{ asset('assets/plugins/toastr/toastr.min.css') }}" />
-    <link rel="stylesheet" href="{{ asset('assets/plugins/niceselect/nice-select.css') }}" />
-    <link rel="stylesheet" href="{{ asset('assets/plugins/select2/css/select2.min.css') }}" />
-    <link rel="stylesheet" href="{{ asset('assets/plugins/niceselect/custom-styles.css') }}" />
-    <link rel="stylesheet" href="{{ asset('assets/plugins/preloader/preloader.css') }}" />
-    <link rel="stylesheet" href="{{ asset('assets/plugins/tagsinput/bootstrap-tagsinput.css') }}" />
+    <link rel="stylesheet" href="{{ url('assets/plugins/toastr/toastr.min.css') }}" />
+    <link rel="stylesheet" href="{{ url('assets/plugins/niceselect/nice-select.css') }}" />
+    <link rel="stylesheet" href="{{ url('assets/plugins/select2/css/select2.min.css') }}" />
+    <link rel="stylesheet" href="{{ url('assets/plugins/niceselect/custom-styles.css') }}" />
+    <link rel="stylesheet" href="{{ url('assets/plugins/preloader/preloader.css') }}" />
+    <link rel="stylesheet" href="{{ url('assets/plugins/tagsinput/bootstrap-tagsinput.css') }}" />
     
     @push('css')
     <style>
@@ -130,7 +130,7 @@
                         <div class="col-md-6 col-12">
                             <div class="d-flex justify-content-center align-items-center h-100">
                                 
-                                <img class="" src="{{asset('assets/images/logo-new.png')}}" 
+                                <img class="" src="{{url('assets/images/logo-new.png')}}" 
                                     alt="phoenix" width="200">
                             </div>
                         </div>
@@ -194,14 +194,14 @@
     
     <!-- Footer code here -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="{{asset('assets/plugins/datatables/js/dataTables.min.js')}}"></script>
-    <script src="{{asset('assets/plugins/datatables/js/dataTables.buttons.min.js')}}"></script>
-    <script src="{{asset('assets/plugins/datatables/js/buttons.html5.min.js')}}"></script>
-    <script src="{{ asset('assets/plugins/toastr/toastr.min.js') }}"></script>
-    <script src="{{asset('assets/plugins/niceselect/nice-select.min.js')}}"></script>
-    <script src="{{asset('assets/plugins/niceselect/custom-select.js')}}"></script>
-    <script src="{{asset('assets/plugins/select2/js/select2.full.min.js')}}"></script>
-    <script src="{{asset('assets/plugins/tagsinput/bootstrap-tagsinput.min.js')}}"></script>
+    <script src="{{url('assets/plugins/datatables/js/dataTables.min.js')}}"></script>
+    <script src="{{url('assets/plugins/datatables/js/dataTables.buttons.min.js')}}"></script>
+    <script src="{{url('assets/plugins/datatables/js/buttons.html5.min.js')}}"></script>
+    <script src="{{ url('assets/plugins/toastr/toastr.min.js') }}"></script>
+    <script src="{{url('assets/plugins/niceselect/nice-select.min.js')}}"></script>
+    <script src="{{url('assets/plugins/niceselect/custom-select.js')}}"></script>
+    <script src="{{url('assets/plugins/select2/js/select2.full.min.js')}}"></script>
+    <script src="{{url('assets/plugins/tagsinput/bootstrap-tagsinput.min.js')}}"></script>
     <!-- Moment.js -->
     <script src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
 
@@ -212,10 +212,10 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.min.js" integrity="sha384-0pUGZvbkm6XF6gxjEnlmuGrJXVbNuzT9qBBavbLwCsOGabYfZo0T0to5eqruptLy" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="{{asset('assets/customjs/select2.js')}}"></script>
-    <!-- <script src="{{asset('assets/customjs/common.js')}}"></script> -->
-    <script src="{{asset('assets/js/main.js')}}"></script>
-    <script src="{{asset('assets/customjs/script_forgetpassword.js')}}"></script>
+    <script src="{{url('assets/customjs/select2.js')}}"></script>
+    <!-- <script src="{{url('assets/customjs/common.js')}}"></script> -->
+    <script src="{{url('assets/js/main.js')}}"></script>
+    <script src="{{url('assets/customjs/script_forgetpassword.js')}}"></script>
 
 </body>
 

@@ -24,6 +24,13 @@ use App\Http\Controllers\JoinUsController;
 |
 */
 
+// try {
+//     DB::connection()->getPdo();
+//     echo 'Database connection is established!';
+// } catch (\Exception $e) {
+//     echo 'Could not connect to the database. Please check your configuration.<br>' . $e->getMessage();
+// }
+
 Route::get('/', [AdminController::class, 'index']);
 Route::get('/login', [AdminController::class, 'index'])->name('login');
 Route::post('/loginSubmit', [AdminController::class, 'loginSubmit'])->name('loginSubmit');

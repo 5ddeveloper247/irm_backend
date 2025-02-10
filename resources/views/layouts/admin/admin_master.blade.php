@@ -15,10 +15,10 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@200..800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.1/css/all.min.css" />
-    <link rel="stylesheet" href="{{ asset('assets/css/style.css') }}">
-    <link rel="stylesheet" href="{{ asset('assets/css/select2.css') }}">
-    <link rel="stylesheet" href="{{ asset('assets/plugins/datatables/css/dataTables.dataTables.min.css') }}" />
-    <link rel="stylesheet" href="{{ asset('assets/plugins/datatables/css/buttons.dataTables.min.css') }}" />
+    <link rel="stylesheet" href="{{ url('assets/css/style.css') }}">
+    <link rel="stylesheet" href="{{ url('assets/css/select2.css') }}">
+    <link rel="stylesheet" href="{{ url('assets/plugins/datatables/css/dataTables.dataTables.min.css') }}" />
+    <link rel="stylesheet" href="{{ url('assets/plugins/datatables/css/buttons.dataTables.min.css') }}" />
     <link href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" rel="stylesheet">
     <link rel="stylesheet" href="{{ asset('assets/plugins/toastr/toastr.min.css') }}" />
     <link rel="stylesheet" href="{{ asset('assets/plugins/niceselect/nice-select.css') }}" />
