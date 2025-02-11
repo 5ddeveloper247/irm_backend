@@ -96,6 +96,8 @@ class EnrollCourseController extends Controller
             $enrollCourse->course->image = url('/' . $enrollCourse->course->thumbnail);
             // cut the description
             $enrollCourse->course->description = substr($enrollCourse->course->description, 0, 100);
+            // course map and set instructor_name_list with comma separated
+            $enrollCourse->course->instructor_name_list  =  implode(', ', $enrollCourse->course->instructor_name);
             return $enrollCourse;
         });
         return response()->json([
@@ -107,6 +109,8 @@ class EnrollCourseController extends Controller
     {
         $course = Course::with('type','videos','enrollCourses')->where('id',$id)->first();
         if($course){
+            // instructor_name
+            $course->instructor_name_list  =  implode(', ', $course->instructor_name);
             // count enrolled courses
             $course->enrolled = count($course->enrollCourses);
             // add base url to thumbnail

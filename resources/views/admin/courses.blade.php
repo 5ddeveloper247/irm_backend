@@ -160,7 +160,7 @@
                                                     <!-- ____________________________________ List View _______________________________________ -->
 
 
-                                                    <div class="table-responsive list-view-div w-100 mt-3"><!-- overflow-x:clip; -->
+                                                    <div class="table-responsive list-view-div w-100" style="overflow: auto;"><!-- overflow-x:clip; -->
                                                         <table id="course_table" class="table visitor-book-table">
 
                                                             <thead style="background-color: #3259901c !important;">
@@ -268,7 +268,10 @@
                         <textarea class="form-control custom-ckeditor" id="course_description" name="course_description" placeholder="Course Description" maxlength="250" style="height:150px;"></textarea>
                         <!-- <label class="ms-2" for="course_description">Course Description</label> -->
                     </div>
-                    
+                    {{-- eligibility textarea --}}
+                    <div class="form-floating">
+                        <textarea class="form-control custom-ckeditor" id="course_eligibility" name="course_eligibility" placeholder="Course Eligibility" maxlength="250" style="height:150px;"></textarea>
+                    </div>
                     {{-- <div class="form-floating">
                         <input type="text" class="form-control" id="course_instructor" name="course_instructor" placeholder="Course Instructor" maxlength="50">
                         <label class="ms-2" for="course_instructor">Course Instructor</label>

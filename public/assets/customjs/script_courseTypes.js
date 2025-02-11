@@ -1,3 +1,4 @@
+var course_eligibility = document.getElementById('course_eligibility');
 function getCourseTypesPageData(){
 
     let type = 'POST';
@@ -428,6 +429,10 @@ function editCourseResponse(response) {
             $("#course_language").val(courseDetail.language);
             $("#course_certificate").val(courseDetail.certificate);
             $("#course_status").val(courseDetail.status);
+            // course_eligibility
+            $("#course_eligibility").val(courseDetail.eligibility);
+            // ckeditor
+            editorInstance.course_eligibility.setData(courseDetail.eligibility??'');
             
             if(courseDetail.thumbnail != null){
                 $(".thumbnail_preview").attr('src', courseDetail.thumbnail).show();

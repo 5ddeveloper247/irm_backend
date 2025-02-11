@@ -1156,12 +1156,11 @@ class AdminController extends Controller
 
     public function saveCourse(Request $request)
     {
-        // dd($request->all());
         $validatedData = $request->validate([
             'course_type' => 'required',
             'course_title' => 'required|max:50',
             'course_description' => 'required|string',
-            'instructor_name' => 'required|max:50',
+            'instructor_name' => 'required|max:255',
             'course_duration' => 'required|numeric|max_digits:5',
             'course_total_lectures' => 'required|numeric|max_digits:3',
             'course_level' => 'required',
@@ -1169,11 +1168,6 @@ class AdminController extends Controller
             'course_certificate' => 'required',
             'course_status' => 'required', 
         ]);
-        // $instructorNames = array_column($request->input('instructor_name'), 'name');
-        // $instructorNamesJson = json_encode($instructorNames);
-        // // set to instructor_name
-        // $request->merge(['instructor_name' => $instructorNamesJson]);
-        // dd($request->all());
         if($request->course_id == ''){
             $validatedData = $request->validate([
                 'thumbnail' => 'required|image|mimes:jpeg,png,jpg,gif|max:1024', // Must be an image file
@@ -1215,6 +1209,8 @@ class AdminController extends Controller
         $Course->description = $request->course_description;
         $Course->instructor_name = $request->instructor_name;
         $Course->duration_minutes = $request->course_duration;
+        // course_eligibility
+        $Course->eligibility = $request->course_eligibility;
         $Course->total_lectures = $request->course_total_lectures;
         $Course->level = $request->course_level;
         $Course->language = $request->course_language;

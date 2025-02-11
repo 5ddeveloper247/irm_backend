@@ -22,6 +22,7 @@ class Course extends Model
         'date',
         'thumbnail',
         'status',
+        'course_eligibility',
     ];
      /**
      * Mutator & Accessor for `instructor_name`
