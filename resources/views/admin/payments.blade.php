@@ -18,6 +18,12 @@
             /* position: absolute;
             top: 265px; */
         }
+       
+        .dt-buttons{
+            margin-top: 0px !important;
+            margin-left: 10px !important;
+        }
+        
     </style>
 @endpush
 
@@ -71,7 +77,7 @@
 
                                             <div class="card-body">
                                                 <div class="row align-items-center">
-                                                    <div class="col-sm-4">
+                                                    <div class="col-sm-4" style="display: none;">
                                                         <div class="icon-form mb-3 mb-sm-0">
                                                             <span class="form-icon"></span>
                                                             <input id="search_filter" type="text" class="form-control" placeholder="Search Here...">
@@ -130,25 +136,58 @@
                                                     <!-- ____________________________________ List View _______________________________________ -->
 
 
-                                                    <div class="table-responsive list-view-div w-100 mt-3"><!-- overflow-x:clip; -->
-                                                        <table id="payments_table" class="table">
-
+                                                    <div class="table-responsive w-100 mt-3">
+                                                        <table id="payments_table" class="table display nowrap" style="width:100%">
                                                             <thead style="background-color: #3259901c !important;">
                                                                 <tr>
-                                                                    <th class="text-start text-nowrap" scope="col">Seq No.</th>
-                                                                    <th class="text-start text-nowrap" scope="col">Module Code</th>
-                                                                    <th class="text-start text-nowrap" scope="col">Price (PKR)</th>
-                                                                    <th class="text-start text-nowrap" scope="col">Payment Indent</th>
-                                                                    <th class="text-start text-nowrap" scope="col">Date</th>
-                                                                    <th class="text-start text-nowrap" scope="col">Status</th>
+                                                                    <th class="text-start text-nowrap">Seq No.</th>
+                                                                    <th class="text-start text-nowrap">Module Code</th>
+                                                                    <th class="text-start text-nowrap">Price (PKR)</th>
+                                                                    <th class="text-start text-nowrap">Payment Indent</th>
+                                                                    <th class="text-start text-nowrap">Date</th>
+                                                                    <th class="text-start text-nowrap">Status</th>
+                                                                </tr>
+                                                                <tr class="filter-row" id="filters-header" style="display: none">
+                                                                    <th><input type="text" class="column-filter form-control" placeholder="Filter Seq No."></th>
+                                                                    <th><input type="text" class="column-filter form-control" placeholder="Filter Module Code"></th>
+                                                                    <th><input type="text" class="column-filter form-control" placeholder="Filter Price"></th>
+                                                                    <th><input type="text" class="column-filter form-control" placeholder="Filter Payment Indent"></th>
+                                                                    <th><input type="text" class="column-filter form-control"></th>
+                                                                    <th>
+                                                                        <select class="column-filter form-control">
+                                                                            <option value="">All</option>
+                                                                            <option value="Paid">Paid</option>
+                                                                            <option value="Pending">Pending</option>
+                                                                            <option value="Failed">Failed</option>
+                                                                        </select>
+                                                                    </th>
                                                                 </tr>
                                                             </thead>
-
+                                                            {{-- <tfoot>
+                                                                <tr>
+                                                                    <th><input type="text" class="column-filter form-control" placeholder="Filter Seq No."></th>
+                                                                    <th><input type="text" class="column-filter form-control" placeholder="Filter Module Code"></th>
+                                                                    <th><input type="text" class="column-filter form-control" placeholder="Filter Price"></th>
+                                                                    <th><input type="text" class="column-filter form-control" placeholder="Filter Payment Indent"></th>
+                                                                    <th><input type="date" class="column-filter form-control"></th>
+                                                                    <th>
+                                                                        <select class="column-filter form-control">
+                                                                            <option value="">All</option>
+                                                                            <option value="Paid">Paid</option>
+                                                                            <option value="Pending">Pending</option>
+                                                                            <option value="Failed">Failed</option>
+                                                                        </select>
+                                                                    </th>
+                                                                </tr>
+                                                            </tfoot> --}}
                                                             <tbody id="payments_table_body">
-                                                                
+                                                                <!-- Dynamic Data -->
                                                             </tbody>
                                                         </table>
                                                     </div>
+                                                    
+                                                    
+                                                    
                                                 </div>
                                             </div>
                                         </div>
@@ -165,9 +204,7 @@
 @endsection
 @push('js')
     <script src="{{asset('assets/customjs/script_payments.js')}}"></script>
-    <!-- <script>
-        $('#admin-query').DataTable({
-            responsive: true,
-        });
-    </script> -->
+    <script>
+        
+    </script>
 @endpush

@@ -48,6 +48,79 @@ function makePaymentsListing(paymentsList){
         });
     }
     $("#payments_table_body").html(html);
+    // datatables
+    if ($.fn.DataTable.isDataTable('#payments_table')) {
+        $('#payments_table').DataTable().destroy();
+    }
+    $('#payments_table').DataTable({
+        dom: 'Bfrtip',
+        buttons: [
+            {
+                extend: 'copy',
+                className: 'btn btn-copy',  // Custom class for Copy button
+                text: 'Copy'
+            },
+            {
+                extend: 'csv',
+                className: 'btn btn-csv',  // Custom class for CSV button
+                text: 'CSV'
+            },
+            {
+                extend: 'excel',
+                className: 'btn btn-excel',  // Custom class for Excel button
+                text: 'Excel'
+            },
+            {
+                extend: 'pdf',
+                className: 'btn btn-pdf',  // Custom class for PDF button
+                text: 'PDF'
+            },
+            {
+                extend: 'print',
+                className: 'btn btn-print',  // Custom class for Print button
+                text: 'Print'
+            },
+            {
+                text: 'Filter',
+                className: 'btn btn-filter',  // Custom class for Filter button
+                action: function (e, dt, node, config) {
+                    $('#filters-header').toggle();  // Toggle filter header visibility
+                }
+            },
+            {
+                text: 'Refresh',
+                className: 'btn btn-refresh',  // Custom class for Refresh button
+                action: function (e, dt, node, config) {
+                    getPaymentsPageData();  // Refresh data
+                    $('#search_filter').val('');  // Reset search filter
+                    $('.column-filter').val('');  // Clear column filters
+                }
+            }
+        ],
+        
+        paging: true,
+        searching: true,
+        ordering: false,
+        lengthMenu: [10, 25, 50, 100],
+        language: {
+            search: "Search:",
+            lengthMenu: "Show _MENU_ entries",
+            info: "Showing _START_ to _END_ of _TOTAL_ entries",
+        },
+        initComplete: function () {
+            var api = this.api();
+
+            // Apply filters for header & footer without duplication
+            $('.column-filter').on('keyup change', function () {
+                var columnIndex = $(this).closest('th').index();
+                api.column(columnIndex).search(this.value).draw();
+            });
+        }
+    });
+
+    // Prevent duplicate header filters in responsive mode
+    $('.filter-row').clone().appendTo('#payments_table thead').hide();
+    // datatables end
 }
 
 $(document).ready(function () {

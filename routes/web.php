@@ -13,6 +13,8 @@ use App\Http\Controllers\WorkLocationController;
 use App\Http\Controllers\YoutubeController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\JoinUsController;
+use App\Http\Controllers\WhatsAppController;
+
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -216,4 +218,11 @@ Route::group(['middleware' => ['AdminAuth']], function () {
 
 // Route::get('/', function () {
 //     return view('welcome');
+// });
+// sendMessage
+// Route::get('/sendMessage', function () {
+//     $to = '+923058757575';
+//     $body = 'Hello, this is a test message from UltraMsg API.';
+//     $response = app('App\Http\Controllers\WhatsAppController')->sendMessage($to, $body);
+//     return $response;
 // });

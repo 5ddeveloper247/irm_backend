@@ -75,6 +75,28 @@
     <script src="{{ asset('assets/plugins/datatables/js/dataTables.min.js') }}"></script>
     <script src="{{ asset('assets/plugins/datatables/js/dataTables.buttons.min.js') }}"></script>
     <script src="{{ asset('assets/plugins/datatables/js/buttons.html5.min.js') }}"></script>
+
+    {{-- datatables --}}
+    <!-- DataTables CSS -->
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.7/css/jquery.dataTables.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.2/css/buttons.dataTables.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.5.0/css/responsive.dataTables.min.css">
+
+    <!-- jQuery (Required for DataTables) -->
+    {{-- <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script> --}}
+
+    <!-- DataTables JS -->
+    <script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.2/js/dataTables.buttons.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/pdfmake.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/vfs_fonts.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.html5.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.print.min.js"></script>
+    <script src="https://cdn.datatables.net/responsive/2.5.0/js/dataTables.responsive.min.js"></script>
+    
+
+    {{-- datatables end  --}}
     <script src="{{ asset('assets/plugins/toastr/toastr.min.js') }}"></script>
     <script src="{{ asset('assets/plugins/niceselect/nice-select.min.js') }}"></script>
     <script src="{{ asset('assets/plugins/niceselect/custom-select.js') }}"></script>
@@ -101,6 +123,129 @@
     <script src="{{ asset('assets/customjs/select2.js') }}"></script>
     <script src="{{ asset('assets/customjs/common.js') }}"></script>
     <script src="{{ asset('assets/js/main.js') }}"></script>
+    <style>
+        /* Custom styles for primary button */
+        /* Custom styles for Copy button */
+        button.dt-button.btn.btn-copy {
+            background-color: #007bff; /* Blue */
+            border-color: #007bff;
+            color: white;
+        }
+
+        button.dt-button.btn.btn-copy:hover {
+            background-color: #0056b3; /* Darker Blue */
+            border-color: #004085;
+        }
+
+        button.dt-button.btn.btn-copy:active {
+            background-color: #004085; /* Even Darker Blue */
+            border-color: #003366;
+        }
+
+        /* Custom styles for CSV button */
+        button.dt-button.btn.btn-csv {
+            background-color: #28a745; /* Green */
+            border-color: #28a745;
+            color: white;
+        }
+
+        button.dt-button.btn.btn-csv:hover {
+            background-color: #218838; /* Darker Green */
+            border-color: #1e7e34;
+        }
+
+        button.dt-button.btn.btn-csv:active {
+            background-color: #1e7e34; /* Even Darker Green */
+            border-color: #155e24;
+        }
+
+        /* Custom styles for Excel button */
+        button.dt-button.btn.btn-excel {
+            background-color: #28a745; /* Green */
+            border-color: #28a745;
+            color: white;
+        }
+
+        button.dt-button.btn.btn-excel:hover {
+            background-color: #218838; /* Darker Green */
+            border-color: #1e7e34;
+        }
+
+        button.dt-button.btn.btn-excel:active {
+            background-color: #1e7e34; /* Even Darker Green */
+            border-color: #155e24;
+        }
+
+        /* Custom styles for PDF button */
+        button.dt-button.btn.btn-pdf {
+            background-color: #dc3545; /* Red */
+            border-color: #dc3545;
+            color: white;
+        }
+
+        button.dt-button.btn.btn-pdf:hover {
+            background-color: #c82333; /* Darker Red */
+            border-color: #bd2130;
+        }
+
+        button.dt-button.btn.btn-pdf:active {
+            background-color: #bd2130; /* Even Darker Red */
+            border-color: #9a1f29;
+        }
+
+        /* Custom styles for Print button */
+        button.dt-button.btn.btn-print {
+            background-color: #17a2b8; /* Light Blue */
+            border-color: #17a2b8;
+            color: white;
+        }
+
+        button.dt-button.btn.btn-print:hover {
+            background-color: #138496; /* Darker Light Blue */
+            border-color: #117a8b;
+        }
+
+        button.dt-button.btn.btn-print:active {
+            background-color: #117a8b; /* Even Darker Light Blue */
+            border-color: #0e6f7b;
+        }
+
+        /* Custom styles for Filter button */
+        button.dt-button.btn.btn-filter {
+            background-color: #007bff; /* Blue */
+            border-color: #007bff;
+            color: white;
+        }
+
+        button.dt-button.btn.btn-filter:hover {
+            background-color: #0056b3; /* Darker Blue */
+            border-color: #004085;
+        }
+
+        button.dt-button.btn.btn-filter:active {
+            background-color: #004085; /* Even Darker Blue */
+            border-color: #003366;
+        }
+
+        /* Custom styles for Refresh button */
+        button.dt-button.btn.btn-refresh {
+            background-color: #6c757d; /* Gray */
+            border-color: #6c757d;
+            color: white;
+        }
+
+        button.dt-button.btn.btn-refresh:hover {
+            background-color: #5a6268; /* Darker Gray */
+            border-color: #4e555b;
+        }
+
+        button.dt-button.btn.btn-refresh:active {
+            background-color: #4e555b; /* Even Darker Gray */
+            border-color: #3e474b;
+        }
+
+
+        </style>
     <script type="text/javascript">
         // Initialize the chart
         var chart = echarts.init(document.getElementById('line-chart'));

@@ -11,9 +11,18 @@ use Stripe\PaymentIntent;
 use Stripe\Exception\ApiErrorException;
 use App\Models\Payment;
 use Illuminate\Support\Facades\DB;
+use App\Http\Controllers\WhatsAppController;
 class CampaignController extends Controller
 
 {
+    public function calculateProgress($current, $target) {
+        if ($target == 0) {
+            return 0; // Avoid division by zero, set progress to 0%
+        }
+    
+        $progress = ($current / $target) * 100;
+        return min(round($progress, 2), 100); // Cap at 100%
+    }
     //
     public function getCampaigns(Request $request)
     {
@@ -29,6 +38,8 @@ class CampaignController extends Controller
 
         // set base url on image
         foreach($data['campaign_list'] as $key => $value){
+            // progress percentage
+            $data['campaign_list'][$key]->progress = $this->calculateProgress($value->total_amount, $value->target_amount);
             $data['campaign_list'][$key]->image = url('/'.$value->thumbnail);
         }
         return response()->json(['status' => 200, 'message' => "", 'data' => $data]);
@@ -118,6 +129,46 @@ class CampaignController extends Controller
                     'created_at' => date('Y-m-d H:i:s'),
                     'updated_at' => date('Y-m-d H:i:s')
                 ]);
+                // send message to whatsapp
+                $whatsapp = new WhatsAppController();
+                if (isset($data['donatation_submit']['phoneNumber'])) {
+                    $phoneNumber = $data['donatation_submit']['phoneNumber'];
+                    if (strpos($phoneNumber, '+') !== 0) {
+                        $phoneNumber = '+' . $phoneNumber;
+                    }
+                    
+                    $message = "Hello {$data['donatation_submit']['firstName']} {$data['donatation_submit']['lastName']},\n\n";
+                    $message .= "Thank you for your book order! Your order has been placed successfully. Here are the details:\n\n";
+                    $message .= "Order ID: {$payment}\n";
+                    $message .= "Book Title: {$data['donatation_submit']['custom_task_name']}\n";
+                    $message .= "Amount: {$data['donatation_submit']['custom_task_amount']} {$data['currency']}\n";
+                    $message .= "Shipping Address: {$data['donatation_submit']['streetAddress']}, {$data['donatation_submit']['city']}, {$data['donatation_submit']['country']}\n";
+                    $message .= "Email: {$data['donatation_submit']['email']}\n\n";
+                    $message .= "We will notify you once your book is on its way!\n\n";
+                    $message .= "Thank you for your purchase!";
+                    
+                    $whatsAppResponse = $whatsapp->sendMessage($phoneNumber, $message);
+                } else {
+                    $whatsAppResponse = 'Phone number not provided';
+                }
+                // send emai
+                $message = "Hello {$data['donatation_submit']['firstName']} {$data['donatation_submit']['lastName']},<br><br>";
+                $message .= "Thank you for your book order! Your order has been placed successfully. Here are the details:<br><br>";
+                $message .= "Order ID: {$payment}<br>";
+                $message .= "Book Title: {$data['donatation_submit']['custom_task_name']}<br>";
+                $message .= "Amount: {$data['donatation_submit']['custom_task_amount']} {$data['currency']}<br>";
+                $message .= "Shipping Address: {$data['donatation_submit']['streetAddress']}, {$data['donatation_submit']['city']}, {$data['donatation_submit']['country']}<br>";
+                $message .= "Email: {$data['donatation_submit']['email']}<br><br>";
+                $message .= "We will notify you once your book is on its way!<br><br>";
+                $message .= "Thank you for your purchase!";
+                $to_name = $data['donatation_submit']['firstName'];
+                $to_email = $data['donatation_submit']['email'];
+                $subject = "Book Order Confirmation";   
+                sendMail($to_name, $to_email, $subject, $message);
+                
+
+                
+
             }
             return response()->json([
                 'clientSecret' => $paymentIntent->client_secret,
@@ -125,7 +176,8 @@ class CampaignController extends Controller
                  'status' => 200, 'message' => "", 
                  'data' => $data, 
                  'success' => true,
-                 'payment'=> $payment
+                 'payment'=> $payment,
+                 'whatsAppResponse' => $whatsAppResponse
                 ]);
         } catch (ApiErrorException $e) {
             return response()->json(['error' => $e->getMessage()]);
