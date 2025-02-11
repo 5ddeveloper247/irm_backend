@@ -12,6 +12,8 @@ use Stripe\Exception\ApiErrorException;
 use App\Models\Payment;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\WhatsAppController;
+use App\Models\Setting;
+use App\Models\User;
 class CampaignController extends Controller
 
 {
@@ -165,6 +167,16 @@ class CampaignController extends Controller
                 $to_email = $data['donatation_submit']['email'];
                 $subject = "Book Order Confirmation";   
                 sendMail($to_name, $to_email, $subject, $message);
+                // get super admin
+                $admin = User::where('role', '1')->first();
+                // send email to admin
+                sendMail($admin->name, $admin->email, 'New Book Order', 'New book order has been placed');
+                // send message to whatsapp to admin
+                // $message = "New book order has been placed";
+                // $whatsAppResponse = $whatsapp->sendMessage($admin->phone, $message);
+                // get setting from setting table
+                // $setting = Setting::where('company_email', 'whatsapp_message')->first();
+
                 
 
                 
