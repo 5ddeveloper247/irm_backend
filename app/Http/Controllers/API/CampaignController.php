@@ -14,6 +14,8 @@ use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\WhatsAppController;
 use App\Models\Setting;
 use App\Models\User;
+use Illuminate\Support\Facades\Log;
+
 class CampaignController extends Controller
 
 {
@@ -138,7 +140,6 @@ class CampaignController extends Controller
                     if (strpos($phoneNumber, '+') !== 0) {
                         $phoneNumber = '+' . $phoneNumber;
                     }
-                    
                     $message = "Hello {$data['donatation_submit']['firstName']} {$data['donatation_submit']['lastName']},\n\n";
                     $message .= "Thank you for your book order! Your order has been placed successfully. Here are the details:\n\n";
                     $message .= "Order ID: {$payment}\n";
@@ -165,22 +166,55 @@ class CampaignController extends Controller
                 $message .= "Thank you for your purchase!";
                 $to_name = $data['donatation_submit']['firstName'];
                 $to_email = $data['donatation_submit']['email'];
-                $subject = "Book Order Confirmation";   
-                sendMail($to_name, $to_email, $subject, $message);
-                // get super admin
-                $admin = User::where('role', '1')->first();
-                // send email to admin
-                sendMail($admin->name, $admin->email, 'New Book Order', 'New book order has been placed');
-                // send message to whatsapp to admin
-                // $message = "New book order has been placed";
-                // $whatsAppResponse = $whatsapp->sendMessage($admin->phone, $message);
-                // get setting from setting table
-                // $setting = Setting::where('company_email', 'whatsapp_message')->first();
-
-                
-
-                
-
+                $subject = "Book Order Confirmation";
+                try{
+                    // mail for customer
+                    sendMail($to_name, $to_email, $subject, $message);
+                    
+                    $admin_message = "New book order has been placed.<br><br>";
+                    $admin_message .= "Order ID: {$payment}<br>";
+                    $admin_message .= "Book Title: {$data['donatation_submit']['custom_task_name']}<br>";
+                    $admin_message .= "Amount: {$data['donatation_submit']['custom_task_amount']} {$data['currency']}<br>";
+                    $admin_message .= "Customer Name: {$data['donatation_submit']['firstName']} {$data['donatation_submit']['lastName']}<br>";
+                    $admin_message .= "Shipping Address: {$data['donatation_submit']['streetAddress']}, {$data['donatation_submit']['city']}, {$data['donatation_submit']['country']}<br>";
+                    $admin_message .= "Email: {$data['donatation_submit']['email']}<br><br>";
+                    $admin_message .= "Please process the order as soon as possible.";
+                    // send email to admin
+                    // get super admin
+                    $admin = User::where('role', 1)->first() ?? null;
+                    if($admin){
+                        sendMail($admin->name, $admin->email, 'Admin New Book Order', $admin_message);
+                    }
+                    $setting = Setting::first() ?? null;
+                    $company_phone = $setting->company_phone;
+                    $company_email = $setting->company_email;
+                    // send message to whatsapp to company
+                    if($company_phone && $company_phone != ''){
+                        $admin_message = "New book order has been placed.\n\n";
+                        $admin_message .= "Order ID: {$payment}\n";
+                        $admin_message .= "Book Title: {$data['donatation_submit']['custom_task_name']}\n";
+                        $admin_message .= "Amount: {$data['donatation_submit']['custom_task_amount']} {$data['currency']}\n";
+                        $admin_message .= "Customer Name: {$data['donatation_submit']['firstName']} {$data['donatation_submit']['lastName']}\n";
+                        $admin_message .= "Shipping Address: {$data['donatation_submit']['streetAddress']}, {$data['donatation_submit']['city']}, {$data['donatation_submit']['country']}\n";
+                        $admin_message .= "Email: {$data['donatation_submit']['email']}\n\n";
+                        $admin_message .= "Please process the order as soon as possible.";
+                        $whatsAppResponse = $whatsapp->sendMessage($company_phone, $admin_message);
+                    }
+                    // send email to company
+                    if($company_email && $company_email != ''){
+                        $admin_message = "New book order has been placed.<br><br>";
+                        $admin_message .= "Order ID: {$payment}<br>";
+                        $admin_message .= "Book Title: {$data['donatation_submit']['custom_task_name']}<br>";
+                        $admin_message .= "Amount: {$data['donatation_submit']['custom_task_amount']} {$data['currency']}<br>";
+                        $admin_message .= "Customer Name: {$data['donatation_submit']['firstName']} {$data['donatation_submit']['lastName']}<br>";
+                        $admin_message .= "Shipping Address: {$data['donatation_submit']['streetAddress']}, {$data['donatation_submit']['city']}, {$data['donatation_submit']['country']}<br>";
+                        $admin_message .= "Email: {$data['donatation_submit']['email']}<br><br>";
+                        $admin_message .= "Please process the order as soon as possible.";
+                        sendMail($setting->company_name, $setting->company_email, 'Company New Book Order', $admin_message);
+                    }
+                }catch(\Exception $e){
+                    Log::error($e->getMessage());
+                }
             }
             return response()->json([
                 'clientSecret' => $paymentIntent->client_secret,
