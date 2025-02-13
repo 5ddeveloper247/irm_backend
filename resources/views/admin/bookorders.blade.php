@@ -7,8 +7,8 @@
         }
 
         /* .collapse.show {
-                background-color: #ecf4ff00 !important;
-            } */
+                    background-color: #ecf4ff00 !important;
+                } */
 
         .img-prev {
             width: 70px;
@@ -21,7 +21,7 @@
             font-size: 18px !important;
             color: red;
             /* position: absolute;
-                top: 265px; */
+                    top: 265px; */
         }
 
         .details-container {
@@ -217,22 +217,70 @@
                                         <div class="card">
 
                                             <div class="card-body">
-                                                <div class="row align-items-center">
-                                                    <div class="col-sm-4">
-                                                        <div class="icon-form mb-3 mb-sm-0">
-                                                            <span class="form-icon"></span>
-                                                            <input id="search_filter" type="text" class="form-control"
-                                                                placeholder="Search Here...">
-                                                        </div>
-                                                    </div>
-
-                                                    <div class="col-sm-8">
-                                                        <div
-                                                            class="d-flex align-items-center flex-wrap row-gap-2 justify-content-sm-end">
-
-                                                        </div>
-                                                    </div>
-                                                </div>
+                                                {{-- include --}}
+                                                @php
+                                                    $button = '';
+                                                    $filters = [
+                                                        // get my page table names
+                                                        [
+                                                            'name' => 'book_name',
+                                                            'type' => 'text',
+                                                            'label' => 'Book Name',
+                                                            'placeholder' => 'Search Book Name',
+                                                        ],
+                                                        // price
+                                                        [
+                                                            'name' => 'price',
+                                                            'type' => 'text',
+                                                            'label' => 'Price',
+                                                            'placeholder' => 'Search Price',
+                                                        ],
+                                                        [
+                                                            'name' => 'name',
+                                                            'type' => 'text',
+                                                            'label' => 'Name',
+                                                            'placeholder' => 'Search Name',
+                                                        ],
+                                                        [
+                                                            'name' => 'email',
+                                                            'type' => 'text',
+                                                            'label' => 'Email',
+                                                            'placeholder' => 'Search Email',
+                                                        ],
+                                                        [
+                                                            'name' => 'status',
+                                                            'type' => 'select',
+                                                            'label' => 'Status',
+                                                            'options' => [
+                                                                ['value' => '1', 'label' => 'Pending'],
+                                                                ['value' => '2', 'label' => 'Shipped'],
+                                                                ['value' => '3', 'label' => 'Delivered'],
+                                                                ['value' => '4', 'label' => 'Completed'],
+                                                            ],
+                                                        ],
+                                                        ['name' => 'date', 'type' => 'date', 'label' => 'Date'],
+                                                        // ['name' => 'username', 'type' => 'text', 'label' => 'User Name', 'placeholder' => 'Search Username'],
+                                                        // ['name' => 'email', 'type' => 'text', 'label' => 'Email', 'placeholder' => 'Search Email'],
+                                                        // // Select options
+                                                        // ['name' => 'role', 'type' => 'select', 'label' => 'Role', 'options' => [
+                                                        //     ['value' => 'admin', 'label' => 'Admin'],
+                                                        //     ['value' => 'user', 'label' => 'User']
+                                                        // ]],
+                                                        // // Date
+                                                        // ['name' => 'created_at', 'type' => 'date', 'label' => 'Created At'],
+                                                        // // Radio buttons
+                                                        // ['name' => 'gender', 'type' => 'radio', 'label' => 'Gender', 'options' => [
+                                                        //     ['value' => 'male', 'label' => 'Male'],
+                                                        //     ['value' => 'female', 'label' => 'Female']
+                                                        // ]],
+                                                        // ['name' => 'status', 'type' => 'checkbox', 'label' => 'Status', 'options' => [
+                                                        //     ['value' => '1', 'label' => 'Active'],
+                                                        //     ['value' => '0', 'label' => 'Inactive']
+                                                        // ]]
+                                                    ];
+                                                @endphp
+                                                @include('admin.filter.index')
+                                                {{-- include --}}
 
                                                 <hr>
 
@@ -285,22 +333,70 @@
                                         <div class="card">
 
                                             <div class="card-body">
-                                                <div class="row align-items-center">
-                                                    <div class="col-sm-4">
-                                                        <div class="icon-form mb-3 mb-sm-0">
-                                                            <span class="form-icon"></span>
-                                                            <input id="search_filter_2" type="text"
-                                                                class="form-control" placeholder="Search Here...">
-                                                        </div>
-                                                    </div>
-
-                                                    <div class="col-sm-8">
-                                                        <div
-                                                            class="d-flex align-items-center flex-wrap row-gap-2 justify-content-sm-end">
-
-                                                        </div>
-                                                    </div>
-                                                </div>
+                                                {{-- include --}}
+                                                @php
+                                                    $button = '';
+                                                    $filters = [
+                                                        // get my page table names
+                                                        [
+                                                            'name' => 'book_name',
+                                                            'type' => 'text',
+                                                            'label' => 'Book Name',
+                                                            'placeholder' => 'Search Book Name',
+                                                        ],
+                                                        // price
+                                                        [
+                                                            'name' => 'price',
+                                                            'type' => 'text',
+                                                            'label' => 'Price',
+                                                            'placeholder' => 'Search Price',
+                                                        ],
+                                                        [
+                                                            'name' => 'name',
+                                                            'type' => 'text',
+                                                            'label' => 'Name',
+                                                            'placeholder' => 'Search Name',
+                                                        ],
+                                                        [
+                                                            'name' => 'email',
+                                                            'type' => 'text',
+                                                            'label' => 'Email',
+                                                            'placeholder' => 'Search Email',
+                                                        ],
+                                                        // [
+                                                        //     'name' => 'status',
+                                                        //     'type' => 'select',
+                                                        //     'label' => 'Status',
+                                                        //     'options' => [
+                                                        //         ['value' => '1', 'label' => 'Pending'],
+                                                        //         ['value' => '2', 'label' => 'Shipped'],
+                                                        //         ['value' => '3', 'label' => 'Delivered'],
+                                                        //         ['value' => '4', 'label' => 'Completed'],
+                                                        //     ],
+                                                        // ],
+                                                        ['name' => 'date', 'type' => 'date', 'label' => 'Date'],
+                                                        // ['name' => 'username', 'type' => 'text', 'label' => 'User Name', 'placeholder' => 'Search Username'],
+                                                        // ['name' => 'email', 'type' => 'text', 'label' => 'Email', 'placeholder' => 'Search Email'],
+                                                        // // Select options
+                                                        // ['name' => 'role', 'type' => 'select', 'label' => 'Role', 'options' => [
+                                                        //     ['value' => 'admin', 'label' => 'Admin'],
+                                                        //     ['value' => 'user', 'label' => 'User']
+                                                        // ]],
+                                                        // // Date
+                                                        // ['name' => 'created_at', 'type' => 'date', 'label' => 'Created At'],
+                                                        // // Radio buttons
+                                                        // ['name' => 'gender', 'type' => 'radio', 'label' => 'Gender', 'options' => [
+                                                        //     ['value' => 'male', 'label' => 'Male'],
+                                                        //     ['value' => 'female', 'label' => 'Female']
+                                                        // ]],
+                                                        // ['name' => 'status', 'type' => 'checkbox', 'label' => 'Status', 'options' => [
+                                                        //     ['value' => '1', 'label' => 'Active'],
+                                                        //     ['value' => '0', 'label' => 'Inactive']
+                                                        // ]]
+                                                    ];
+                                                @endphp
+                                                @include('admin.filter.index')
+                                                {{-- include --}}
 
                                                 <hr>
 
@@ -350,22 +446,71 @@
                                         <div class="card">
 
                                             <div class="card-body">
-                                                <div class="row align-items-center">
-                                                    <div class="col-sm-4">
-                                                        <div class="icon-form mb-3 mb-sm-0">
-                                                            <span class="form-icon"></span>
-                                                            <input id="search_filter_3" type="text"
-                                                                class="form-control" placeholder="Search Here...">
-                                                        </div>
-                                                    </div>
-
-                                                    <div class="col-sm-8">
-                                                        <div
-                                                            class="d-flex align-items-center flex-wrap row-gap-2 justify-content-sm-end">
-
-                                                        </div>
-                                                    </div>
-                                                </div>
+                                                
+                                                {{-- include --}}
+                                                @php
+                                                    $button = '';
+                                                    $filters = [
+                                                        // get my page table names
+                                                        [
+                                                            'name' => 'book_name',
+                                                            'type' => 'text',
+                                                            'label' => 'Book Name',
+                                                            'placeholder' => 'Search Book Name',
+                                                        ],
+                                                        // price
+                                                        [
+                                                            'name' => 'price',
+                                                            'type' => 'text',
+                                                            'label' => 'Price',
+                                                            'placeholder' => 'Search Price',
+                                                        ],
+                                                        [
+                                                            'name' => 'name',
+                                                            'type' => 'text',
+                                                            'label' => 'Name',
+                                                            'placeholder' => 'Search Name',
+                                                        ],
+                                                        [
+                                                            'name' => 'email',
+                                                            'type' => 'text',
+                                                            'label' => 'Email',
+                                                            'placeholder' => 'Search Email',
+                                                        ],
+                                                        // [
+                                                        //     'name' => 'status',
+                                                        //     'type' => 'select',
+                                                        //     'label' => 'Status',
+                                                        //     'options' => [
+                                                        //         ['value' => '1', 'label' => 'Pending'],
+                                                        //         ['value' => '2', 'label' => 'Shipped'],
+                                                        //         ['value' => '3', 'label' => 'Delivered'],
+                                                        //         ['value' => '4', 'label' => 'Completed'],
+                                                        //     ],
+                                                        // ],
+                                                        ['name' => 'date', 'type' => 'date', 'label' => 'Date'],
+                                                        // ['name' => 'username', 'type' => 'text', 'label' => 'User Name', 'placeholder' => 'Search Username'],
+                                                        // ['name' => 'email', 'type' => 'text', 'label' => 'Email', 'placeholder' => 'Search Email'],
+                                                        // // Select options
+                                                        // ['name' => 'role', 'type' => 'select', 'label' => 'Role', 'options' => [
+                                                        //     ['value' => 'admin', 'label' => 'Admin'],
+                                                        //     ['value' => 'user', 'label' => 'User']
+                                                        // ]],
+                                                        // // Date
+                                                        // ['name' => 'created_at', 'type' => 'date', 'label' => 'Created At'],
+                                                        // // Radio buttons
+                                                        // ['name' => 'gender', 'type' => 'radio', 'label' => 'Gender', 'options' => [
+                                                        //     ['value' => 'male', 'label' => 'Male'],
+                                                        //     ['value' => 'female', 'label' => 'Female']
+                                                        // ]],
+                                                        // ['name' => 'status', 'type' => 'checkbox', 'label' => 'Status', 'options' => [
+                                                        //     ['value' => '1', 'label' => 'Active'],
+                                                        //     ['value' => '0', 'label' => 'Inactive']
+                                                        // ]]
+                                                    ];
+                                                @endphp
+                                                @include('admin.filter.index')
+                                                {{-- include --}}
 
                                                 <hr>
 
@@ -415,22 +560,70 @@
                                         <div class="card">
 
                                             <div class="card-body">
-                                                <div class="row align-items-center">
-                                                    <div class="col-sm-4">
-                                                        <div class="icon-form mb-3 mb-sm-0">
-                                                            <span class="form-icon"></span>
-                                                            <input id="search_filter_4" type="text"
-                                                                class="form-control" placeholder="Search Here...">
-                                                        </div>
-                                                    </div>
-
-                                                    <div class="col-sm-8">
-                                                        <div
-                                                            class="d-flex align-items-center flex-wrap row-gap-2 justify-content-sm-end">
-
-                                                        </div>
-                                                    </div>
-                                                </div>
+                                                {{-- include --}}
+                                                @php
+                                                    $button = '';
+                                                    $filters = [
+                                                        // get my page table names
+                                                        [
+                                                            'name' => 'book_name',
+                                                            'type' => 'text',
+                                                            'label' => 'Book Name',
+                                                            'placeholder' => 'Search Book Name',
+                                                        ],
+                                                        // price
+                                                        [
+                                                            'name' => 'price',
+                                                            'type' => 'text',
+                                                            'label' => 'Price',
+                                                            'placeholder' => 'Search Price',
+                                                        ],
+                                                        [
+                                                            'name' => 'name',
+                                                            'type' => 'text',
+                                                            'label' => 'Name',
+                                                            'placeholder' => 'Search Name',
+                                                        ],
+                                                        [
+                                                            'name' => 'email',
+                                                            'type' => 'text',
+                                                            'label' => 'Email',
+                                                            'placeholder' => 'Search Email',
+                                                        ],
+                                                        // [
+                                                        //     'name' => 'status',
+                                                        //     'type' => 'select',
+                                                        //     'label' => 'Status',
+                                                        //     'options' => [
+                                                        //         ['value' => '1', 'label' => 'Pending'],
+                                                        //         ['value' => '2', 'label' => 'Shipped'],
+                                                        //         ['value' => '3', 'label' => 'Delivered'],
+                                                        //         ['value' => '4', 'label' => 'Completed'],
+                                                        //     ],
+                                                        // ],
+                                                        ['name' => 'date', 'type' => 'date', 'label' => 'Date'],
+                                                        // ['name' => 'username', 'type' => 'text', 'label' => 'User Name', 'placeholder' => 'Search Username'],
+                                                        // ['name' => 'email', 'type' => 'text', 'label' => 'Email', 'placeholder' => 'Search Email'],
+                                                        // // Select options
+                                                        // ['name' => 'role', 'type' => 'select', 'label' => 'Role', 'options' => [
+                                                        //     ['value' => 'admin', 'label' => 'Admin'],
+                                                        //     ['value' => 'user', 'label' => 'User']
+                                                        // ]],
+                                                        // // Date
+                                                        // ['name' => 'created_at', 'type' => 'date', 'label' => 'Created At'],
+                                                        // // Radio buttons
+                                                        // ['name' => 'gender', 'type' => 'radio', 'label' => 'Gender', 'options' => [
+                                                        //     ['value' => 'male', 'label' => 'Male'],
+                                                        //     ['value' => 'female', 'label' => 'Female']
+                                                        // ]],
+                                                        // ['name' => 'status', 'type' => 'checkbox', 'label' => 'Status', 'options' => [
+                                                        //     ['value' => '1', 'label' => 'Active'],
+                                                        //     ['value' => '0', 'label' => 'Inactive']
+                                                        // ]]
+                                                    ];
+                                                @endphp
+                                                @include('admin.filter.index')
+                                                {{-- include --}}
 
                                                 <hr>
 
@@ -480,22 +673,70 @@
                                         <div class="card">
 
                                             <div class="card-body">
-                                                <div class="row align-items-center">
-                                                    <div class="col-sm-4">
-                                                        <div class="icon-form mb-3 mb-sm-0">
-                                                            <span class="form-icon"></span>
-                                                            <input id="search_filter_5" type="text"
-                                                                class="form-control" placeholder="Search Here...">
-                                                        </div>
-                                                    </div>
-
-                                                    <div class="col-sm-8">
-                                                        <div
-                                                            class="d-flex align-items-center flex-wrap row-gap-2 justify-content-sm-end">
-
-                                                        </div>
-                                                    </div>
-                                                </div>
+                                                {{-- include --}}
+                                                @php
+                                                    $button = '';
+                                                    $filters = [
+                                                        // get my page table names
+                                                        [
+                                                            'name' => 'book_name',
+                                                            'type' => 'text',
+                                                            'label' => 'Book Name',
+                                                            'placeholder' => 'Search Book Name',
+                                                        ],
+                                                        // price
+                                                        [
+                                                            'name' => 'price',
+                                                            'type' => 'text',
+                                                            'label' => 'Price',
+                                                            'placeholder' => 'Search Price',
+                                                        ],
+                                                        [
+                                                            'name' => 'name',
+                                                            'type' => 'text',
+                                                            'label' => 'Name',
+                                                            'placeholder' => 'Search Name',
+                                                        ],
+                                                        [
+                                                            'name' => 'email',
+                                                            'type' => 'text',
+                                                            'label' => 'Email',
+                                                            'placeholder' => 'Search Email',
+                                                        ],
+                                                        // [
+                                                        //     'name' => 'status',
+                                                        //     'type' => 'select',
+                                                        //     'label' => 'Status',
+                                                        //     'options' => [
+                                                        //         ['value' => '1', 'label' => 'Pending'],
+                                                        //         ['value' => '2', 'label' => 'Shipped'],
+                                                        //         ['value' => '3', 'label' => 'Delivered'],
+                                                        //         ['value' => '4', 'label' => 'Completed'],
+                                                        //     ],
+                                                        // ],
+                                                        ['name' => 'date', 'type' => 'date', 'label' => 'Date'],
+                                                        // ['name' => 'username', 'type' => 'text', 'label' => 'User Name', 'placeholder' => 'Search Username'],
+                                                        // ['name' => 'email', 'type' => 'text', 'label' => 'Email', 'placeholder' => 'Search Email'],
+                                                        // // Select options
+                                                        // ['name' => 'role', 'type' => 'select', 'label' => 'Role', 'options' => [
+                                                        //     ['value' => 'admin', 'label' => 'Admin'],
+                                                        //     ['value' => 'user', 'label' => 'User']
+                                                        // ]],
+                                                        // // Date
+                                                        // ['name' => 'created_at', 'type' => 'date', 'label' => 'Created At'],
+                                                        // // Radio buttons
+                                                        // ['name' => 'gender', 'type' => 'radio', 'label' => 'Gender', 'options' => [
+                                                        //     ['value' => 'male', 'label' => 'Male'],
+                                                        //     ['value' => 'female', 'label' => 'Female']
+                                                        // ]],
+                                                        // ['name' => 'status', 'type' => 'checkbox', 'label' => 'Status', 'options' => [
+                                                        //     ['value' => '1', 'label' => 'Active'],
+                                                        //     ['value' => '0', 'label' => 'Inactive']
+                                                        // ]]
+                                                    ];
+                                                @endphp
+                                                @include('admin.filter.index')
+                                                {{-- include --}}
 
                                                 <hr>
 
@@ -545,22 +786,42 @@
                                         <div class="card">
 
                                             <div class="card-body">
-                                                <div class="row align-items-center">
-                                                    <div class="col-sm-4">
-                                                        <div class="icon-form mb-3 mb-sm-0">
-                                                            <span class="form-icon"></span>
-                                                            <input id="search_filter_6" type="text"
-                                                                class="form-control" placeholder="Search Here...">
-                                                        </div>
-                                                    </div>
+                                                {{-- include --}}
+                                                @php
+                                                    $button = '';
+                                                    $filters = [
+                                                        // get my page table payment
+                                                        // title
+                                                        ['name' => 'title', 'type' => 'text', 'label' => 'Title', 'placeholder' => 'Search Title'],
+                                                        // amount
+                                                        ['name' => 'amount', 'type' => 'text', 'label' => 'Amount', 'placeholder' => 'Search Amount'],
+                                                        // Payment Indent
+                                                        ['name' => 'payment_indent', 'type' => 'text', 'label' => 'Payment Indent', 'placeholder' => 'Search Payment Indent'],
+                                                        // Date
+                                                        ['name' => 'date', 'type' => 'date', 'label' => 'Date'],
 
-                                                    <div class="col-sm-8">
-                                                        <div
-                                                            class="d-flex align-items-center flex-wrap row-gap-2 justify-content-sm-end">
-
-                                                        </div>
-                                                    </div>
-                                                </div>
+                                                        // 
+                                                        // ['name' => 'email', 'type' => 'text', 'label' => 'Email', 'placeholder' => 'Search Email'],
+                                                        // // Select options
+                                                        // ['name' => 'role', 'type' => 'select', 'label' => 'Role', 'options' => [
+                                                        //     ['value' => 'admin', 'label' => 'Admin'],
+                                                        //     ['value' => 'user', 'label' => 'User']
+                                                        // ]],
+                                                        // // Date
+                                                        // ['name' => 'created_at', 'type' => 'date', 'label' => 'Created At'],
+                                                        // // Radio buttons
+                                                        // ['name' => 'gender', 'type' => 'radio', 'label' => 'Gender', 'options' => [
+                                                        //     ['value' => 'male', 'label' => 'Male'],
+                                                        //     ['value' => 'female', 'label' => 'Female']
+                                                        // ]],
+                                                        // ['name' => 'status', 'type' => 'checkbox', 'label' => 'Status', 'options' => [
+                                                        //     ['value' => '1', 'label' => 'Active'],
+                                                        //     ['value' => '0', 'label' => 'Inactive']
+                                                        // ]]
+                                                    ];
+                                                @endphp
+                                                @include('admin.filter.index')
+                                                {{-- include --}}
 
                                                 <hr>
 
@@ -576,10 +837,11 @@
                                                                     <th class="text-start text-nowrap" scope="col">Seq
                                                                         No.</th>
                                                                     <th class="text-start text-nowrap" scope="col">
-                                                                    Title</th>
+                                                                        Title</th>
                                                                     <th class="text-start text-nowrap" scope="col">
                                                                         Amount (PKR)</th>
-                                                                    <th class="text-start text-nowrap" scope="col">Payment Indent
+                                                                    <th class="text-start text-nowrap" scope="col">
+                                                                        Payment Indent
                                                                     </th>
                                                                     <th class="text-start text-nowrap" scope="col">Date
                                                                     </th>
@@ -706,4 +968,56 @@
             responsive: true,
         });
     </script> -->
+    <script>
+        const formValues = {};
+        // Function to get all form values
+        document.querySelectorAll('.filterBtn').forEach(function(button) {
+            button.addEventListener('click', function(event) {
+                event.preventDefault();
+
+                let formValues = {};
+                let filterContainer = button.closest('.filter-dropdown-menu');
+
+                filterContainer.querySelectorAll('.filterApplicantsInput').forEach(function(input) {
+                    if (input.type === 'checkbox') {
+                        if (!formValues[input.name]) {
+                            formValues[input.name] = [];
+                        }
+                        if (input.checked) {
+                            formValues[input.name].push(input.value);
+                        }
+                    } else if (input.type === 'radio') {
+                        if (input.checked) {
+                            formValues[input.name] = input.value;
+                        }
+                    } else if (input.type === 'select-one') {
+                        formValues[input.name] = input.value;
+                    } else {
+                        formValues[input.name] = input.value;
+                    }
+                });
+
+                getBookOrdersPageData(formValues);
+                console.log(formValues);
+            });
+        });
+
+        document.querySelectorAll('.resetappbtn').forEach(function(button) {
+            button.addEventListener('click', function(event) {
+                event.preventDefault();
+
+                let filterContainer = button.closest('.filter-dropdown-menu');
+
+                filterContainer.querySelectorAll('.filterApplicantsInput').forEach(function(input) {
+                    if (input.type === 'checkbox' || input.type === 'radio') {
+                        input.checked = false;
+                    } else {
+                        input.value = '';
+                    }
+                });
+
+                getBookOrdersPageData();
+            });
+        });
+    </script>
 @endpush

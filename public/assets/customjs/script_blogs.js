@@ -1,4 +1,4 @@
-function getBlogsPageData(){
+function getBlogsPageData(formValues = {}){
 
     let type = 'POST';
     let url = '/getBlogsPageData';
@@ -6,6 +6,9 @@ function getBlogsPageData(){
     let form = '';
     let data = new FormData();
     // PASSING DATA TO FUNCTION
+    for (const [key, value] of Object.entries(formValues)) {
+        data.append(key, value);
+    }
     SendAjaxRequestToServer(type, url, data, '', getBlogsPageDataResponse, '', '');
 }
 
@@ -25,7 +28,7 @@ function getBlogsPageDataResponse(response) {
 function makeBlogsListing(blogsList){
    
     var html = '';
-   
+   $("#blogs_table_body").html('');
     if (blogsList.length > 0) {
         $.each(blogsList, function (index, blog) {
             
@@ -71,7 +74,47 @@ function makeBlogsListing(blogsList){
                     </tr>`;
         });
     }
+    // blogs_table datatable
+    if($.fn.DataTable.isDataTable('#blogs_table')){
+        $('#blogs_table').DataTable().destroy().clear();
+    }
+
     $("#blogs_table_body").html(html);
+    $('#blogs_table').DataTable({
+        bDestroy:true,
+        paging: true,
+        lengthChange: true,
+        searching: true,
+        info: true,
+        autoWidth: false,
+        responsive: true,
+        scrollX: true,
+        language: {
+            search: "_INPUT_",
+            searchPlaceholder: "Search",
+        },
+        dom: "Bfrtip",
+        buttons: [
+            { extend: "copy", className: "btn btn-copy", text: "Copy" },
+            { extend: "csv", className: "btn btn-csv", text: "CSV" },
+            { extend: "excel", className: "btn btn-excel", text: "Excel" },
+            { extend: "pdf", className: "btn btn-pdf", text: "PDF" },
+            { extend: "print", className: "btn btn-print", text: "Print" },
+            { 
+                text: "Refresh", 
+                className: "btn btn-refresh", 
+                action: function () { 
+                    console.log("Refresh button clicked");
+                    $("#resetFilterButton").click(); 
+                    getBlogsPageData(); 
+                    // resetFilterButton click
+
+
+                    
+                } 
+            }
+        ],
+    });
 }
 
 $(document).on('click', '#addthumbnail_btn', function (e) {

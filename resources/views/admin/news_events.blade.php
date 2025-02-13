@@ -86,23 +86,53 @@
                                         <div class="card">
 
                                             <div class="card-body">
-                                                <div class="row align-items-center">
-                                                    <div class="col-sm-4">
-                                                        <div class="icon-form mb-3 mb-sm-0">
-                                                            <span class="form-icon"></span>
-                                                            <input id="search_filter" type="text" class="form-control" placeholder="Search Here...">
-                                                        </div>
-                                                    </div>
-                        
-                                                    <div class="col-sm-8">
-                                                        <div class="d-flex align-items-center flex-wrap row-gap-2 justify-content-sm-end">
-                                                            <a href="javascript:void(0);" class="theme-btn d-flex align-items-center gap-1 py-2 px-3 rounded-2 text-white" onclick="addNewEvent();" >
+                                                {{-- include --}}
+                                                @php
+                                                    $button = '<a href="javascript:void(0);" class="theme-btn d-flex align-items-center gap-1 py-2 px-3 rounded-2 text-white" onclick="addNewEvent();" >
                                                                 <i class="fa-solid fa-plus"></i>
                                                                 Add Event
-                                                            </a>
-                                                        </div>
-                                                    </div>
-                                                </div> 
+                                                            </a>';
+                                                    $filters = [
+                                                        // get my page table news & event
+                                                        ['name' => 'title', 'type' => 'text', 'label' => 'Title', 'placeholder' => 'Search Title'],
+                                                        ['name' => 'event_type', 'type' => 'select', 'label' => 'Type', 'options' => [
+                                                            ['value' => '', 'label' => 'Select'],
+                                                            ['value' => 'Recurring', 'label' => 'Recurring'],
+                                                            ['value' => 'Non-Recurring', 'label' => 'Non-Recurring']
+                                                        ]],
+                                                        
+                                                        ['name' => 'start_date', 'type' => 'date', 'label' => 'Start Date'],
+                                                        ['name' => 'end_date', 'type' => 'date', 'label' => 'End Date'],
+                                                        ['name' => 'status', 'type' => 'select', 'label' => 'Status', 'options' => [
+                                                            ['value' => '', 'label' => 'Select'],
+                                                            ['value' => '1', 'label' => 'Active'],
+                                                            ['value' => '0', 'label' => 'Inactive']
+                                                        ]],
+                                                        
+
+                                                        // 
+                                                        // ['name' => 'email', 'type' => 'text', 'label' => 'Email', 'placeholder' => 'Search Email'],
+                                                        // // Select options
+                                                        // ['name' => 'role', 'type' => 'select', 'label' => 'Role', 'options' => [
+                                                        //     ['value' => 'admin', 'label' => 'Admin'],
+                                                        //     ['value' => 'user', 'label' => 'User']
+                                                        // ]],
+                                                        // // Date
+                                                        // ['name' => 'created_at', 'type' => 'date', 'label' => 'Created At'],
+                                                        // // Radio buttons
+                                                        // ['name' => 'gender', 'type' => 'radio', 'label' => 'Gender', 'options' => [
+                                                        //     ['value' => 'male', 'label' => 'Male'],
+                                                        //     ['value' => 'female', 'label' => 'Female']
+                                                        // ]],
+                                                        // ['name' => 'status', 'type' => 'checkbox', 'label' => 'Status', 'options' => [
+                                                        //     ['value' => '1', 'label' => 'Active'],
+                                                        //     ['value' => '0', 'label' => 'Inactive']
+                                                        // ]]
+                                                    ];
+                                                @endphp
+                                                @include('admin.filter.index')
+                                                {{-- include --}}
+                                                
                                                 
                                                 <hr>
                                                 
@@ -347,4 +377,56 @@
             responsive: true,
         });
     </script> -->
+    <script>
+        const formValues = {};
+        // Function to get all form values
+        document.querySelectorAll('.filterBtn').forEach(function(button) {
+            button.addEventListener('click', function(event) {
+                event.preventDefault();
+
+                let formValues = {};
+                let filterContainer = button.closest('.filter-dropdown-menu');
+
+                filterContainer.querySelectorAll('.filterApplicantsInput').forEach(function(input) {
+                    if (input.type === 'checkbox') {
+                        if (!formValues[input.name]) {
+                            formValues[input.name] = [];
+                        }
+                        if (input.checked) {
+                            formValues[input.name].push(input.value);
+                        }
+                    } else if (input.type === 'radio') {
+                        if (input.checked) {
+                            formValues[input.name] = input.value;
+                        }
+                    } else if (input.type === 'select-one') {
+                        formValues[input.name] = input.value;
+                    } else {
+                        formValues[input.name] = input.value;
+                    }
+                });
+
+                getNewsEventsPageData(formValues);
+                console.log(formValues);
+            });
+        });
+
+        document.querySelectorAll('.resetappbtn').forEach(function(button) {
+            button.addEventListener('click', function(event) {
+                event.preventDefault();
+
+                let filterContainer = button.closest('.filter-dropdown-menu');
+
+                filterContainer.querySelectorAll('.filterApplicantsInput').forEach(function(input) {
+                    if (input.type === 'checkbox' || input.type === 'radio') {
+                        input.checked = false;
+                    } else {
+                        input.value = '';
+                    }
+                });
+
+                getNewsEventsPageData();
+            });
+        });
+    </script>
 @endpush

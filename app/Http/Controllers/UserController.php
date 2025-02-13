@@ -17,7 +17,25 @@ class UserController extends Controller
     // getUsersPageData
     public function getUsersPageData()
     {
-        $data['users_list'] = User::where('role', 3)->latest()->get();
+        // $data['users_list'] = User::where('role', 3)->latest()->get();
+        $query = User::where('role', 3)->latest();
+        // name: 
+        if(request()->has('name') && request('name') != ''){
+            $query->where('name', 'like', '%'.request('name').'%');
+        }
+        // username: 
+        if(request()->has('username') && request('username') != ''){
+            $query->where('username', 'like', '%'.request('username').'%');
+        }
+        // email: 
+        if(request()->has('email') && request('email') != ''){
+            $query->where('email', 'like', '%'.request('email').'%');
+        }
+        // created_at
+        if(request()->has('created_at') && request('created_at') != ''){
+            $query->whereDate('created_at', request('created_at'));
+        }
+        $data['users_list'] = $query->get();
         return response()->json(['status' => 200, 'data' => $data]);
     }
     // getSpecificUser

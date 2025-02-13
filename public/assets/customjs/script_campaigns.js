@@ -1,11 +1,21 @@
+$(document).ready(function () {
+    $('button[data-bs-toggle="tab"]').on('shown.bs.tab', function () {
+        $.fn.dataTable.tables({ visible: true, api: true }).columns.adjust();
+        getCampaignPayments();
+        getCampaignsPageData();
+    });
+})
 // getBookPayments
-function getCampaignPayments() {
+function getCampaignPayments(formValues = {}) {
     let type = "POST";
     let url = "/getCampaignPayments";
     let message = "";
     let form = "";
     let data = new FormData();
     // PASSING DATA TO FUNCTION
+    for (const [key, value] of Object.entries(formValues)) {
+        data.append(key, value);
+    }
     SendAjaxRequestToServer(
         type,
         url,
@@ -27,6 +37,11 @@ function getcampaignPaymentsResponse(response) {
 }
 function campaignPaymentsListing(campaignPayments) {
     var html = "";
+    $("#payment_table_body").html("");
+    // campaign_table datatable
+    if ($.fn.DataTable.isDataTable("#payment_table")) {
+        $("#payment_table").DataTable().destroy().clear();
+    }
     if (campaignPayments.length > 0) {
         $.each(campaignPayments, function (index, campaignPayment) {
             html += `<tr>
@@ -55,31 +70,55 @@ function campaignPaymentsListing(campaignPayments) {
         });
     }
     $("#payment_table_body").html(html);
-    // destroy datatable if already created
-    // if ($.fn.DataTable.isDataTable("#payment_table")) {
-    //     $("#payment_table").DataTable().destroy();
-    // }
-    // if (campaignPayments.length > 0) {
-    //     // payment_table datatable
-    //     $("#payment_table").DataTable({
-    //         paging: false,
-    //         lengthChange: false,
-    //         searching: true,
-    //         info: true,
-    //         scrollY: "400px",
-    //         scrollCollapse: true,
-    //         responsive: true,
-    //     });
-    // }
+    // campaign_table
+    $("#payment_table").DataTable({
+        bDestroy:true,
+        paging: true,
+        lengthChange: true,
+        searching: true,
+        info: true,
+        autoWidth: false,
+        responsive: true,
+        scrollX: true,
+        language: {
+            search: "_INPUT_",
+            searchPlaceholder: "Search",
+        },
+        dom: "Bfrtip",
+        buttons: [
+            { extend: "copy", className: "btn btn-copy", text: "Copy" },
+            { extend: "csv", className: "btn btn-csv", text: "CSV" },
+            { extend: "excel", className: "btn btn-excel", text: "Excel" },
+            { extend: "pdf", className: "btn btn-pdf", text: "PDF" },
+            { extend: "print", className: "btn btn-print", text: "Print" },
+            { 
+                text: "Refresh", 
+                className: "btn btn-refresh", 
+                action: function () { 
+                    console.log("Refresh button clicked");
+                    $("#resetFilterButton").click(); 
+                    getCampaignsPageData(); 
+                    getCampaignPayments();
+                    // resetFilterButton click
+
+
+                    
+                } 
+            }
+        ],
+    });
 }
 
-function getCampaignsPageData() {
+function getCampaignsPageData(formValues = {}) {
     let type = "POST";
     let url = "/getCampaignsPageData";
     let message = "";
     let form = "";
     let data = new FormData();
     // PASSING DATA TO FUNCTION
+    for (const [key, value] of Object.entries(formValues)) {
+        data.append(key, value);
+    }
     SendAjaxRequestToServer(
         type,
         url,
@@ -104,7 +143,11 @@ function getCampaignsPageDataResponse(response) {
 
 function makeCampaignListing(campaignList) {
     var html = "";
-
+    $("#campaign_table_body").html("");
+    // campaign_table datatable
+    if ($.fn.DataTable.isDataTable("#campaign_table")) {
+        $("#campaign_table").DataTable().destroy().clear();
+    }
     if (campaignList.length > 0) {
         $.each(campaignList, function (index, campaign) {
             html += `<tr>
@@ -164,6 +207,43 @@ function makeCampaignListing(campaignList) {
         });
     }
     $("#campaign_table_body").html(html);
+    // campaign_table
+    $("#campaign_table").DataTable({
+        bDestroy:true,
+        paging: true,
+        lengthChange: true,
+        searching: true,
+        info: true,
+        autoWidth: false,
+        responsive: true,
+        scrollX: true,
+        language: {
+            search: "_INPUT_",
+            searchPlaceholder: "Search",
+        },
+        dom: "Bfrtip",
+        buttons: [
+            { extend: "copy", className: "btn btn-copy", text: "Copy" },
+            { extend: "csv", className: "btn btn-csv", text: "CSV" },
+            { extend: "excel", className: "btn btn-excel", text: "Excel" },
+            { extend: "pdf", className: "btn btn-pdf", text: "PDF" },
+            { extend: "print", className: "btn btn-print", text: "Print" },
+            { 
+                text: "Refresh", 
+                className: "btn btn-refresh", 
+                action: function () { 
+                    console.log("Refresh button clicked");
+                    $("#resetFilterButton").click(); 
+                    getCampaignsPageData(); 
+                    getCampaignPayments();
+                    // resetFilterButton click
+
+
+                    
+                } 
+            }
+        ],
+    });
 }
 
 $(document).on("click", "#addthumbnail_btn", function (e) {

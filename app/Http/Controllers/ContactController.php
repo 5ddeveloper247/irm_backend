@@ -17,7 +17,33 @@ class ContactController extends Controller
     }
     // getContactsPageData
     public function getContactPageData(){
-        $data['contact_list'] = Contact::orderBy('id', 'desc')->get();
+        // $data['contact_list'] = Contact::orderBy('id', 'desc')->get();
+        $query = Contact::orderBy('id', 'desc')->latest();
+        // name: 
+        if(request()->has('name') && request('name') != ''){
+            $query->where('name', 'like', '%'.request('name').'%');
+        }
+        // email: 
+        if(request()->has('email') && request('email') != ''){
+            $query->where('email', 'like', '%'.request('email').'%');
+        }
+        // phone: 
+        if(request()->has('phone') && request('phone') != ''){
+            $query->where('phone', 'like', '%'.request('phone').'%');
+        }
+        // subject: 
+        if(request()->has('subject') && request('subject') != ''){
+            $query->where('subject', 'like', '%'.request('subject').'%');
+        }
+        // message: 
+        // if(request()->has('message') && request('message') != ''){
+        //     $query->where('message', 'like', '%'.request('message').'%');
+        // }
+        // date: 
+        if(request()->has('date') && request('date') != ''){
+            $query->whereDate('created_at', request('date'));
+        }
+        $data['contact_list'] = $query->get();
         return  response()->json(['status' => 200, 'message' => "", 'data' => $data]);
     }
     // getContactDetail

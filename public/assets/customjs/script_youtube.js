@@ -1,4 +1,4 @@
-function getYoutubePageData(){
+function getYoutubePageData(formValues = {}){
 
     let type = 'POST';
     let url = '/getYoutubePageData';
@@ -6,6 +6,9 @@ function getYoutubePageData(){
     let form = '';
     let data = new FormData();
     // PASSING DATA TO FUNCTION
+    for (const [key, value] of Object.entries(formValues)) {
+        data.append(key, value);
+    }
     SendAjaxRequestToServer(type, url, data, '', getYoutubePageDataResponse, '', '');
 }
 
@@ -23,7 +26,9 @@ function getYoutubePageDataResponse(response) {
 function makeYoutubeListing(youtubesList){
    
     var html = '';
-   
+    if ($.fn.DataTable.isDataTable('#listing_table')) {
+        $('#listing_table').DataTable().destroy();
+    }
     if (youtubesList.length > 0) {
         $.each(youtubesList, function (index, value) {
             
@@ -70,6 +75,40 @@ function makeYoutubeListing(youtubesList){
         });
     }
     $("#listing_table_body").html(html);
+    $("#listing_table").DataTable({
+        paging: true,
+        lengthChange: true,
+        searching: true,
+        info: true,
+        autoWidth: false,
+        responsive: true,
+        scrollX: true,
+        language: {
+            search: "_INPUT_",
+            searchPlaceholder: "Search",
+        },
+        dom: "Bfrtip",
+        buttons: [
+            { extend: "copy", className: "btn btn-copy", text: "Copy" },
+            { extend: "csv", className: "btn btn-csv", text: "CSV" },
+            { extend: "excel", className: "btn btn-excel", text: "Excel" },
+            { extend: "pdf", className: "btn btn-pdf", text: "PDF" },
+            { extend: "print", className: "btn btn-print", text: "Print" },
+            { 
+                text: "Refresh", 
+                className: "btn btn-refresh", 
+                action: function () { 
+                    console.log("Refresh button clicked");
+                    $("#resetFilterButton").click(); 
+                    getYoutubePageData(); 
+                    // resetFilterButton click
+
+
+                    
+                } 
+            }
+        ],
+    });
 }
 
 function addNewYoutube(){

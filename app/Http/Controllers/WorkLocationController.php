@@ -13,7 +13,21 @@ class WorkLocationController extends Controller
     }
     // getWorklocationPageData
     public function getWorklocationPageData(Request $request){
-        $worklocations = WorkLocation::where('status', 1)->latest()->get();
+        // $worklocations = WorkLocation::where('status', 1)->latest()->get();
+        $query = WorkLocation::where('status', 1)->latest();
+        // title: 
+        if(request()->has('title') && request('title') != ''){
+            $query->where('title', 'like', '%'.request('title').'%');
+        }
+        // status: 
+        if(request()->has('status') && request('status') != ''){
+            $query->where('status', request('status'));
+        }
+        // date: 
+        if(request()->has('date') && request('date') != ''){
+            $query->whereDate('created_at', request('date'));
+        }
+        $worklocations = $query->get();
         return response()->json(['status' => 200, 'worklocations_list' => $worklocations]);
     }
     //worklocation

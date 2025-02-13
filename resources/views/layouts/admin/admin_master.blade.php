@@ -124,6 +124,10 @@
     <script src="{{ asset('assets/customjs/common.js') }}"></script>
     <script src="{{ asset('assets/js/main.js') }}"></script>
     <style>
+        .dt-buttons{
+            margin-top: 0px !important;
+            margin-left: 10px !important;
+        }
         /* Custom styles for primary button */
         /* Custom styles for Copy button */
         button.dt-button.btn.btn-copy {

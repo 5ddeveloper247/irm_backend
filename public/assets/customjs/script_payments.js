@@ -1,4 +1,4 @@
-function getPaymentsPageData(){
+function getPaymentsPageData(formValues = {}){
 
     let type = 'POST';
     let url = '/getPaymentsPageData';
@@ -6,6 +6,9 @@ function getPaymentsPageData(){
     let form = '';
     let data = new FormData();
     // PASSING DATA TO FUNCTION
+    for (const [key, value] of Object.entries(formValues)) {
+        data.append(key, value);
+    }
     SendAjaxRequestToServer(type, url, data, '', getPaymentsPageDataResponse, '', '');
 }
 
@@ -26,7 +29,9 @@ function makePaymentsListing(paymentsList){
     console.log(paymentsList);
    
     var html = '';
-   
+    if ($.fn.DataTable.isDataTable('#payments_table')) {
+        $('#payments_table').DataTable().destroy();
+    }
     if (paymentsList.length > 0) {
         $.each(paymentsList, function (index, payment) {
             
@@ -52,70 +57,39 @@ function makePaymentsListing(paymentsList){
     if ($.fn.DataTable.isDataTable('#payments_table')) {
         $('#payments_table').DataTable().destroy();
     }
-    $('#payments_table').DataTable({
-        dom: 'Bfrtip',
+    $("#payments_table").DataTable({
+        paging: true,
+        lengthChange: true,
+        searching: true,
+        info: true,
+        autoWidth: false,
+        responsive: true,
+        scrollX: true,
+        language: {
+            search: "_INPUT_",
+            searchPlaceholder: "Search",
+        },
+        dom: "Bfrtip",
         buttons: [
-            {
-                extend: 'copy',
-                className: 'btn btn-copy',  // Custom class for Copy button
-                text: 'Copy'
-            },
-            {
-                extend: 'csv',
-                className: 'btn btn-csv',  // Custom class for CSV button
-                text: 'CSV'
-            },
-            {
-                extend: 'excel',
-                className: 'btn btn-excel',  // Custom class for Excel button
-                text: 'Excel'
-            },
-            {
-                extend: 'pdf',
-                className: 'btn btn-pdf',  // Custom class for PDF button
-                text: 'PDF'
-            },
-            {
-                extend: 'print',
-                className: 'btn btn-print',  // Custom class for Print button
-                text: 'Print'
-            },
-            {
-                text: 'Filter',
-                className: 'btn btn-filter',  // Custom class for Filter button
-                action: function (e, dt, node, config) {
-                    $('#filters-header').toggle();  // Toggle filter header visibility
-                }
-            },
-            {
-                text: 'Refresh',
-                className: 'btn btn-refresh',  // Custom class for Refresh button
-                action: function (e, dt, node, config) {
-                    getPaymentsPageData();  // Refresh data
-                    $('#search_filter').val('');  // Reset search filter
-                    $('.column-filter').val('');  // Clear column filters
-                }
+            { extend: "copy", className: "btn btn-copy", text: "Copy" },
+            { extend: "csv", className: "btn btn-csv", text: "CSV" },
+            { extend: "excel", className: "btn btn-excel", text: "Excel" },
+            { extend: "pdf", className: "btn btn-pdf", text: "PDF" },
+            { extend: "print", className: "btn btn-print", text: "Print" },
+            { 
+                text: "Refresh", 
+                className: "btn btn-refresh", 
+                action: function () { 
+                    console.log("Refresh button clicked");
+                    $("#resetFilterButton").click(); 
+                    getPaymentsPageData(); 
+                    // resetFilterButton click
+
+
+                    
+                } 
             }
         ],
-        
-        paging: true,
-        searching: true,
-        ordering: false,
-        lengthMenu: [10, 25, 50, 100],
-        language: {
-            search: "Search:",
-            lengthMenu: "Show _MENU_ entries",
-            info: "Showing _START_ to _END_ of _TOTAL_ entries",
-        },
-        initComplete: function () {
-            var api = this.api();
-
-            // Apply filters for header & footer without duplication
-            $('.column-filter').on('keyup change', function () {
-                var columnIndex = $(this).closest('th').index();
-                api.column(columnIndex).search(this.value).draw();
-            });
-        }
     });
 
     // Prevent duplicate header filters in responsive mode

@@ -1,4 +1,10 @@
-function getBookOrdersPageData(){
+$(document).ready(function () {
+    $('button[data-bs-toggle="tab"]').on('shown.bs.tab', function () {
+        $.fn.dataTable.tables({ visible: true, api: true }).columns.adjust();
+        getBookOrdersPageData();
+    });
+})
+function getBookOrdersPageData(formValues = {}){
     // alert('getBookOrdersPageData');
 
     let type = 'POST';
@@ -7,6 +13,9 @@ function getBookOrdersPageData(){
     let form = '';
     let data = new FormData();
     // PASSING DATA TO FUNCTION
+    for (const [key, value] of Object.entries(formValues)) {
+        data.append(key, value);
+    }
     SendAjaxRequestToServer(type, url, data, '', getBookOrdersPageDataResponse, '', '');
 }
 
@@ -16,7 +25,7 @@ function getBookOrdersPageDataResponse(response) {
     if (response.status == 200  || response.status == '200') {
         // console.log(response.data.book_orders);
         var data = response.data;
-
+        console.log(data);
         var bookOrdersList = data.book_orders;
         // console.log(bookOrdersList);
         makeBookOrdersListing(bookOrdersList);
@@ -26,6 +35,8 @@ function getBookOrdersPageDataResponse(response) {
 function BookPaymentsListing(payments) {
     console.log(payments);  
     var html = "";
+    // empty
+    $("#payment_table_body").html('');
     if (payments.length > 0) {
         $.each(payments, function (index, payment) {
             html += `<tr>
@@ -53,7 +64,46 @@ function BookPaymentsListing(payments) {
                     </tr>`;
         });
     }
+    
+    // destroy datatable if already created
+    if ($.fn.DataTable.isDataTable("#payment_table")) {
+        $("#payment_table").DataTable().destroy().clear();
+    }
     $("#payment_table_body").html(html);
+    $("#payment_table").DataTable({
+        paging: true,
+        lengthChange: true,
+        searching: true,
+        info: true,
+        autoWidth: false,
+        responsive: true,
+        scrollX: true,
+        language: {
+            search: "_INPUT_",
+            searchPlaceholder: "Search",
+        },
+        dom: "Bfrtip",
+        buttons: [
+            { extend: "copy", className: "btn btn-copy", text: "Copy" },
+            { extend: "csv", className: "btn btn-csv", text: "CSV" },
+            { extend: "excel", className: "btn btn-excel", text: "Excel" },
+            { extend: "pdf", className: "btn btn-pdf", text: "PDF" },
+            { extend: "print", className: "btn btn-print", text: "Print" },
+            { 
+                text: "Refresh", 
+                className: "btn btn-refresh", 
+                action: function () { 
+                    console.log("Refresh button clicked");
+                    $("#resetFilterButton").click(); 
+                    getBookOrdersPageData(); 
+                    // resetFilterButton click
+
+
+                    
+                } 
+            }
+        ],
+    });
     // destroy datatable if already created
     // if ($.fn.DataTable.isDataTable("#payment_table")) {
     //     $("#payment_table").DataTable().destroy();
@@ -79,6 +129,12 @@ function makeBookOrdersListing(bookOrdersList){
     var htmlDelivered = '';
     var htmlShipped = '';
     var htmlCompleted = '';
+    $("#bookOrders_table_body").html('');
+    $("#pending_table_body").html('');
+    $("#delivered_table_body").html('');
+    $("#shipped_table_body").html('');
+    $("#completed_table_body").html('');
+
     // 	status => 1:pendding, 2:shipped, 3:delivered, 4:completed	
     if (bookOrdersList.length > 0) {
         $.each(bookOrdersList, function (index, bookOrder) {
@@ -87,7 +143,7 @@ function makeBookOrdersListing(bookOrdersList){
                         <td class="text-start text-nowrap">${index+1}</td>
                         <td class="text-start text-nowrap">${bookOrder.book.title}</td>
                         <td class="text-start text-nowrap">${bookOrder.amount}</td>
-                        <td class="text-start text-nowrap">${bookOrder.json_data.shipping.firstName + bookOrder.json_data.shipping.lastName}</td>
+                        <td class="text-start text-nowrap">${bookOrder.json_data.shipping.firstName + " " + bookOrder.json_data.shipping.lastName}</td>
                         <td class="text-start text-nowrap">${bookOrder.json_data.shipping.email}</td>
                         <td class="text-start text-nowrap">${bookOrder.statusName}</td>
                         <td class="text-start text-nowrap">${formatDate(bookOrder.created_at)}</td>
@@ -100,7 +156,7 @@ function makeBookOrdersListing(bookOrdersList){
                             <td class="text-start text-nowrap">${index+1}</td>
                             <td class="text-start text-nowrap">${bookOrder.book.title}</td>
                             <td class="text-start text-nowrap">${bookOrder.amount}</td>
-                            <td class="text-start text-nowrap">${bookOrder.json_data.shipping.firstName + bookOrder.json_data.shipping.lastName}</td>
+                            <td class="text-start text-nowrap">${bookOrder.json_data.shipping.firstName  + " " + bookOrder.json_data.shipping.lastName}</td>
                             <td class="text-start text-nowrap">${bookOrder.json_data.shipping.email}</td>
                             <td class="text-start text-nowrap">${bookOrder.statusName}</td>
                             <td class="text-start text-nowrap">${formatDate(bookOrder.created_at)}</td>
@@ -114,7 +170,7 @@ function makeBookOrdersListing(bookOrdersList){
                             <td class="text-start text-nowrap">${index+1}</td>
                             <td class="text-start text-nowrap">${bookOrder.book.title}</td>
                             <td class="text-start text-nowrap">${bookOrder.amount}</td>
-                            <td class="text-start text-nowrap">${bookOrder.json_data.shipping.firstName + bookOrder.json_data.shipping.lastName}</td>
+                            <td class="text-start text-nowrap">${bookOrder.json_data.shipping.firstName  + " " + bookOrder.json_data.shipping.lastName}</td>
                             <td class="text-start text-nowrap">${bookOrder.json_data.shipping.email}</td>
                             <td class="text-start text-nowrap">${bookOrder.statusName}</td>
                             <td class="text-start text-nowrap">${formatDate(bookOrder.created_at)}</td>
@@ -128,7 +184,7 @@ function makeBookOrdersListing(bookOrdersList){
                             <td class="text-start text-nowrap">${index+1}</td>
                             <td class="text-start text-nowrap">${bookOrder.book.title}</td>
                             <td class="text-start text-nowrap">${bookOrder.amount}</td>
-                            <td class="text-start text-nowrap">${bookOrder.json_data.shipping.firstName + bookOrder.json_data.shipping.lastName}</td>
+                            <td class="text-start text-nowrap">${bookOrder.json_data.shipping.firstName  + " " + bookOrder.json_data.shipping.lastName}</td>
                             <td class="text-start text-nowrap">${bookOrder.json_data.shipping.email}</td>
                             <td class="text-start text-nowrap">${bookOrder.statusName}</td>
                             <td class="text-start text-nowrap">${formatDate(bookOrder.created_at)}</td>
@@ -142,7 +198,7 @@ function makeBookOrdersListing(bookOrdersList){
                             <td class="text-start text-nowrap">${index+1}</td>
                             <td class="text-start text-nowrap">${bookOrder.book.title}</td>
                             <td class="text-start text-nowrap">${bookOrder.amount}</td>
-                            <td class="text-start text-nowrap">${bookOrder.json_data.shipping.firstName + bookOrder.json_data.shipping.lastName}</td>
+                            <td class="text-start text-nowrap">${bookOrder.json_data.shipping.firstName  + " " + bookOrder.json_data.shipping.lastName}</td>
                             <td class="text-start text-nowrap">${bookOrder.json_data.shipping.email}</td>
                             <td class="text-start text-nowrap">${bookOrder.statusName}</td>
                             <td class="text-start text-nowrap">${formatDate(bookOrder.created_at)}</td>
@@ -153,18 +209,212 @@ function makeBookOrdersListing(bookOrdersList){
 
         });
     }
+    // console.log("html",html);
+    
+    
+    if ($.fn.DataTable.isDataTable('#bookOrders_table')) {
+        $('#bookOrders_table').DataTable().destroy().clear();
+    }
     $("#bookOrders_table_body").html(html);
+    $("#bookOrders_table").DataTable({
+        paging: true,
+        bDestroy:true,
+        lengthChange: true,
+        searching: true,
+        info: true,
+        autoWidth: false,
+        responsive: true,
+        scrollX: true,
+        language: {
+            search: "_INPUT_",
+            searchPlaceholder: "Search",
+        },
+        dom: "Bfrtip",
+        buttons: [
+            { extend: "copy", className: "btn btn-copy", text: "Copy" },
+            { extend: "csv", className: "btn btn-csv", text: "CSV" },
+            { extend: "excel", className: "btn btn-excel", text: "Excel" },
+            { extend: "pdf", className: "btn btn-pdf", text: "PDF" },
+            { extend: "print", className: "btn btn-print", text: "Print" },
+            { 
+                text: "Refresh", 
+                className: "btn btn-refresh", 
+                action: function () { 
+                    console.log("Refresh button clicked");
+                    $("#resetFilterButton").click(); 
+                    getBookOrdersPageData(); 
+                    // resetFilterButton click
+
+
+                    
+                } 
+            }
+        ],
+    });
     // pending
+    
+    if ($.fn.DataTable.isDataTable('#pending_table')) {
+        $('#pending_table').DataTable().destroy().clear();
+    }
     $("#pending_table_body").html(htmlPending);
+    $("#pending_table").DataTable({
+        paging: true,
+        lengthChange: true,
+        searching: true,
+        info: true,
+        autoWidth: false,
+        responsive: true,
+        scrollX: true,
+        language: {
+            search: "_INPUT_",
+            searchPlaceholder: "Search",
+        },
+        dom: "Bfrtip",
+        buttons: [
+            { extend: "copy", className: "btn btn-copy", text: "Copy" },
+            { extend: "csv", className: "btn btn-csv", text: "CSV" },
+            { extend: "excel", className: "btn btn-excel", text: "Excel" },
+            { extend: "pdf", className: "btn btn-pdf", text: "PDF" },
+            { extend: "print", className: "btn btn-print", text: "Print" },
+            { 
+                text: "Refresh", 
+                className: "btn btn-refresh", 
+                action: function () { 
+                    console.log("Refresh button clicked");
+                    $("#resetFilterButton").click(); 
+                    getBookOrdersPageData(); 
+                    // resetFilterButton click
+
+
+                    
+                } 
+            }
+        ],
+    });
+
     // pending end
     // delivered 
+    
+    if ($.fn.DataTable.isDataTable('#delivered_table')) {
+        $('#delivered_table').DataTable().destroy();
+    }
     $("#delivered_table_body").html(htmlDelivered);
+    $("#delivered_table").DataTable({
+        paging: true,
+        lengthChange: true,
+        searching: true,
+        info: true,
+        autoWidth: false,
+        responsive: true,
+        scrollX: true,
+        language: {
+            search: "_INPUT_",
+            searchPlaceholder: "Search",
+        },
+        dom: "Bfrtip",
+        buttons: [
+            { extend: "copy", className: "btn btn-copy", text: "Copy" },
+            { extend: "csv", className: "btn btn-csv", text: "CSV" },
+            { extend: "excel", className: "btn btn-excel", text: "Excel" },
+            { extend: "pdf", className: "btn btn-pdf", text: "PDF" },
+            { extend: "print", className: "btn btn-print", text: "Print" },
+            { 
+                text: "Refresh", 
+                className: "btn btn-refresh", 
+                action: function () { 
+                    console.log("Refresh button clicked");
+                    $("#resetFilterButton").click(); 
+                    getBookOrdersPageData(); 
+                    // resetFilterButton click
+
+
+                    
+                } 
+            }
+        ],
+    });
     // delivered end
     // shipped
+    
+    if ($.fn.DataTable.isDataTable('#shipped_table')) {
+        $('#shipped_table').DataTable().destroy();
+    }
     $("#shipped_table_body").html(htmlShipped);
+    $("#shipped_table").DataTable({
+        paging: true,
+        lengthChange: true,
+        searching: true,
+        info: true,
+        autoWidth: false,
+        responsive: true,
+        scrollX: true,
+        language: {
+            search: "_INPUT_",
+            searchPlaceholder: "Search",
+        },
+        dom: "Bfrtip",
+        buttons: [
+            { extend: "copy", className: "btn btn-copy", text: "Copy" },
+            { extend: "csv", className: "btn btn-csv", text: "CSV" },
+            { extend: "excel", className: "btn btn-excel", text: "Excel" },
+            { extend: "pdf", className: "btn btn-pdf", text: "PDF" },
+            { extend: "print", className: "btn btn-print", text: "Print" },
+            { 
+                text: "Refresh", 
+                className: "btn btn-refresh", 
+                action: function () { 
+                    console.log("Refresh button clicked");
+                    $("#resetFilterButton").click(); 
+                    getBookOrdersPageData(); 
+                    // resetFilterButton click
+
+
+                    
+                } 
+            }
+        ],
+    });
     // shipped end
     // completed
+    
+    if ($.fn.DataTable.isDataTable('#completed_table')) {
+        $('#completed_table').DataTable().destroy();
+    }
     $("#completed_table_body").html(htmlCompleted);
+    $("#completed_table").DataTable({
+        paging: true,
+        lengthChange: true,
+        searching: true,
+        info: true,
+        autoWidth: false,
+        responsive: true,
+        scrollX: true,
+        language: {
+            search: "_INPUT_",
+            searchPlaceholder: "Search",
+        },
+        dom: "Bfrtip",
+        buttons: [
+            { extend: "copy", className: "btn btn-copy", text: "Copy" },
+            { extend: "csv", className: "btn btn-csv", text: "CSV" },
+            { extend: "excel", className: "btn btn-excel", text: "Excel" },
+            { extend: "pdf", className: "btn btn-pdf", text: "PDF" },
+            { extend: "print", className: "btn btn-print", text: "Print" },
+            { 
+                text: "Refresh", 
+                className: "btn btn-refresh", 
+                action: function () { 
+                    console.log("Refresh button clicked");
+                    $("#resetFilterButton").click(); 
+                    getBookOrdersPageData(); 
+                    // resetFilterButton click
+
+
+                    
+                } 
+            }
+        ],
+    });
     // completed end
 }
 var bookOrderTempId = '';

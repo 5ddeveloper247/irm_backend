@@ -15,7 +15,48 @@ class EnrollCourseController extends Controller
     // getAllEnrollCourse
     public function getEnrollCoursesPageData()
     {
-        $data['enrollCourse_list'] = EnrollCourse::with('course')->orderBy('id','desc')->get();
+        // $data['enrollCourse_list'] = EnrollCourse::with('course')->orderBy('id','desc')->get();
+        $query = EnrollCourse::with('course')->orderBy('id','desc')->latest();
+        // name: 
+        if(request()->has('name') && request('name') != ''){
+            $query->where('name', 'like', '%'.request('name').'%');
+        }
+        // email: 
+        if(request()->has('email') && request('email') != ''){
+            $query->where('email', 'like', '%'.request('email').'%');
+        }
+        // course_title: 
+        if(request()->has('course_title') && request('course_title') != ''){
+            $query->whereHas('course', function($query){
+                $query->where('title', 'like', '%'.request('course_title').'%');
+            });
+        }
+
+        // instructor_name: 
+        if (request()->has('instructor_name') && request('instructor_name') != '') {
+            $instructorNames = explode(',', request('instructor_name'));
+        
+            // Ensure each name is trimmed properly
+            $instructorNames = array_map('trim', $instructorNames);
+        
+            $query->whereHas('course', function ($query) use ($instructorNames) {
+                foreach ($instructorNames as $instructorName) {
+                    $query->where('instructor_name', 'like', '%' . $instructorName . '%');
+                }
+            });
+        }
+        
+        // level: 
+        if(request()->has('level') && request('level') != ''){
+            $query->whereHas('course', function($query){
+                $query->where('level', request('level'));
+            });
+        }
+        // date: 
+        if(request()->has('date') && request('date') != ''){
+            $query->whereDate('created_at', request('date'));
+        }
+        $data['enrollCourse_list'] = $query->get();
         return response()->json(['status' => 200, 'message' => "", 'data' => $data]);
         
     }

@@ -116,7 +116,8 @@ Route::group(['middleware' => ['AdminAuth']], function () {
 
     // getMembershipsPageData
     Route::post('/getMembershipsPageData', [MembershipController::class, 'getMembershipsPageData'])->name('getMembershipsPageData');
-
+    // url = '/viewMember';
+    Route::post('/viewMember', [MembershipController::class, 'viewMember'])->name('viewMember');
 
     // saveYoutube
     Route::post('/saveYoutube', [YoutubeController::class, 'saveYoutube'])->name('saveYoutube');

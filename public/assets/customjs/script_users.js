@@ -1,4 +1,4 @@
-function getUsersPageData(){
+function getUsersPageData(formValues = {}){
 
     let type = 'POST';
     let url = '/getUsersPageData';
@@ -6,6 +6,9 @@ function getUsersPageData(){
     let form = '';
     let data = new FormData();
     // PASSING DATA TO FUNCTION
+    for (const [key, value] of Object.entries(formValues)) {
+        data.append(key, value);
+    }
     SendAjaxRequestToServer(type, url, data, '', getUsersPageDataResponse, '', '');
 }
 
@@ -25,7 +28,10 @@ function getUsersPageDataResponse(response) {
 function makeUsersListing(usersList){
    
     var html = '';
-   
+    // users_table datatable destroy
+    if ($.fn.DataTable.isDataTable('#users_table')) {
+        $('#users_table').DataTable().destroy();
+    }
     if (usersList.length > 0) {
         $.each(usersList, function (index, user) {
             
@@ -72,6 +78,40 @@ function makeUsersListing(usersList){
         });
     }
     $("#users_table_body").html(html);
+    $("#users_table").DataTable({
+        paging: true,
+        lengthChange: true,
+        searching: true,
+        info: true,
+        autoWidth: false,
+        responsive: true,
+        scrollX: true,
+        language: {
+            search: "_INPUT_",
+            searchPlaceholder: "Search",
+        },
+        dom: "Bfrtip",
+        buttons: [
+            { extend: "copy", className: "btn btn-copy", text: "Copy" },
+            { extend: "csv", className: "btn btn-csv", text: "CSV" },
+            { extend: "excel", className: "btn btn-excel", text: "Excel" },
+            { extend: "pdf", className: "btn btn-pdf", text: "PDF" },
+            { extend: "print", className: "btn btn-print", text: "Print" },
+            { 
+                text: "Refresh", 
+                className: "btn btn-refresh", 
+                action: function () { 
+                    console.log("Refresh button clicked");
+                    $("#resetFilterButton").click(); 
+                    getUsersPageData(); 
+                    // resetFilterButton click
+
+
+                    
+                } 
+            }
+        ],
+    });
 }
 
 $(document).on('click', '#addthumbnail_btn', function (e) {

@@ -1,4 +1,4 @@
-function getBooksPageData(){
+function getBooksPageData(formValues = {}){
 
     let type = 'POST';
     let url = '/getBooksPageData';
@@ -6,6 +6,9 @@ function getBooksPageData(){
     let form = '';
     let data = new FormData();
     // PASSING DATA TO FUNCTION
+    for (const [key, value] of Object.entries(formValues)) {
+        data.append(key, value);
+    }
     SendAjaxRequestToServer(type, url, data, '', getBooksPageDataResponse, '', '');
 }
 
@@ -25,7 +28,12 @@ function getBooksPageDataResponse(response) {
 function makeBooksListing(booksList){
    
     var html = '';
-   
+   $("#books_table_body").html('');
+//    books_table datatable destroy and then reinitialize
+
+    if($.fn.DataTable.isDataTable('#books_table')){
+        $('#books_table').DataTable().destroy().clear();
+    }
     if (booksList.length > 0) {
         $.each(booksList, function (index, book) {
             
@@ -72,6 +80,41 @@ function makeBooksListing(booksList){
         });
     }
     $("#books_table_body").html(html);
+    $('#books_table').DataTable({
+        bDestroy:true,
+        paging: true,
+        lengthChange: true,
+        searching: true,
+        info: true,
+        autoWidth: false,
+        responsive: true,
+        scrollX: true,
+        language: {
+            search: "_INPUT_",
+            searchPlaceholder: "Search",
+        },
+        dom: "Bfrtip",
+        buttons: [
+            { extend: "copy", className: "btn btn-copy", text: "Copy" },
+            { extend: "csv", className: "btn btn-csv", text: "CSV" },
+            { extend: "excel", className: "btn btn-excel", text: "Excel" },
+            { extend: "pdf", className: "btn btn-pdf", text: "PDF" },
+            { extend: "print", className: "btn btn-print", text: "Print" },
+            { 
+                text: "Refresh", 
+                className: "btn btn-refresh", 
+                action: function () { 
+                    console.log("Refresh button clicked");
+                    $("#resetFilterButton").click(); 
+                    getBooksPageData(); 
+                    // resetFilterButton click
+
+
+                    
+                } 
+            }
+        ],
+    });
 }
 
 $(document).on('click', '#addthumbnail_btn', function (e) {

@@ -1,4 +1,4 @@
-function getContactPageData(){
+function getContactPageData(formValues = {}){
 
     let type = 'POST';
     let url = '/getContactPageData';
@@ -6,6 +6,9 @@ function getContactPageData(){
     let form = '';
     let data = new FormData();
     // PASSING DATA TO FUNCTION
+    for (const [key, value] of Object.entries(formValues)) {
+        data.append(key, value);
+    }
     SendAjaxRequestToServer(type, url, data, '', getContactPageDataResponse, '', '');
 }
 $(document).ready(function () {
@@ -45,7 +48,9 @@ function makeContactListing(contactList){
     console.log(contactList);
    
     var html = '';
-   
+    if ($.fn.DataTable.isDataTable('#contact_table')) {
+        $('#contact_table').DataTable().destroy();
+    }
     if (contactList.length > 0) {
         $.each(contactList, function (index, contact) {
             
@@ -66,14 +71,40 @@ function makeContactListing(contactList){
         });
     }
     $("#contact_table_body").html(html);
-    // setTimeout(function () {
-    //     $('#contact_table').DataTable({
-    //         // add serch pan in table
-    //         "searching": true,
-    //         // pagination
-    //         "paging": true,
-    //     });
-    // }, 1000);
+    $("#contact_table").DataTable({
+        paging: true,
+        lengthChange: true,
+        searching: true,
+        info: true,
+        autoWidth: false,
+        responsive: true,
+        scrollX: true,
+        language: {
+            search: "_INPUT_",
+            searchPlaceholder: "Search",
+        },
+        dom: "Bfrtip",
+        buttons: [
+            { extend: "copy", className: "btn btn-copy", text: "Copy" },
+            { extend: "csv", className: "btn btn-csv", text: "CSV" },
+            { extend: "excel", className: "btn btn-excel", text: "Excel" },
+            { extend: "pdf", className: "btn btn-pdf", text: "PDF" },
+            { extend: "print", className: "btn btn-print", text: "Print" },
+            { 
+                text: "Refresh", 
+                className: "btn btn-refresh", 
+                action: function () { 
+                    console.log("Refresh button clicked");
+                    $("#resetFilterButton").click(); 
+                    getContactPageData(); 
+                    // resetFilterButton click
+
+
+                    
+                } 
+            }
+        ],
+    });
 }
 
 // Contact Reply

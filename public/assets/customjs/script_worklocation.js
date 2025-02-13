@@ -1,10 +1,13 @@
-function getWorklocationPageData() {
+function getWorklocationPageData(formValues = {}) {
     let type = "POST";
     let url = "/getWorklocationPageData";
     let message = "";
     let form = "";
     let data = new FormData();
     // PASSING DATA TO FUNCTION
+    for (const [key, value] of Object.entries(formValues)) {
+        data.append(key, value);
+    }
     SendAjaxRequestToServer(
         type,
         url,
@@ -28,7 +31,9 @@ function getWorklocationPageDataResponse(response) {
 
 function makeWorklocationListing(worklocationsList) {
     var html = "";
-
+    if ($.fn.DataTable.isDataTable('#listing_table')) {
+        $('#listing_table').DataTable().destroy();
+    }
     if (worklocationsList.length > 0) {
         $.each(worklocationsList, function (index, value) {
             html += `<tr>
@@ -83,6 +88,40 @@ function makeWorklocationListing(worklocationsList) {
         });
     }
     $("#listing_table_body").html(html);
+    $("#listing_table").DataTable({
+        paging: true,
+        lengthChange: true,
+        searching: true,
+        info: true,
+        autoWidth: false,
+        responsive: true,
+        scrollX: true,
+        language: {
+            search: "_INPUT_",
+            searchPlaceholder: "Search",
+        },
+        dom: "Bfrtip",
+        buttons: [
+            { extend: "copy", className: "btn btn-copy", text: "Copy" },
+            { extend: "csv", className: "btn btn-csv", text: "CSV" },
+            { extend: "excel", className: "btn btn-excel", text: "Excel" },
+            { extend: "pdf", className: "btn btn-pdf", text: "PDF" },
+            { extend: "print", className: "btn btn-print", text: "Print" },
+            { 
+                text: "Refresh", 
+                className: "btn btn-refresh", 
+                action: function () { 
+                    console.log("Refresh button clicked");
+                    $("#resetFilterButton").click(); 
+                    getWorklocationPageData(); 
+                    // resetFilterButton click
+
+
+                    
+                } 
+            }
+        ],
+    });
 }
 
 function addNewWorklocation() {

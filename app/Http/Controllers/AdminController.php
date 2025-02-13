@@ -32,13 +32,15 @@ use App\Models\Payment;
 
 class AdminController extends Controller
 {
-    public function index(Request $request){
+    public function index(Request $request)
+    {
         Auth::logout();
         return view('login');
     }
-    
-    public function createStaticUser(Request $request){
-        
+
+    public function createStaticUser(Request $request)
+    {
+
         // $password = 'Admin123#';
 
         // $User = new User();
@@ -49,13 +51,14 @@ class AdminController extends Controller
         // $User->role = '1';  // 1:Admin, 2:User
         // $User->status = '1';
         // $User->save();
-        
+
         // return 'User Created Successfully...';
     }
     // for api testing
-    public function get_settings(Request $request){
+    public function get_settings(Request $request)
+    {
         $settings = Setting::first();
-        if($settings == null){
+        if ($settings == null) {
             $settings = new \stdClass();
             $settings->company_name = '';
             $settings->company_logo = '';
@@ -69,17 +72,18 @@ class AdminController extends Controller
             $settings->linkedin_link = '';
             $settings->youtube_link = '';
         }
-        if($settings->company_logo != ''){
+        if ($settings->company_logo != '') {
             $settings->company_logo = url($settings->company_logo);
         }
         return response()->json(['status' => 200, 'message' => 'Settings Fetched Successfully.', 'data' => $settings]);
     }
     // settings
-    public function settings(Request $request){
+    public function settings(Request $request)
+    {
         // dd('settings');
         // $settings = \DB::table('settings')->first();
         $settings = Setting::first();
-        if($settings == null){
+        if ($settings == null) {
             $settings = new \stdClass();
             $settings->company_name = '';
             $settings->company_logo = '';
@@ -97,7 +101,8 @@ class AdminController extends Controller
         return view('admin/settings', ['settings' => $settings]);
     }
     // updateSettings
-    public function updateSettings(Request $request){
+    public function updateSettings(Request $request)
+    {
         $validator = Validator::make($request->all(), [
             'company_logo' => 'nullable|image|mimes:jpeg,png,jpg|dimensions:width=128,height=128', // Must be an image file
             'company_name' => 'required|max:50|string',
@@ -106,23 +111,23 @@ class AdminController extends Controller
             'company_email' => 'required|email',
 
         ]);
-        
+
         if ($validator->fails()) {
             return response()->json(['status' => 400, 'message' => $validator->errors()->first()]);
         }
-       
+
         // save settings
         // $settings = \DB::table('settings')->first();
         $settings = Setting::first();
-         // image upload
-         if($request->hasFile('company_logo')){
+        // image upload
+        if ($request->hasFile('company_logo')) {
             $company_logo = 'uploads/images/' . time() . '_' . $request->file('company_logo')->getClientOriginalName();
             $request->file('company_logo')->move(public_path('uploads/images'), $company_logo);
             $settings->company_logo = $company_logo;
-        }else{
+        } else {
             $company_logo = $settings->company_logo;
         }
-        if($settings == null){
+        if ($settings == null) {
             \DB::table('settings')->insert([
                 'company_name' => $request->company_name,
                 'company_address' => $request->company_address,
@@ -138,7 +143,7 @@ class AdminController extends Controller
                 'created_at' => Carbon::now(),
                 'updated_at' => Carbon::now(),
             ]);
-        }else{
+        } else {
             // $company_logo = $settings->company_logo;
             \DB::table('settings')->where('id', $settings->id)->update([
                 'company_name' => $request->company_name,
@@ -158,49 +163,58 @@ class AdminController extends Controller
         return response()->json(['status' => 200, 'message' => 'Settings Updated Successfully.']);
     }
 
-    public function dashboard(Request $request){
-        
+    public function dashboard(Request $request)
+    {
+
         return view('admin/dashboard');
     }
 
-    public function audio_lectures(Request $request){
-        
+    public function audio_lectures(Request $request)
+    {
+
         return view('admin/audio_lectures');
     }
 
-    public function campaigns(Request $request){
+    public function campaigns(Request $request)
+    {
         // get all campaigns
 
         return view('admin/campaigns');
     }
 
-    public function books_library(Request $request){
-        
+    public function books_library(Request $request)
+    {
+
         return view('admin/books_library');
     }
 
-    public function blogs(Request $request){
-        
+    public function blogs(Request $request)
+    {
+
         return view('admin/blogs');
     }
 
-    public function gallery(Request $request){
-        
+    public function gallery(Request $request)
+    {
+
         return view('admin/gallery_types');
     }
 
-    public function courses(Request $request){
-        
+    public function courses(Request $request)
+    {
+
         return view('admin/courses');
     }
 
-    public function news_events(Request $request){
-        
+    public function news_events(Request $request)
+    {
+
         return view('admin/news_events');
     }
 
-    public function forgetpassword(Request $request){
-        
+    public function forgetpassword(Request $request)
+    {
+
         return view('forgetpassword');
     }
 
@@ -212,15 +226,13 @@ class AdminController extends Controller
         if (Auth::attempt($credentials)) {
             // Authentication passed
             $user = Auth::user();
-            if($user->role == 1 || $user->role == 3){
+            if ($user->role == 1 || $user->role == 3) {
                 return redirect()->intended('/dashboard');
+            } else {
 
-            }else{
-            
                 return redirect('login')->withErrors([
                     'email' => 'The provided credentials is not valid.',
                 ]);
-            
             }
         }
         // Authentication failed, redirect back to the login page with error message
@@ -257,14 +269,14 @@ class AdminController extends Controller
                         ->where('role', 1)
                         ->where('status', 1)
                         ->first();
-        
+
                     if (!$user) {
                         $fail("The $attribute must belong to an active user with admin role.");
                     }
                 },
             ],
         ]);
-        
+
         // Check if validation fails
         if ($validator->fails()) {
             return response()->json([
@@ -276,11 +288,11 @@ class AdminController extends Controller
         try {
 
             $otp = random_int(100000, 999999);
-        
+
             $user = User::where('email', $request->email)->first();
             $user->otp = $otp;
             $user->save();
-            
+
             $mailData = [];
             $mailData['otp'] = $otp;
             $mailData['username'] = $user->name;
@@ -316,7 +328,7 @@ class AdminController extends Controller
                         ->where('role', 1)
                         ->where('status', 1)
                         ->first();
-        
+
                     if (!$user) {
                         $fail("The $attribute must belong to an active user with admin role.");
                     }
@@ -324,7 +336,7 @@ class AdminController extends Controller
             ],
             'otp' => 'required|min:6',
         ]);
-        
+
         // Check if validation fails
         if ($validator->fails()) {
             return response()->json([
@@ -336,15 +348,15 @@ class AdminController extends Controller
         try {
 
             $user = User::where('email', $request->email)->first();
-            
-            if($user->otp == $request->otp){
+
+            if ($user->otp == $request->otp) {
 
                 return response()->json([
                     'success' => true,
                     'message' => 'OTP (One Time Password) verified successfully.'
                 ], 200);
             }
-            
+
 
             return response()->json([
                 'success' => false,
@@ -374,7 +386,7 @@ class AdminController extends Controller
                         ->where('role', 1)
                         ->where('status', 1)
                         ->first();
-        
+
                     if (!$user) {
                         $fail("The $attribute must belong to an active user with admin role.");
                     }
@@ -391,7 +403,7 @@ class AdminController extends Controller
         ], [
             'password.regex' => 'The new password must contain at least one uppercase letter, one lowercase letter, one number, and one special character.',
         ]);
-        
+
         // Check if validation fails
         if ($validator->fails()) {
             return response()->json([
@@ -403,8 +415,8 @@ class AdminController extends Controller
         try {
 
             $User = User::where('email', $request->email)->first();
-            
-            if($User->otp == $request->otp){
+
+            if ($User->otp == $request->otp) {
 
                 $password = $request->input('password');
 
@@ -416,15 +428,13 @@ class AdminController extends Controller
                     'success' => true,
                     'message' => 'Password change successfully, Now login with your new password.'
                 ], 200);
-
             }
-            
+
 
             return response()->json([
                 'success' => false,
                 'message' => 'Something went wrong...'
             ], 200);
-
         } catch (\Exception $e) {
             // Log the error for debugging purposes
             Log::error('Error storing info: ' . $e->getMessage());
@@ -439,13 +449,46 @@ class AdminController extends Controller
     /* ******************** Audio Lectures Page Code Start Here ********************* */
     public function getAudioLecturesPageData(Request $request)
     {
-        
-        $data['category_list'] = AudioCategory::get();
-        $data['lecture_list'] = AudioLecture::with(['category'])->get();
-        
+
+        // $data['category_list'] = AudioCategory::get();
+        $query = AudioCategory::latest();
+        // category_name: 
+        if ($request->has('category_name') && !empty($request->category_name)) {
+            $query->where('title', 'like', '%' . $request->category_name . '%');
+        }
+        // date: 
+        if ($request->has('date') && !empty($request->date)) {
+            $query->whereDate('date', $request->date);
+        }
+        // status
+        if ($request->has('status') && $request->status != '') {
+            $query->where('status', $request->status);
+        }
+        $data['category_list'] = $query->get();
+        $query = AudioLecture::with(['category'])->latest();
+        // lecture_name: 
+        if ($request->has('lecture_name') && !empty($request->lecture_name)) {
+            $query->where('title', 'like', '%' . $request->lecture_name . '%');
+        }
+        // category_name
+        if ($request->has('category_name') && !empty($request->category_name)) {
+            $query->whereHas('category', function ($q) use ($request) {
+                $q->where('title', 'like', '%' . $request->category_name . '%');
+            });
+        }
+        // date
+        if ($request->has('date') && !empty($request->date)) {
+            $query->whereDate('date', $request->date);
+        }
+        // status
+        if ($request->has('status') && $request->status != '') {
+            $query->where('status', $request->status);
+        }
+        // $data['category_list'] = AudioCategory::get();
+        $data['lecture_list'] = $query->get();
+
 
         return response()->json(['status' => 200, 'message' => "", 'data' => $data]);
-        
     }
 
     public function saveAudioCategory(Request $request)
@@ -454,48 +497,48 @@ class AdminController extends Controller
             'category_title' => 'required|max:50',
             'category_description' => 'required|max:250',
             'category_status' => 'required',
-            
+
         ]);
 
 
-        if($request->category_id != ''){
+        if ($request->category_id != '') {
             $AudioCategory = AudioCategory::find($request->category_id);
-        }else{
+        } else {
             $AudioCategory = new AudioCategory;
         }
-        
+
         $AudioCategory->title = $request->category_title;
         $AudioCategory->description = $request->category_description;
         $AudioCategory->date = Carbon::now()->format('Y-m-d');
         $AudioCategory->status = $request->category_status;
-        
+
         $AudioCategory->save();
 
-        if($request->category_id != ''){
+        if ($request->category_id != '') {
             return response()->json(['status' => 200, 'message' => "Audio Category Updated Successfully."]);
-        }else{
+        } else {
             return response()->json(['status' => 200, 'message' => "Audio Category Saved Successfully."]);
         }
     }
-    
+
     public function getSpecificAudioCategory(Request $request)
     {
-        
+
         $data['category_detail'] = AudioCategory::where('id', $request->category_id)->first();
-        
+
         return response()->json(['status' => 200, 'message' => "", 'data' => $data]);
     }
 
     public function deleteAudioCategory(Request $request)
     {
-        
+
         $AudioCategory = AudioCategory::find($request->category_id);
 
         if ($AudioCategory) {
 
             $AudioCategory->audio_lectures()->delete();
             $AudioCategory->delete();
-            
+
             return response()->json(['status' => 200, 'message' => "Audio Category Deleted Successfully."]);
         } else {
             return response()->json(['status' => 400, 'message' => "Audio Category not found."]);
@@ -510,24 +553,24 @@ class AdminController extends Controller
             'audio_description' => 'required|max:250',
             'audio_status' => 'required',
             'audio_duration' => 'required',
-            
+
         ]);
-        if($request->audio_id == ''){
+        if ($request->audio_id == '') {
             $validatedData = $request->validate([
                 'thumbnail' => 'required|image|mimes:jpeg,png,jpg,gif|max:1024', // Must be an image file
                 'audio_files' => 'required|array', // Ensure it's an array of files
                 'audio_files.*' => 'mimes:mp3,MP3|max:5120', // Each file must be an MP3 and max 5MB
-                
+
             ]);
         }
 
 
-        if($request->audio_id != ''){
+        if ($request->audio_id != '') {
             $AudioLecture = AudioLecture::find($request->audio_id);
-        }else{
+        } else {
             $AudioLecture = new AudioLecture;
         }
-        
+
         $AudioLecture->category_id = $request->audio_category;
         $AudioLecture->title = $request->audio_title;
         $AudioLecture->description = $request->audio_description;
@@ -535,12 +578,12 @@ class AdminController extends Controller
         $AudioLecture->status = $request->audio_status;
         // audio_duration
         $AudioLecture->duration = $request->audio_duration;
-        
+
         // Save the thumbnail file
         if ($request->hasFile('thumbnail')) {
             $thumbnailFile = $request->file('thumbnail');
             $thumbnailName = 'thumbnail_' . time() . '_' . $thumbnailFile->getClientOriginalName();
-            $thumbnailPath = 'uploads/images'; 
+            $thumbnailPath = 'uploads/images';
             $thumbnailFile->move(public_path($thumbnailPath), $thumbnailName);
             $AudioLecture->thumbnail = $thumbnailPath . '/' . $thumbnailName;
         }
@@ -552,39 +595,39 @@ class AdminController extends Controller
             // delete previous attachments
             $AudioLecture->attachments()->delete();
             foreach ($request->file('audio_files') as $audioFile) {
-                $audioName = 'audio_' . time() . '_' . $audioFile->getClientOriginalName(); 
-                $audioPath = 'uploads/audio'; 
-                $audioFile->move(public_path($audioPath), $audioName); 
+                $audioName = 'audio_' . time() . '_' . $audioFile->getClientOriginalName();
+                $audioPath = 'uploads/audio';
+                $audioFile->move(public_path($audioPath), $audioName);
 
                 $AudioLectureAttachment = new AudioLectureAttachment();
-                $AudioLectureAttachment->audio_id = $AudioLecture->id; 
+                $AudioLectureAttachment->audio_id = $AudioLecture->id;
                 $AudioLectureAttachment->name = $audioFile->getClientOriginalName();
                 $AudioLectureAttachment->path = $audioPath . '/' . $audioName;
-                $AudioLectureAttachment->save(); 
+                $AudioLectureAttachment->save();
             }
         }
 
 
-        if($request->audio_id != ''){
+        if ($request->audio_id != '') {
             return response()->json(['status' => 200, 'message' => "Audio Lecture Updated Successfully."]);
-        }else{
+        } else {
             return response()->json(['status' => 200, 'message' => "Audio Lecture Saved Successfully."]);
         }
     }
 
     public function getSpecificAudioLecture(Request $request)
     {
-        
+
         $data['lecture_detail'] = AudioLecture::where('id', $request->lecture_id)->with(['attachments'])->first();
-        
+
         return response()->json(['status' => 200, 'message' => "", 'data' => $data]);
     }
 
     public function deleteAudioLectureAtt(Request $request)
     {
-        
+
         AudioLectureAttachment::where('id', $request->attachment_id)->delete();
-        
+
         return response()->json(['status' => 200, 'message' => "Audio Deleted Successfully."]);
     }
 
@@ -598,23 +641,38 @@ class AdminController extends Controller
 
             // Delete the AudioLecture record
             $AudioLecture->delete();
-            
+
             return response()->json(['status' => 200, 'message' => "Audio Lecture Deleted Successfully."]);
         } else {
             return response()->json(['status' => 400, 'message' => "Audio Lecture not found."]);
         }
-        
-        
     }
     /* ******************** Audio Lectures Page Code End Here ********************* */
 
     /* ******************** Campaigns Page Code Start Here ********************* */
     public function getCampaignsPageData(Request $request)
     {
-        
-        $data['campaign_list'] = Campaign::get();
+
+        // $data['campaign_list'] = Campaign::get();
+        $query = Campaign::latest();
+        // campaign_title: 
+        if($request->has('campaign_title') && !empty($request->campaign_title)){
+            $query->where('title', 'like', '%' . $request->campaign_title . '%');
+        }
+        // campaign_target_amount: 
+        if($request->has('campaign_target_amount') && !empty($request->campaign_target_amount)){
+            $query->where('target_amount', $request->campaign_target_amount);
+        }
+        // campaign_date: 
+        if($request->has('campaign_date') && !empty($request->campaign_date)){
+            $query->whereDate('date', $request->campaign_date);
+        }
+        // campaign_status: 
+        if($request->has('campaign_status') && $request->campaign_status !=""){
+            $query->where('status', $request->campaign_status);
+        }
+        $data['campaign_list'] = $query->get();
         return response()->json(['status' => 200, 'message' => "", 'data' => $data]);
-        
     }
     // getTasks
     public function getTasks(Request $request)
@@ -662,35 +720,35 @@ class AdminController extends Controller
             'tasks.*.amount.required_with' => 'Each task amount field is required.', // Custom error message for task titles
         ]);
 
-        if($request->campaign_id == ''){
+        if ($request->campaign_id == '') {
             $validatedData = $request->validate([
                 'thumbnail' => 'required|image|mimes:jpeg,png,jpg,gif|max:1024', // Must be an image file
             ]);
-        }else{
+        } else {
             $validatedData = $request->validate([
                 'thumbnail' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:1024', // Must be an image file
             ]);
         }
 
 
-        if($request->campaign_id != ''){
+        if ($request->campaign_id != '') {
             $Campaign = Campaign::find($request->campaign_id);
-        }else{
+        } else {
             $Campaign = new Campaign;
         }
-        
+
         $Campaign->title = $request->campaign_title;
         $Campaign->tags = $request->campaign_tags;
         $Campaign->description = $request->campaign_description;
         $Campaign->date = Carbon::now()->format('Y-m-d');
         $Campaign->target_amount = $request->campaign_target_amount;
         $Campaign->status = $request->campaign_status;
-        
+
         // Save the thumbnail file
         if ($request->hasFile('thumbnail')) {
             $thumbnailFile = $request->file('thumbnail');
             $thumbnailName = 'thumbnail_' . time() . '_' . $thumbnailFile->getClientOriginalName();
-            $thumbnailPath = 'uploads/images'; 
+            $thumbnailPath = 'uploads/images';
             $thumbnailFile->move(public_path($thumbnailPath), $thumbnailName);
             $Campaign->thumbnail = $thumbnailPath . '/' . $thumbnailName;
         }
@@ -699,11 +757,11 @@ class AdminController extends Controller
 
         $tasksArr = isset($request->tasks) ? $request->tasks : [];
 
-        if(count($tasksArr) > 0){
-            foreach($tasksArr as $task){
-                if(isset($task['id']) && $task['id'] != ''){
+        if (count($tasksArr) > 0) {
+            foreach ($tasksArr as $task) {
+                if (isset($task['id']) && $task['id'] != '') {
                     $CampaignTask = CampaignTask::where('id', $task['id'])->first();
-                }else{
+                } else {
                     $CampaignTask = new CampaignTask();
                 }
 
@@ -714,27 +772,26 @@ class AdminController extends Controller
             }
         }
 
-        if($request->campaign_id != ''){
+        if ($request->campaign_id != '') {
             return response()->json(['status' => 200, 'message' => "Campaign Updated Successfully."]);
-        }else{
+        } else {
             return response()->json(['status' => 200, 'message' => "Campaign Saved Successfully."]);
         }
     }
 
     public function getSpecificCampaign(Request $request)
     {
-        
+
         $data['campaign_detail'] = Campaign::where('id', $request->campaign_id)->with(['tasks'])->first();
-        
+
         return response()->json(['status' => 200, 'message' => "", 'data' => $data]);
-        
     }
 
     public function deleteCampaignTask(Request $request)
     {
-        
+
         CampaignTask::where('id', $request->task_id)->delete();
-        
+
         return response()->json(['status' => 200, 'message' => "Task Deleted Successfully."]);
     }
 
@@ -745,22 +802,39 @@ class AdminController extends Controller
         if ($Campaign) {
             $Campaign->tasks()->delete();
             $Campaign->delete();
-            
+
             return response()->json(['status' => 200, 'message' => "Campaign Deleted Successfully."]);
         } else {
             return response()->json(['status' => 400, 'message' => "Campaign not found."]);
         }
     }
     /* ******************** Campaigns Page Code End Here ********************* */
-    
+
     /* ******************** Books Library Page Code Start Here ********************* */
     public function getBooksPageData(Request $request)
     {
-        
-        $data['books_list'] = BookLibrary::get();
-        
+
+        // $data['books_list'] = BookLibrary::get();
+        $query = BookLibrary::latest();
+        // book_title: 
+        if($request->has('book_title') && !empty($request->book_title)){
+            $query->where('title', 'like', '%' . $request->book_title . '%');
+        }
+        // book_price: 
+        if($request->has('book_price') && !empty($request->book_price)){
+            $query->where('price', $request->book_price);
+        }
+        // book_date: 
+        if($request->has('book_date') && !empty($request->book_date)){
+            $query->whereDate('date', $request->book_date);
+        }
+        // book_status: 
+        if($request->has('book_status') && $request->book_status !=""){
+            $query->where('status', $request->book_status);
+        }
+        $data['books_list'] = $query->get();
+
         return response()->json(['status' => 200, 'message' => "", 'data' => $data]);
-        
     }
 
     public function saveBook(Request $request)
@@ -771,37 +845,37 @@ class AdminController extends Controller
             'book_price' => 'required',
             'book_status' => 'required',
         ]);
-        
-        if($request->book_id == ''){
-            
+
+        if ($request->book_id == '') {
+
             $validatedData = $request->validate([
                 'thumbnail' => 'required|image|mimes:jpeg,png,jpg,gif|max:1024',
                 'book' => 'required|mimes:pdf|max:10240',
             ]);
-        }else{
+        } else {
             $validatedData = $request->validate([
                 'thumbnail' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:1024',
                 'book' => 'nullable|mimes:pdf|max:10240',
             ]);
         }
 
-        if($request->book_id != ''){
+        if ($request->book_id != '') {
             $BookLibrary = BookLibrary::find($request->book_id);
-        }else{
+        } else {
             $BookLibrary = new BookLibrary;
         }
-        
+
         $BookLibrary->title = $request->book_title;
         $BookLibrary->description = $request->book_description;
         $BookLibrary->date = Carbon::now()->format('Y-m-d');
         $BookLibrary->price = $request->book_price;
         $BookLibrary->status = $request->book_status;
-        
+
         // Save the thumbnail file
         if ($request->hasFile('thumbnail')) {
             $thumbnailFile = $request->file('thumbnail');
             $thumbnailName = 'thumbnail_' . time() . '_' . $thumbnailFile->getClientOriginalName();
-            $thumbnailPath = 'uploads/images'; 
+            $thumbnailPath = 'uploads/images';
             $thumbnailFile->move(public_path($thumbnailPath), $thumbnailName);
             $BookLibrary->thumbnail = $thumbnailPath . '/' . $thumbnailName;
         }
@@ -810,27 +884,26 @@ class AdminController extends Controller
         if ($request->hasFile('book')) {
             $file = $request->file('book');
             $fileName = 'book' . time() . '_' . $file->getClientOriginalName();
-            $filePath = 'uploads/books'; 
+            $filePath = 'uploads/books';
             $file->move(public_path($filePath), $fileName);
             $BookLibrary->book = $filePath . '/' . $fileName;
         }
 
         $BookLibrary->save();
 
-        if($request->book_id != ''){
+        if ($request->book_id != '') {
             return response()->json(['status' => 200, 'message' => "Book Updated Successfully."]);
-        }else{
+        } else {
             return response()->json(['status' => 200, 'message' => "Book Saved Successfully."]);
         }
     }
 
     public function getSpecificBook(Request $request)
     {
-        
+
         $data['book_detail'] = BookLibrary::where('id', $request->book_id)->first();
-        
+
         return response()->json(['status' => 200, 'message' => "", 'data' => $data]);
-        
     }
 
     public function deleteBook(Request $request)
@@ -840,7 +913,7 @@ class AdminController extends Controller
         if ($BookLibrary) {
 
             $BookLibrary->delete();
-            
+
             return response()->json(['status' => 200, 'message' => "Book Deleted Successfully."]);
         } else {
             return response()->json(['status' => 400, 'message' => "Book not found."]);
@@ -851,11 +924,32 @@ class AdminController extends Controller
     /* ******************** Blogs Page Code Start Here ********************* */
     public function getBlogsPageData(Request $request)
     {
-        
-        $data['blogs_list'] = Blog::get();
-        
+
+        // $data['blogs_list'] = Blog::get();
+        $query = Blog::latest();
+        // author_name: 
+        if($request->has('author_name') && !empty($request->author_name)){
+            $query->where('author_name', 'like', '%' . $request->author_name . '%');
+        }
+        // title: 
+        if($request->has('title') && !empty($request->title)){
+            $query->where('title', 'like', '%' . $request->title . '%');
+        }
+        // published_date: 
+        if($request->has('published_date') && !empty($request->published_date)){
+            $query->whereDate('published_date', $request->published_date);
+        }
+        // end_date: 
+        if($request->has('end_date') && !empty($request->end_date)){
+            $query->whereDate('end_date', $request->end_date);
+        }
+        // status: 
+        if($request->has('status') && $request->status !=""){
+            $query->where('status', $request->status);
+        }
+        $data['blogs_list'] = $query->get();
+
         return response()->json(['status' => 200, 'message' => "", 'data' => $data]);
-        
     }
 
     public function saveBlog(Request $request)
@@ -869,27 +963,27 @@ class AdminController extends Controller
             'blog_end_date' => 'required|date|after:blog_published_date',
             'blog_status' => 'required',
         ]);
-        
-        if($request->blog_id == ''){
-            
+
+        if ($request->blog_id == '') {
+
             $validatedData = $request->validate([
                 'blog_published_date' => 'required|date|after_or_equal:today',
                 'blog_end_date' => 'required|date|after:blog_published_date',
                 'thumbnail' => 'required|image|mimes:jpeg,png,jpg,gif|max:1024', // Must be an image file
             ]);
-        }else{
+        } else {
             $validatedData = $request->validate([
                 'thumbnail' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:1024', // Must be an image file
             ]);
         }
 
-        if($request->blog_id != ''){
+        if ($request->blog_id != '') {
             $Blog = Blog::find($request->blog_id);
-        }else{
+        } else {
             $Blog = new Blog;
             $Blog->date = Carbon::now()->format('Y-m-d');
         }
-        
+
         $Blog->author_name = $request->blog_author_name;
         $Blog->title = $request->blog_title;
         $Blog->tags = $request->blog_tags;
@@ -897,32 +991,31 @@ class AdminController extends Controller
         $Blog->published_date = $request->blog_published_date;
         $Blog->end_date = $request->blog_end_date;
         $Blog->status = $request->blog_status;
-        
+
         // Save the thumbnail file
         if ($request->hasFile('thumbnail')) {
             $thumbnailFile = $request->file('thumbnail');
             $thumbnailName = 'thumbnail_' . time() . '_' . $thumbnailFile->getClientOriginalName();
-            $thumbnailPath = 'uploads/images'; 
+            $thumbnailPath = 'uploads/images';
             $thumbnailFile->move(public_path($thumbnailPath), $thumbnailName);
             $Blog->thumbnail = $thumbnailPath . '/' . $thumbnailName;
         }
 
         $Blog->save();
 
-        if($request->blog_id != ''){
+        if ($request->blog_id != '') {
             return response()->json(['status' => 200, 'message' => "Blog Updated Successfully."]);
-        }else{
+        } else {
             return response()->json(['status' => 200, 'message' => "Blog Saved Successfully."]);
         }
     }
 
     public function getSpecificBlog(Request $request)
     {
-        
+
         $data['blog_detail'] = Blog::where('id', $request->blog_id)->first();
-        
+
         return response()->json(['status' => 200, 'message' => "", 'data' => $data]);
-        
     }
 
     public function deleteBlog(Request $request)
@@ -932,7 +1025,7 @@ class AdminController extends Controller
         if ($Blog) {
 
             $Blog->delete();
-            
+
             return response()->json(['status' => 200, 'message' => "Blog Deleted Successfully."]);
         } else {
             return response()->json(['status' => 400, 'message' => "Blog not found."]);
@@ -943,13 +1036,46 @@ class AdminController extends Controller
     /* ******************** Photo Gallery Page Code Start Here ********************* */
     public function getGalleryTypesPageData(Request $request)
     {
-        
-        $data['type_list'] = GalleryType::get();
-        $data['gallery_list'] = Gallery::with(['type'])->get();
-        
+
+        // $data['type_list'] = GalleryType::get();
+        $query = GalleryType::latest();
+        // type_title: 
+        if ($request->has('type_title') && !empty($request->type_title)) {
+            $query->where('title', 'like', '%' . $request->type_title . '%');
+        }
+        // date: 
+        if ($request->has('date') && !empty($request->date)) {
+            $query->whereDate('date', $request->date);
+        }
+        // type_status: 
+        if ($request->has('type_status') && $request->type_status !="") {
+            $query->where('status', $request->type_status);
+        }
+        $data['type_list'] = $query->get();
+        // $data['gallery_list'] = Gallery::with(['type'])->get();
+        $query = Gallery::with(['type'])->latest();
+        // gallery_title: 
+        if ($request->has('gallery_title') && !empty($request->gallery_title)) {
+            $query->where('title', 'like', '%' . $request->gallery_title . '%');
+        }
+        // gallery_type: get from type relation
+        if ($request->has('gallery_type') && !empty($request->gallery_type)) {
+            $query->whereHas('type', function ($q) use ($request) {
+                $q->where('title', 'like', '%' . $request->gallery_type . '%');
+            });
+        }
+        // gallery_date: 
+        if ($request->has('gallery_date') && !empty($request->gallery_date)) {
+            $query->whereDate('date', $request->gallery_date);
+        }
+        // gallery_status: 
+        if ($request->has('gallery_status') && $request->gallery_status !="") {
+            $query->where('status', $request->gallery_status);
+        }
+        $data['gallery_list'] = $query->get();
+
 
         return response()->json(['status' => 200, 'message' => "", 'data' => $data]);
-        
     }
 
     public function saveGalleryType(Request $request)
@@ -960,44 +1086,44 @@ class AdminController extends Controller
             'type_status' => 'required',
         ]);
 
-        if($request->type_id != ''){
+        if ($request->type_id != '') {
             $GalleryType = GalleryType::find($request->type_id);
-        }else{
+        } else {
             $GalleryType = new GalleryType;
             $GalleryType->date = Carbon::now()->format('Y-m-d');
         }
-        
+
         $GalleryType->title = $request->type_title;
         $GalleryType->description = $request->type_description;
         $GalleryType->status = $request->type_status;
-        
+
         $GalleryType->save();
 
-        if($request->type_id != ''){
+        if ($request->type_id != '') {
             return response()->json(['status' => 200, 'message' => "Gallery Type Updated Successfully."]);
-        }else{
+        } else {
             return response()->json(['status' => 200, 'message' => "Gallery Type Saved Successfully."]);
         }
     }
-    
+
     public function getSpecificGalleryType(Request $request)
     {
-        
+
         $data['type_detail'] = GalleryType::where('id', $request->type_id)->first();
-        
+
         return response()->json(['status' => 200, 'message' => "", 'data' => $data]);
     }
 
     public function deleteGalleryType(Request $request)
     {
-        
+
         $GalleryType = GalleryType::find($request->type_id);
 
         if ($GalleryType) {
 
             $GalleryType->galleries()->delete();
             $GalleryType->delete();
-            
+
             return response()->json(['status' => 200, 'message' => "Type Deleted Successfully."]);
         } else {
             return response()->json(['status' => 400, 'message' => "Type not found."]);
@@ -1011,9 +1137,9 @@ class AdminController extends Controller
             'gallery_title' => 'required|max:50',
             'gallery_description' => 'required|max:250',
             'gallery_status' => 'required',
-            
+
         ]);
-        if($request->gallery_id == ''){
+        if ($request->gallery_id == '') {
             $validatedData = $request->validate([
                 'images' => 'required|array',
                 'images.*' => 'mimes:jpeg,png,jpg,gif,svg|max:2048',
@@ -1021,55 +1147,55 @@ class AdminController extends Controller
         }
 
 
-        if($request->gallery_id != ''){
+        if ($request->gallery_id != '') {
             $Gallery = Gallery::find($request->gallery_id);
-        }else{
+        } else {
             $Gallery = new Gallery;
             $Gallery->date = Carbon::now()->format('Y-m-d');
         }
-        
+
         $Gallery->type_id = $request->gallery_type;
         $Gallery->title = $request->gallery_title;
         $Gallery->description = $request->gallery_description;
         $Gallery->status = $request->gallery_status;
-        
+
         $Gallery->save();
 
         // Save the audio files
         if ($request->hasFile('images')) {
             foreach ($request->file('images') as $imageFile) {
-                $fileName = 'image_' . time() . '_' . $imageFile->getClientOriginalName(); 
-                $filePath = 'uploads/images'; 
-                $imageFile->move(public_path($filePath), $fileName); 
+                $fileName = 'image_' . time() . '_' . $imageFile->getClientOriginalName();
+                $filePath = 'uploads/images';
+                $imageFile->move(public_path($filePath), $fileName);
 
                 $GalleryAttachment = new GalleryAttachment();
-                $GalleryAttachment->gallery_id = $Gallery->id; 
+                $GalleryAttachment->gallery_id = $Gallery->id;
                 $GalleryAttachment->name = $imageFile->getClientOriginalName();
                 $GalleryAttachment->path = $filePath . '/' . $fileName;
-                $GalleryAttachment->save(); 
+                $GalleryAttachment->save();
             }
         }
 
-        if($request->gallery_id != ''){
+        if ($request->gallery_id != '') {
             return response()->json(['status' => 200, 'message' => "Gallery Updated Successfully."]);
-        }else{
+        } else {
             return response()->json(['status' => 200, 'message' => "Gallery Saved Successfully."]);
         }
     }
 
     public function getSpecificGallery(Request $request)
     {
-        
+
         $data['gallery_detail'] = Gallery::where('id', $request->gallery_id)->with(['attachments'])->first();
-        
+
         return response()->json(['status' => 200, 'message' => "", 'data' => $data]);
     }
 
     public function deleteGalleryAtt(Request $request)
     {
-        
+
         GalleryAttachment::where('id', $request->attachment_id)->delete();
-        
+
         return response()->json(['status' => 200, 'message' => "Gallery Image Deleted Successfully."]);
     }
 
@@ -1081,13 +1207,11 @@ class AdminController extends Controller
 
             $Gallery->attachments()->delete();
             $Gallery->delete();
-            
+
             return response()->json(['status' => 200, 'message' => "Gallery Deleted Successfully."]);
         } else {
             return response()->json(['status' => 400, 'message' => "Gallery not found."]);
         }
-        
-        
     }
     /* ******************** Photo Gallery Page Code End Here ********************* */
 
@@ -1095,10 +1219,54 @@ class AdminController extends Controller
     /* ******************** Course Page Code Start Here ********************* */
     public function getCourseTypesPageData(Request $request)
     {
-        
-        $data['type_list'] = CourseType::get();
-        $data['course_list'] = Course::with(['type'])->get();
-        
+
+        // $data['type_list'] = CourseType::get();
+        $query = CourseType::latest();
+        // type_title: 
+        if ($request->has('type_title') && !empty($request->type_title)) {
+            $query->where('title', 'like', '%' . $request->type_title . '%');
+        }
+        // type_status: 
+        if ($request->has('type_status') && $request->type_status!="") {
+            $query->where('status', $request->type_status);
+        }
+        // date
+        if ($request->has('date') && !empty($request->date)) {
+            $query->whereDate('date', $request->date);
+        }
+        $data['type_list'] = $query->get();
+
+        // $data['course_list'] = Course::with(['type'])->get();
+        $query = Course::with(['type'])->latest();
+        // course_title: 
+        if ($request->has('course_title') && !empty($request->course_title)) {
+            $query->where('title', 'like', '%' . $request->course_title . '%');
+        }
+        // course_type: 
+        if ($request->has('course_type') && $request->course_type!="") {
+            $query->whereHas('type', function ($query) use ($request) {
+                $query->where('title', 'like', '%' . $request->course_type . '%');
+            });
+        }
+        // course_instructor: 
+        if ($request->has('course_instructor') && !empty($request->course_instructor)) {
+            // first get name form coma separated string and then search in db db column contains ["Name 01","Name 02"]
+            $instructors = explode(',', $request->course_instructor);
+            $query->where(function ($query) use ($instructors) {
+                foreach ($instructors as $instructor) {
+                    $query->orWhere('instructor_name', 'like', '%' . $instructor . '%');
+                }
+            });
+        }
+        // course_date: 
+        if ($request->has('course_date') && !empty($request->course_date)) {
+            $query->whereDate('date', $request->course_date);
+        }
+        // course_status: 
+        if ($request->has('course_status') && $request->course_status!="") {
+            $query->where('status', $request->course_status);
+        }
+        $data['course_list'] = $query->get();
         return response()->json(['status' => 200, 'message' => "", 'data' => $data]);
     }
 
@@ -1110,44 +1278,44 @@ class AdminController extends Controller
             'type_status' => 'required',
         ]);
 
-        if($request->type_id != ''){
+        if ($request->type_id != '') {
             $CourseType = CourseType::find($request->type_id);
-        }else{
+        } else {
             $CourseType = new CourseType;
             $CourseType->date = Carbon::now()->format('Y-m-d');
         }
-        
+
         $CourseType->title = $request->type_title;
         $CourseType->description = $request->type_description;
         $CourseType->status = $request->type_status;
-        
+
         $CourseType->save();
 
-        if($request->type_id != ''){
+        if ($request->type_id != '') {
             return response()->json(['status' => 200, 'message' => "Course Type Updated Successfully."]);
-        }else{
+        } else {
             return response()->json(['status' => 200, 'message' => "Course Type Saved Successfully."]);
         }
     }
-    
+
     public function getSpecificCourseType(Request $request)
     {
-        
+
         $data['type_detail'] = CourseType::where('id', $request->type_id)->first();
-        
+
         return response()->json(['status' => 200, 'message' => "", 'data' => $data]);
     }
 
     public function deleteCourseType(Request $request)
     {
-        
+
         $CourseType = CourseType::find($request->type_id);
 
         if ($CourseType) {
-            
+
             $CourseType->courses()->delete();
             $CourseType->delete();
-            
+
             return response()->json(['status' => 200, 'message' => "Type Deleted Successfully."]);
         } else {
             return response()->json(['status' => 400, 'message' => "Type not found."]);
@@ -1166,44 +1334,44 @@ class AdminController extends Controller
             'course_level' => 'required',
             'course_language' => 'required',
             'course_certificate' => 'required',
-            'course_status' => 'required', 
+            'course_status' => 'required',
         ]);
-        if($request->course_id == ''){
+        if ($request->course_id == '') {
             $validatedData = $request->validate([
                 'thumbnail' => 'required|image|mimes:jpeg,png,jpg,gif|max:1024', // Must be an image file
                 'videos' => 'required|array', // Videos array is required
                 'videos.*.url' => [
-                    'required', 
-                    'string', 
+                    'required',
+                    'string',
                     'regex:/^(https?\:\/\/)?(www\.youtube\.com|youtu\.?be)\/.+$/'
                 ]
             ], [
-                'videos.*.url.required' => 'Each video url field is required.', 
+                'videos.*.url.required' => 'Each video url field is required.',
                 'videos.*.url.regex' => 'Each video url must be youtube video url.',
             ]);
-        }else{
+        } else {
             $validatedData = $request->validate([
                 'thumbnail' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:1024', // Must be an image file
                 'videos' => 'nullable|array', // Videos array is required
                 'videos.*.url' => [
-                    'required_with:videos', 
-                    'string', 
+                    'required_with:videos',
+                    'string',
                     'regex:/^(https?\:\/\/)?(www\.youtube\.com|youtu\.?be)\/.+$/'
                 ]
             ], [
-                'videos.*.url.required_with' => 'Each video url field is required.', 
+                'videos.*.url.required_with' => 'Each video url field is required.',
                 'videos.*.url.regex' => 'Each video url must be youtube video url.',
             ]);
         }
 
 
-        if($request->course_id != ''){
+        if ($request->course_id != '') {
             $Course = Course::find($request->course_id);
-        }else{
+        } else {
             $Course = new Course;
             $Course->date = Carbon::now()->format('Y-m-d');
         }
-        
+
         $Course->type_id = $request->course_type;
         $Course->title = $request->course_title;
         $Course->description = $request->course_description;
@@ -1216,12 +1384,12 @@ class AdminController extends Controller
         $Course->language = $request->course_language;
         $Course->certificate = $request->course_certificate;
         $Course->status = $request->course_status;
-        
+
         // Save the thumbnail file
         if ($request->hasFile('thumbnail')) {
             $thumbnailFile = $request->file('thumbnail');
             $thumbnailName = 'thumbnail_' . time() . '_' . $thumbnailFile->getClientOriginalName();
-            $thumbnailPath = 'uploads/images'; 
+            $thumbnailPath = 'uploads/images';
             $thumbnailFile->move(public_path($thumbnailPath), $thumbnailName);
             $Course->thumbnail = $thumbnailPath . '/' . $thumbnailName;
         }
@@ -1230,11 +1398,11 @@ class AdminController extends Controller
 
         $videosArr = isset($request->videos) ? $request->videos : [];
 
-        if(count($videosArr) > 0){
-            foreach($videosArr as $video){
-                if(isset($video['id']) && $video['id'] != ''){
+        if (count($videosArr) > 0) {
+            foreach ($videosArr as $video) {
+                if (isset($video['id']) && $video['id'] != '') {
                     $CourseVideo = CourseVideo::where('id', $video['id'])->first();
-                }else{
+                } else {
                     $CourseVideo = new CourseVideo();
                 }
 
@@ -1243,19 +1411,19 @@ class AdminController extends Controller
                 $CourseVideo->save();
             }
         }
-        
-        if($request->course_id != ''){
+
+        if ($request->course_id != '') {
             return response()->json(['status' => 200, 'message' => "Course Updated Successfully."]);
-        }else{
+        } else {
             return response()->json(['status' => 200, 'message' => "Course Saved Successfully."]);
         }
     }
 
     public function getSpecificCourse(Request $request)
     {
-        
+
         $data['course_detail'] = Course::where('id', $request->course_id)->with(['videos'])->first();
-        
+
         return response()->json(['status' => 200, 'message' => "", 'data' => $data]);
     }
 
@@ -1266,7 +1434,7 @@ class AdminController extends Controller
         if ($CourseVideo) {
 
             $CourseVideo->delete();
-            
+
             return response()->json(['status' => 200, 'message' => "Course Video Deleted Successfully."]);
         } else {
             return response()->json(['status' => 400, 'message' => "Course Video not found."]);
@@ -1280,7 +1448,7 @@ class AdminController extends Controller
         if ($Course) {
 
             $Course->delete();
-            
+
             return response()->json(['status' => 200, 'message' => "Course Deleted Successfully."]);
         } else {
             return response()->json(['status' => 400, 'message' => "Course not found."]);
@@ -1291,12 +1459,41 @@ class AdminController extends Controller
     /* ******************** News & Events Page Code Start Here ********************* */
     public function getNewsEventsPageData(Request $request)
     {
-        
-        $data['events_list'] = NewsEvent::get();
-        
+
+        // $data['events_list'] = NewsEvent::get();
+        $query = NewsEvent::latest();
+        // title: 
+        if ($request->has('title') && $request->title != '') {
+            $query->where('title', 'like', '%' . $request->title . '%');
+        }
+        // event_type: 
+        if ($request->has('event_type') && $request->event_type != '') {
+            $query->where('type', $request->event_type);
+        }
+
+
+        if ($request->has('start_date') && $request->has('end_date') && $request->start_date != '' && $request->end_date != '') {
+            $query->where(function ($q) use ($request) {
+                $q->where('start_date', '>=', Carbon::parse($request->start_date)->toDateString())
+                  ->where('end_date', '<=', Carbon::parse($request->end_date)->toDateString());
+            });
+        } else {
+            if ($request->has('start_date') && $request->start_date != '') {
+                $query->where('start_date', '>=', Carbon::parse($request->start_date)->toDateString());
+            }
+            if ($request->has('end_date') && $request->end_date != '') {
+                $query->where('end_date', '<=', Carbon::parse($request->end_date)->toDateString());
+            }
+        }
+
+        // status: 
+        if ($request->has('status') && $request->status != '') {
+            $query->where('status', $request->status);
+        }
+        $data['events_list'] = $query->get();
+
 
         return response()->json(['status' => 200, 'message' => "", 'data' => $data]);
-        
     }
 
     public function saveEvent(Request $request)
@@ -1315,20 +1512,20 @@ class AdminController extends Controller
             'location' => 'required',
             'status' => 'required',
         ]);
-        if($request->event_id == ''){
+        if ($request->event_id == '') {
             $validatedData = $request->validate([
                 'images' => 'required|array',
                 'images.*' => 'mimes:jpeg,png,jpg,gif,svg|max:2048',
             ]);
         }
 
-        if($request->event_id != ''){
+        if ($request->event_id != '') {
             $NewsEvent = NewsEvent::find($request->event_id);
-        }else{
+        } else {
             $NewsEvent = new NewsEvent;
             $NewsEvent->date = Carbon::now()->format('Y-m-d');
         }
-        
+
         $NewsEvent->title = $request->title;
         $NewsEvent->description = $request->description;
         $NewsEvent->event_date = $request->event_date;
@@ -1337,12 +1534,12 @@ class AdminController extends Controller
         $NewsEvent->event_time = $request->event_time;
         $NewsEvent->type = $request->event_type;
         $NewsEvent->recurring_type = $request->recurring_type;
-        if($request->repeat_on != ''){
+        if ($request->repeat_on != '') {
             $NewsEvent->repeat_on = json_encode($request->repeat_on, true);
-        }else{
+        } else {
             $NewsEvent->repeat_on = '[]';
         }
-        
+
         $NewsEvent->location = $request->location;
         $NewsEvent->status = $request->status;
         $NewsEvent->save();
@@ -1350,42 +1547,42 @@ class AdminController extends Controller
         // Save the image files
         if ($request->hasFile('images')) {
             foreach ($request->file('images') as $imageFile) {
-                $fileName = 'image_' . time() . '_' . $imageFile->getClientOriginalName(); 
-                $filePath = 'uploads/images'; 
-                $imageFile->move(public_path($filePath), $fileName); 
+                $fileName = 'image_' . time() . '_' . $imageFile->getClientOriginalName();
+                $filePath = 'uploads/images';
+                $imageFile->move(public_path($filePath), $fileName);
 
                 $NewsEventAttachment = new NewsEventAttachment();
-                $NewsEventAttachment->news_id = $NewsEvent->id; 
+                $NewsEventAttachment->news_id = $NewsEvent->id;
                 $NewsEventAttachment->name = $imageFile->getClientOriginalName();
                 $NewsEventAttachment->path = $filePath . '/' . $fileName;
-                $NewsEventAttachment->save(); 
+                $NewsEventAttachment->save();
             }
         }
 
-        if($request->event_id != ''){
+        if ($request->event_id != '') {
             return response()->json(['status' => 200, 'message' => "Event Updated Successfully."]);
-        }else{
+        } else {
             return response()->json(['status' => 200, 'message' => "Event Saved Successfully."]);
         }
     }
 
     public function getSpecificEvent(Request $request)
     {
-        
+
         $data['event_detail'] = NewsEvent::where('id', $request->event_id)->with(['attachments'])->first();
-        
+
         return response()->json(['status' => 200, 'message' => "", 'data' => $data]);
     }
 
     public function deleteEventAtt(Request $request)
     {
-        
+
         $NewsEventAttachment = NewsEventAttachment::find($request->attachment_id);
 
         if ($NewsEventAttachment) {
 
             $NewsEventAttachment->delete();
-            
+
             return response()->json(['status' => 200, 'message' => "Event image Deleted Successfully."]);
         } else {
             return response()->json(['status' => 400, 'message' => "Event image not found."]);
@@ -1400,7 +1597,7 @@ class AdminController extends Controller
 
             $NewsEvent->attachments()->delete();
             $NewsEvent->delete();
-            
+
             return response()->json(['status' => 200, 'message' => "Event Deleted Successfully."]);
         } else {
             return response()->json(['status' => 400, 'message' => "Event not found."]);

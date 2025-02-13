@@ -1,5 +1,11 @@
+$(document).ready(function () {
+    $('button[data-bs-toggle="tab"]').on('shown.bs.tab', function () {
+        $.fn.dataTable.tables({ visible: true, api: true }).columns.adjust();
+        getCourseTypesPageData();
+    });
+})
 var course_eligibility = document.getElementById('course_eligibility');
-function getCourseTypesPageData(){
+function getCourseTypesPageData(formValues = {}){
 
     let type = 'POST';
     let url = '/getCourseTypesPageData';
@@ -7,6 +13,9 @@ function getCourseTypesPageData(){
     let form = '';
     let data = new FormData();
     // PASSING DATA TO FUNCTION
+    for (const [key, value] of Object.entries(formValues)) {
+        data.append(key, value);
+    }
     SendAjaxRequestToServer(type, url, data, '', getCourseTypesPageDataResponse, '', '');
 }
 
@@ -39,7 +48,8 @@ function getCourseTypesPageDataResponse(response) {
 function makeCourseTypesListing(typeList){
    
     var html = '';
-   
+//    empty
+    $('#courseType_table_body').html('');
     if (typeList.length > 0) {
         $.each(typeList, function (index, type) {
             
@@ -84,13 +94,52 @@ function makeCourseTypesListing(typeList){
                     </tr>`;
         });
     }
+    if ($.fn.DataTable.isDataTable('#courseType_table')) {
+        $('#courseType_table').DataTable().destroy().clear();
+    }
     $("#courseType_table_body").html(html);
+    $("#courseType_table").DataTable({
+        bDestroy:true,
+        paging: true,
+        lengthChange: true,
+        searching: true,
+        info: true,
+        autoWidth: false,
+        responsive: true,
+        scrollX: true,
+        language: {
+            search: "_INPUT_",
+            searchPlaceholder: "Search",
+        },
+        dom: "Bfrtip",
+        buttons: [
+            { extend: "copy", className: "btn btn-copy", text: "Copy" },
+            { extend: "csv", className: "btn btn-csv", text: "CSV" },
+            { extend: "excel", className: "btn btn-excel", text: "Excel" },
+            { extend: "pdf", className: "btn btn-pdf", text: "PDF" },
+            { extend: "print", className: "btn btn-print", text: "Print" },
+            { 
+                text: "Refresh", 
+                className: "btn btn-refresh", 
+                action: function () { 
+                    console.log("Refresh button clicked");
+                    $("#resetFilterButton").click(); 
+                    getCourseTypesPageData(); 
+                    // resetFilterButton click
+
+
+                    
+                } 
+            }
+        ],
+    });
+    
 }
 
 function makeCourseListing(courseList){
    
     var html = '';
-   
+   $('#course_table_body').html('');
     if (courseList.length > 0) {
         $.each(courseList, function (index, course) {
             
@@ -136,7 +185,45 @@ function makeCourseListing(courseList){
                     </tr>`;
         });
     }
+    if ($.fn.DataTable.isDataTable('#course_table')) {
+        $('#course_table').DataTable().destroy().clear();
+    }
     $("#course_table_body").html(html);
+    $("#course_table").DataTable({
+        bDestroy:true,
+        paging: true,
+        lengthChange: true,
+        searching: true,
+        info: true,
+        autoWidth: false,
+        responsive: true,
+        scrollX: true,
+        language: {
+            search: "_INPUT_",
+            searchPlaceholder: "Search",
+        },
+        dom: "Bfrtip",
+        buttons: [
+            { extend: "copy", className: "btn btn-copy", text: "Copy" },
+            { extend: "csv", className: "btn btn-csv", text: "CSV" },
+            { extend: "excel", className: "btn btn-excel", text: "Excel" },
+            { extend: "pdf", className: "btn btn-pdf", text: "PDF" },
+            { extend: "print", className: "btn btn-print", text: "Print" },
+            { 
+                text: "Refresh", 
+                className: "btn btn-refresh", 
+                action: function () { 
+                    console.log("Refresh button clicked");
+                    $("#resetFilterButton").click(); 
+                    getCourseTypesPageData(); 
+                    // resetFilterButton click
+
+
+                    
+                } 
+            }
+        ],
+    });
 }
 
 function addNewType(){

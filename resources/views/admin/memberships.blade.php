@@ -43,6 +43,7 @@
                 </div>
             </div>
 
+            
 
 
             {{-- <ul style="width:78rem;"class="nav nav-tabs" id="myTab" role="tablist">
@@ -64,64 +65,47 @@
                             <!-- _____________________________________TABS_______________________________________ -->
 
                             <div class="tab-content" id="myTabContent">
-
+                                
                                 <div class="tab-pane fade show active" id="category-tab-pane" role="tabpanel" aria-labelledby="profile-tab" tabindex="0">
+                                                                     
                                     <div class="schedule">
                                         <div class="card">
 
                                             <div class="card-body">
-                                                <div class="row align-items-center">
-                                                    <div class="col-sm-4">
-                                                        <div class="icon-form mb-3 mb-sm-0">
-                                                            <span class="form-icon"></span>
-                                                            <input type="text" id="search_filter" class="form-control" placeholder="Search Here...">
-                                                        </div>
-                                                    </div>
-                        
-                                                    <div class="col-sm-8">
-                                                        <div class="d-flex align-items-center flex-wrap row-gap-2 justify-content-sm-end">
-                                                            <!-- <div class="dropdown me-2">
-                                                                <a class="dropdown-toggle shadow d-flex align-items-center gap-1 s-theme-color" href="#" id="dropdownMenuLink" data-bs-toggle="dropdown" aria-expanded="false">
-                                                                    <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24">
-                                                                        <g fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="1.5">
-                                                                            <path stroke-linejoin="round" d="M20.935 11.009V8.793a2.98 2.98 0 0 0-1.529-2.61l-5.957-3.307a2.98 2.98 0 0 0-2.898 0L4.594 6.182a2.98 2.98 0 0 0-1.529 2.611v6.414a2.98 2.98 0 0 0 1.529 2.61l5.957 3.307a2.98 2.98 0 0 0 2.898 0l2.522-1.4" />
-                                                                            <path stroke-linejoin="round" d="M20.33 6.996L12 12L3.67 6.996M12 21.49V12" />
-                                                                            <path stroke-miterlimit="10" d="M19.97 14.245v5" />
-                                                                            <path stroke-linejoin="round" d="m22.262 16.35l-1.967-1.967a.46.46 0 0 0-.652 0l-1.967 1.967" />
-                                                                        </g>
-                                                                    </svg>
-                                                                    Export
-                                                                    <i class="fa-solid fa-chevron-down"></i>
-                                                                </a>
-
-                                                                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdownMenuLink">
-                                                                    <li>
-                                                                        <a class="dropdown-item" href="#">
-                                                                            <svg xmlns="http://www.w3.org/2000/svg" width="1.2em" height="1.2em" viewBox="0 0 24 24">
-                                                                                <path fill="currentColor" d="M7.503 13.002a.5.5 0 0 0-.5.5v3a.5.5 0 0 0 1 0v-.5H8.5a1.5 1.5 0 0 0 0-3zm.997 2h-.497v-1H8.5a.5.5 0 1 1 0 1m6.498-1.5a.5.5 0 0 1 .5-.5h1.505a.5.5 0 1 1 0 1h-1.006l-.001 1.002h1.007a.5.5 0 0 1 0 1h-1.007l.002.497a.5.5 0 0 1-1 .002l-.003-.998v-.002zm-3.498-.5a.5.5 0 0 0-.5.5v3a.5.5 0 0 0 .5.5h.498a2 2 0 0 0 0-4zm.5 3v-2a1 1 0 0 1 0 2M20 20v-1.164c.591-.281 1-.884 1-1.582V12.75c0-.698-.409-1.3-1-1.582v-1.34a2 2 0 0 0-.586-1.414l-5.829-5.828l-.049-.04l-.036-.03a2 2 0 0 0-.219-.18a1 1 0 0 0-.08-.044l-.048-.024l-.05-.029c-.054-.031-.109-.063-.166-.087a2 2 0 0 0-.624-.138q-.03-.002-.059-.007L12.172 2H6a2 2 0 0 0-2 2v7.168c-.591.281-1 .884-1 1.582v4.504c0 .698.409 1.3 1 1.582V20a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2m-2 .5H6a.5.5 0 0 1-.5-.5v-.996h13V20a.5.5 0 0 1-.5.5m.5-10.5v1h-13V4a.5.5 0 0 1 .5-.5h6V8a2 2 0 0 0 2 2zm-1.122-1.5H14a.5.5 0 0 1-.5-.5V4.621zm-12.628 4h14.5a.25.25 0 0 1 .25.25v4.504a.25.25 0 0 1-.25.25H4.75a.25.25 0 0 1-.25-.25V12.75a.25.25 0 0 1 .25-.25" />
-                                                                            </svg>
-                                                                            Export as PDF
-                                                                        </a>
-                                                                    </li>
-                                                                    <li>
-                                                                        <a class="dropdown-item" href="#">
-                                                                            <svg xmlns="http://www.w3.org/2000/svg" width="1.2em" height="1.2em" viewBox="0 0 256 256">
-                                                                                <path fill="currentColor" d="M154 208a6 6 0 0 1-6 6h-28a6 6 0 0 1-6-6v-56a6 6 0 1 1 12 0v50h22a6 6 0 0 1 6 6m-62.52-60.89a6 6 0 0 0-8.36 1.39L68 169.67L52.88 148.5a6 6 0 1 0-9.76 7L60.63 180l-17.51 24.5a6 6 0 1 0 9.76 7L68 190.31l15.12 21.16A6 6 0 0 0 88 214a5.9 5.9 0 0 0 3.48-1.12a6 6 0 0 0 1.4-8.37L75.37 180l17.51-24.51a6 6 0 0 0-1.4-8.38M191 173.22c-10.85-3.13-13.41-4.69-13-7.91a6.59 6.59 0 0 1 2.88-5.08c5.6-3.79 17.65-1.83 21.44-.84a6 6 0 0 0 3.07-11.6c-2-.54-20.1-5-31.21 2.48a18.64 18.64 0 0 0-8.08 13.54c-1.8 14.19 12.26 18.25 21.57 20.94c12.12 3.5 14.77 5.33 14.2 9.76a6.85 6.85 0 0 1-3 5.34c-5.61 3.73-17.48 1.64-21.19.62a6 6 0 0 0-3.21 11.53a59.4 59.4 0 0 0 14.68 2c5.49 0 11.54-.95 16.36-4.14a18.89 18.89 0 0 0 8.31-13.81c2.01-15.66-12.91-19.97-22.82-22.83M42 112V40a14 14 0 0 1 14-14h96a6 6 0 0 1 4.24 1.76l56 56A6 6 0 0 1 214 88v24a6 6 0 1 1-12 0V94h-50a6 6 0 0 1-6-6V38H56a2 2 0 0 0-2 2v72a6 6 0 1 1-12 0m116-30h35.5L158 46.48Z" />
-                                                                            </svg>
-                                                                            Export as Excel
-                                                                        </a>
-                                                                    </li>
-                                                                </ul>
-                                                            </div> -->
-
-                                                            {{-- <a href="javascript:void(0);" class="theme-btn d-flex align-items-center gap-1 py-2 px-3 rounded-2 text-white" 
-                                                            data-bs-toggle="offcanvas" onclick="addNewMembership();" ><!-- data-bs-toggle="offcanvas" data-bs-target="#addAudioCategory_canvas" -->
-                                                                <i class="fa-solid fa-plus"></i>
-                                                                Add New Membership
-                                                            </a> --}}
-                                                        </div>
-                                                    </div>
-                                                </div> 
+                                                {{-- filter --}}
+                                                {{-- include --}}
+                                                @php 
+                                                $filters = [
+                                                    // get my page table names
+                                                    ['name' => 'name', 'type' => 'text', 'label' => 'Name', 'placeholder' => 'Search Name'],
+                                                    ['name' => 'email', 'type' => 'text', 'label' => 'Email', 'placeholder' => 'Search Email'],
+                                                    ['name' => 'phone', 'type' => 'text', 'label' => 'Phone', 'placeholder' => 'Search Phone'],
+                                                    ['name' => 'city', 'type' => 'text', 'label' => 'City', 'placeholder' => 'Search City'],
+                                                    ['name' => 'country', 'type' => 'text', 'label' => 'Country', 'placeholder' => 'Search Country'],
+                                                    ['name' => 'date', 'type' => 'date', 'label' => 'Date'],
+                                                    
+                                                    // ['name' => 'username', 'type' => 'text', 'label' => 'User Name', 'placeholder' => 'Search Username'],
+                                                    // ['name' => 'email', 'type' => 'text', 'label' => 'Email', 'placeholder' => 'Search Email'],
+                                                    // // Select options
+                                                    // ['name' => 'role', 'type' => 'select', 'label' => 'Role', 'options' => [
+                                                    //     ['value' => 'admin', 'label' => 'Admin'],
+                                                    //     ['value' => 'user', 'label' => 'User']
+                                                    // ]],
+                                                    // // Date
+                                                    // ['name' => 'created_at', 'type' => 'date', 'label' => 'Created At'],
+                                                    // // Radio buttons
+                                                    // ['name' => 'gender', 'type' => 'radio', 'label' => 'Gender', 'options' => [
+                                                    //     ['value' => 'male', 'label' => 'Male'],
+                                                    //     ['value' => 'female', 'label' => 'Female']
+                                                    // ]],
+                                                    // ['name' => 'status', 'type' => 'checkbox', 'label' => 'Status', 'options' => [
+                                                    //     ['value' => '1', 'label' => 'Active'],
+                                                    //     ['value' => '0', 'label' => 'Inactive']
+                                                    // ]]
+                                                ];
+                                                @endphp
+                                                @include('admin.filter.index')
+                                                {{-- include --}}
                                                 
                                                 <hr>
                                                 
@@ -142,6 +126,8 @@
                                                                     <th class="text-start text-nowrap" scope="col">City</th>
                                                                     <th class="text-start text-nowrap" scope="col">Country</th>
                                                                     <th class="text-start text-nowrap" scope="col">Date</th>
+                                                                    {{-- Action --}}
+                                                                    <th class="text-start text-nowrap" scope="col">Action</th>
                                                                     {{-- <th class="text-start text-nowrap" scope="col">Status</th> --}}
                                                                 </tr>
                                                             </thead>
@@ -149,7 +135,7 @@
                                                             <tbody id="memberships_table_body">
                                                                 
                                                             </tbody>
-                                                        </table>
+                                                        </table>         
                                                     </div>
                                                 </div>
                                             </div>
@@ -164,12 +150,61 @@
             </div>
         </div>
     </div>
+    <div style="max-width:33rem;" class="offcanvas offcanvas-end" tabindex="-1"  id="member_view_canvas" aria-labelledby="offcanvas_add_label">
+        <div class="offcanvas-header">
+            <h5 id="offcanvas_add_label">Details</h5>
+            <button type="button" class="btn-close closeCanvas" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+        </div>
+        <div style="padding: 6%;" class="offcanvas-body" id="view_member_data">
+            
+        </div>
+    </div>
+
 @endsection
 @push('js')
     <script src="{{asset('assets/customjs/script_memberships.js')}}"></script>
-    <!-- <script>
-        $('#admin-query').DataTable({
-            responsive: true,
+    <script>
+        const formValues = {};
+        // Function to get all form values
+        document.getElementById('filterButton').addEventListener('click', function(event) {
+            event.preventDefault();
+            
+            document.querySelectorAll('.filterApplicantsInput').forEach(function(input) {
+                if (input.type === 'checkbox') {
+                    if (!formValues[input.name]) {
+                        formValues[input.name] = [];
+                    }
+                    if (input.checked) {
+                        formValues[input.name].push(input.value);
+                    }
+                } else if (input.type === 'radio') {
+                    if (input.checked) {
+                        formValues[input.name] = input.value;
+                    }
+                } else if (input.type === 'select-one') {
+                    formValues[input.name] = input.value;
+                } else {
+                    formValues[input.name] = input.value;
+                }
+            });
+            getMembershipsPageData(formValues);
+            // Log the form values (You can replace this with your actual save logic)
+            console.log(formValues);
         });
-    </script> -->
+    
+        // Function to reset all form values
+        document.getElementById('resetFilterButton').addEventListener('click', function(event) {
+            event.preventDefault();
+            document.querySelectorAll('.filterApplicantsInput').forEach(function(input) {
+                if (input.type === 'checkbox') {
+                    input.checked = false;
+                } else if (input.type === 'radio') {
+                    input.checked = false;
+                } else {
+                    input.value = '';
+                }
+            });
+            getMembershipsPageData();
+        });
+    </script>
 @endpush

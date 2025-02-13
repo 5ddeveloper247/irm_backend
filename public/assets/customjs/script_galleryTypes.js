@@ -1,4 +1,10 @@
-function getGalleryTypesPageData(){
+$(document).ready(function () {
+    $('button[data-bs-toggle="tab"]').on('shown.bs.tab', function () {
+        $.fn.dataTable.tables({ visible: true, api: true }).columns.adjust();
+        getGalleryTypesPageData();
+    });
+})
+function getGalleryTypesPageData(formValues = {}){
 
     let type = 'POST';
     let url = '/getGalleryTypesPageData';
@@ -6,6 +12,9 @@ function getGalleryTypesPageData(){
     let form = '';
     let data = new FormData();
     // PASSING DATA TO FUNCTION
+    for (const [key, value] of Object.entries(formValues)) {
+        data.append(key, value);
+    }
     SendAjaxRequestToServer(type, url, data, '', getGalleryTypesPageDataResponse, '', '');
 }
 
@@ -38,7 +47,7 @@ function getGalleryTypesPageDataResponse(response) {
 function makeGalleryTypesListing(typeList){
    
     var html = '';
-   
+   $("#galleryType_table_body").html('');
     if (typeList.length > 0) {
         $.each(typeList, function (index, type) {
             
@@ -83,13 +92,52 @@ function makeGalleryTypesListing(typeList){
                     </tr>`;
         });
     }
+    
+    if ($.fn.DataTable.isDataTable('#galleryType_table')) {
+        $('#galleryType_table').DataTable().destroy().clear();
+    }
     $("#galleryType_table_body").html(html);
+    $("#galleryType_table").DataTable({
+        bDestroy:true,
+        paging: true,
+        lengthChange: true,
+        searching: true,
+        info: true,
+        autoWidth: false,
+        responsive: true,
+        scrollX: true,
+        language: {
+            search: "_INPUT_",
+            searchPlaceholder: "Search",
+        },
+        dom: "Bfrtip",
+        buttons: [
+            { extend: "copy", className: "btn btn-copy", text: "Copy" },
+            { extend: "csv", className: "btn btn-csv", text: "CSV" },
+            { extend: "excel", className: "btn btn-excel", text: "Excel" },
+            { extend: "pdf", className: "btn btn-pdf", text: "PDF" },
+            { extend: "print", className: "btn btn-print", text: "Print" },
+            { 
+                text: "Refresh", 
+                className: "btn btn-refresh", 
+                action: function () { 
+                    console.log("Refresh button clicked");
+                    $("#resetFilterButton").click(); 
+                    getGalleryTypesPageData(); 
+                    // resetFilterButton click
+
+
+                    
+                } 
+            }
+        ],
+    });
 }
 
 function makeGalleryListing(galleryList){
    
     var html = '';
-   
+   $("#gallery_table_body").html('');
     if (galleryList.length > 0) {
         $.each(galleryList, function (index, gallery) {
             
@@ -135,7 +183,47 @@ function makeGalleryListing(galleryList){
                     </tr>`;
         });
     }
+    // gallery_table
+    if ($.fn.DataTable.isDataTable('#gallery_table')) {
+        $('#gallery_table').DataTable().destroy().clear();
+    }
     $("#gallery_table_body").html(html);
+    $("#gallery_table").DataTable({
+        bDestroy:true,
+        paging: true,
+        lengthChange: true,
+        searching: true,
+        info: true,
+        autoWidth: false,
+        responsive: true,
+        scrollX: true,
+        language: {
+            search: "_INPUT_",
+            searchPlaceholder: "Search",
+        },
+        dom: "Bfrtip",
+        buttons: [
+            { extend: "copy", className: "btn btn-copy", text: "Copy" },
+            { extend: "csv", className: "btn btn-csv", text: "CSV" },
+            { extend: "excel", className: "btn btn-excel", text: "Excel" },
+            { extend: "pdf", className: "btn btn-pdf", text: "PDF" },
+            { extend: "print", className: "btn btn-print", text: "Print" },
+            { 
+                text: "Refresh", 
+                className: "btn btn-refresh", 
+                action: function () { 
+                    console.log("Refresh button clicked");
+                    $("#resetFilterButton").click(); 
+                    getGalleryTypesPageData(); 
+                    // resetFilterButton click
+
+
+                    
+                } 
+            }
+        ],
+    });
+
 }
 
 function addNewType(){

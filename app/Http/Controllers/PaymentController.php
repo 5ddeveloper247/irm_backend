@@ -15,7 +15,25 @@ class PaymentController extends Controller
     public function getPaymentsPageData(Request $request)
     {
         // get all payments with order by id desc
-        $data['payment_list'] = Payment::orderBy('id', 'desc')->get();
+        // $data['payment_list'] = Payment::orderBy('id', 'desc')->get();
+        $query = Payment::latest();
+        // module_code: 
+        if(request()->has('module_code') && request('module_code') != ''){
+            $query->where('module_code', request('module_code'));
+        }
+        // price: 
+        if(request()->has('price') && request('price') != ''){
+            $query->where('amount', request('price'));
+        }
+        // payment_indent: 
+        if(request()->has('payment_indent') && request('payment_indent') != ''){
+            $query->where('payment_intent', request('payment_indent'));
+        }
+        // date: 
+        if(request()->has('date') && request('date') != ''){
+            $query->whereDate('created_at', request('date'));
+        }
+        $data['payment_list'] = $query->get();
         // $data['payment_list'] = Payment::all();
         return response()->json(['status' => 200, 'message' => "", 'data' => $data]);
     }
@@ -23,7 +41,31 @@ class PaymentController extends Controller
     public function getCampaignPayments(Request $request)
     {
         // get all payments with order by id desc
-        $data['payment_list'] = Payment::with('campaign')->where('module_code', 'CAMPAIGN')->orderBy('id', 'desc')->get();
+        // $data['payment_list'] = Payment::with('campaign')->where('module_code', 'CAMPAIGN')->orderBy('id', 'desc')->get();
+        $query = Payment::with('campaign')->where('module_code', 'CAMPAIGN')->latest();
+        // campaign_title:
+        if(request()->has('campaign_title') && request('campaign_title') != ''){
+            $query->whereHas('campaign', function($q){
+                $q->where('title', 'like', '%'.request('campaign_title').'%');
+            });
+        }
+        // payment_amount: 
+        if(request()->has('payment_amount') && request('payment_amount') != ''){
+            $query->where('amount', request('payment_amount'));
+        }
+        // payment_indent: 
+        if(request()->has('payment_indent') && request('payment_indent') != ''){
+            $query->where('payment_intent', request('payment_indent'));
+        }
+        // payment_date: 
+        if(request()->has('payment_date') && request('payment_date') != ''){
+            $query->whereDate('created_at', request('payment_date'));
+        }
+        // payment_status: 
+        if(request()->has('payment_status') && request('payment_status') != ''){
+            $query->where('status', request('payment_status'));
+        }
+        $data['payment_list'] = $query->get();
         return response()->json(['status' => 200, 'message' => "", 'data' => $data]);
     }
 }

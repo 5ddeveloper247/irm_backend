@@ -104,7 +104,75 @@ class BookOrderController extends Controller
     public function getBookOrders(Request $request)
     {
         // get book orders list with payment json data key convert to array
-        $data['book_orders'] = BookOrder::with('book', 'payment')->orderBy('id', 'desc')->get()->map(function ($row) {
+        // $data['book_orders'] = BookOrder::with('book', 'payment')->orderBy('id', 'desc')->get()->map(function ($row) {
+        //     return [
+        //     'id' => $row->id,
+        //     'amount' => $row->amount,
+        //     'book_id' => $row->book_id,
+        //     'payment_id' => $row->payment_id,
+        //     'created_at' => $row->created_at,
+        //     'json_data' => json_decode($row->data),
+        //     'status' => $row->status,
+        //     'payment' => $row->payment,
+        //     'book' => $row->book,
+        //     'statusName' => $this->_status($row->status),
+        //     'action' => $this->_getStatusActions($row->status, $row->id)
+        //     ];
+        // });
+
+        $query = BookOrder::with('book', 'payment')->latest();
+
+        if ($request->has('book_name') && $request->book_name != '') {
+            // dd($request->book_name);
+            $query->whereHas('book', function ($q) use ($request) {
+                $q->where('title', 'like', '%' . $request->book_name . '%');
+            });
+        }
+
+        if ($request->has('price') && $request->price != '') {
+            $query->whereHas('book', function ($q) use ($request) {
+                $q->where('price', 'like', '%' . $request->price . '%');
+            });
+        }
+
+        if ($request->has('name') && $request->name != '') {
+            $query->whereHas('payment', function ($q) use ($request) {
+                $name = $request->name;
+        
+                $q->where(function ($query) use ($name) {
+                    $query->whereRaw("JSON_UNQUOTE(JSON_EXTRACT(data, '$.donatation_submit.firstName')) LIKE ?", ["%$name%"])
+                          ->orWhereRaw("JSON_UNQUOTE(JSON_EXTRACT(data, '$.donatation_submit.lastName')) LIKE ?", ["%$name%"])
+                          ->orWhereRaw("CONCAT(JSON_UNQUOTE(JSON_EXTRACT(data, '$.donatation_submit.firstName')), ' ', JSON_UNQUOTE(JSON_EXTRACT(data, '$.donatation_submit.lastName'))) LIKE ?", ["%$name%"]);
+                });
+            });
+        }
+        
+        
+
+        // also email contains on json data like name filter
+        if ($request->has('email') && $request->email != '') {
+            $query->whereHas('payment', function ($q) use ($request) {
+                $email = $request->email;
+        
+                $q->where(function ($query) use ($email) {
+                    $query->whereRaw("JSON_UNQUOTE(JSON_EXTRACT(data, '$.donatation_submit.email')) LIKE ?", ["%$email%"])
+                            ->orWhereRaw("JSON_UNQUOTE(JSON_EXTRACT(data, '$.donatation_submit.email')) LIKE ?", ["%$email%"]);
+
+                });
+            });
+        }
+
+        if ($request->has('status') && $request->status != '') {
+            $query->where('status', $request->status);
+        }
+
+        // if ($request->has('date') && $request->date != '') {
+        //     $query->whereDate('created_at', $request->date);
+        // }
+        // dd($query);
+        // get mysql query with toSql() with values
+        // dd($query->toSql(), $query->getBindings());
+        $data['book_orders'] = $query->get()->map(function ($row) {
             return [
                 'id' => $row->id,
                 'amount' => $row->amount,
@@ -120,9 +188,32 @@ class BookOrderController extends Controller
             ];
         });
         // book payments
-        $payments = BookOrder::with('book', 'payment')->latest()->get();
+        // $payments = BookOrder::with('book', 'payment')->latest()->get();
+        $query2 = BookOrder::with('book', 'payment')->latest();
+        // filter
+        // title: 
+        if ($request->has('title') && $request->title != '') {
+            $query2->whereHas('book', function ($q) use ($request) {
+                $q->where('title', 'like', '%' . $request->title . '%');
+            });
+        }
+        // amount: 
+        if ($request->has('amount') && $request->amount != '') {
+            $query2->where('amount', 'like', '%' . $request->amount . '%');
+        }
+        // payment_indent: from payment table
+        if ($request->has('payment_indent') && $request->payment_indent != '') {
+            $query2->whereHas('payment', function ($q) use ($request) {
+                $q->where('payment_intent', 'like', '%' . $request->payment_indent . '%');
+            });
+        }
+        // date: 
+        if ($request->has('date') && $request->date != '') {
+            $query2->whereDate('created_at', $request->date);
+        }
+        $payments = $query2->get();
 
-        return response()->json(['status' => 200, 'message' => "", 'data' => $data, 'payments'=> $payments]);
+        return response()->json(['status' => 200, 'message' => "", 'data' => $data, 'payments' => $payments]);
     }
     // get book orders page data
     public function getBookOrdersPageData(Request $request)

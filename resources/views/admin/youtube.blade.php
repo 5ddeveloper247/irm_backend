@@ -86,6 +86,43 @@
                                         <div class="card">
 
                                             <div class="card-body">
+                                                                                        {{-- filter --}}
+                                                {{-- include --}}
+                                                @php
+                                                    $button = '<a href="javascript:void(0);" class="theme-btn d-flex align-items-center gap-1 py-2 px-3 rounded-2 text-white" onclick="addNewYoutube();" >
+                                                                <i class="fa-solid fa-plus"></i>
+                                                                Add Youtube Playlist
+                                                            </a>';
+                                                    $filters = [
+                                                        // get my page table names
+                                                        ['name' => 'playlist_id', 'type' => 'text', 'label' => 'Playlist ID', 'placeholder' => 'Search Playlist ID'],
+                                                        ['name' => 'playlist_title', 'type' => 'text', 'label' => 'Title', 'placeholder' => 'Search Title'],
+                                                        ['name' => 'status', 'type' => 'select', 'label' => 'Status', 'options' => [
+                                                            ['value' => '1', 'label' => 'Active'],
+                                                            ['value' => '0', 'label' => 'In-Active']
+                                                        ]],
+                                                        // ['name' => 'username', 'type' => 'text', 'label' => 'User Name', 'placeholder' => 'Search Username'],
+                                                        // ['name' => 'email', 'type' => 'text', 'label' => 'Email', 'placeholder' => 'Search Email'],
+                                                        // // Select options
+                                                        // ['name' => 'role', 'type' => 'select', 'label' => 'Role', 'options' => [
+                                                        //     ['value' => 'admin', 'label' => 'Admin'],
+                                                        //     ['value' => 'user', 'label' => 'User']
+                                                        // ]],
+                                                        // // Date
+                                                        // ['name' => 'created_at', 'type' => 'date', 'label' => 'Created At'],
+                                                        // // Radio buttons
+                                                        // ['name' => 'gender', 'type' => 'radio', 'label' => 'Gender', 'options' => [
+                                                        //     ['value' => 'male', 'label' => 'Male'],
+                                                        //     ['value' => 'female', 'label' => 'Female']
+                                                        // ]],
+                                                        // ['name' => 'status', 'type' => 'checkbox', 'label' => 'Status', 'options' => [
+                                                        //     ['value' => '1', 'label' => 'Active'],
+                                                        //     ['value' => '0', 'label' => 'Inactive']
+                                                        // ]]
+                                                    ];
+                                                @endphp
+                                                @include('admin.filter.index')
+                                                {{-- include --}}
                                                 <div class="row align-items-center">
                                                     <div class="col-sm-4">
                                                         <div class="icon-form mb-3 mb-sm-0">
@@ -96,10 +133,7 @@
                         
                                                     <div class="col-sm-8">
                                                         <div class="d-flex align-items-center flex-wrap row-gap-2 justify-content-sm-end">
-                                                            <a href="javascript:void(0);" class="theme-btn d-flex align-items-center gap-1 py-2 px-3 rounded-2 text-white" onclick="addNewYoutube();" >
-                                                                <i class="fa-solid fa-plus"></i>
-                                                                Add Youtube Playlist
-                                                            </a>
+                                                            
                                                         </div>
                                                     </div>
                                                 </div> 
@@ -273,4 +307,49 @@
             responsive: true,
         });
     </script> -->
+    <script>
+        const formValues = {};
+        // Function to get all form values
+        document.getElementById('filterButton').addEventListener('click', function(event) {
+            event.preventDefault();
+            
+            document.querySelectorAll('.filterApplicantsInput').forEach(function(input) {
+                if (input.type === 'checkbox') {
+                    if (!formValues[input.name]) {
+                        formValues[input.name] = [];
+                    }
+                    if (input.checked) {
+                        formValues[input.name].push(input.value);
+                    }
+                } else if (input.type === 'radio') {
+                    if (input.checked) {
+                        formValues[input.name] = input.value;
+                    }
+                } else if (input.type === 'select-one') {
+                    formValues[input.name] = input.value;
+                } else {
+                    formValues[input.name] = input.value;
+                }
+            });
+            getYoutubePageData(formValues);
+            // Log the form values (You can replace this with your actual save logic)
+            console.log(formValues);
+        });
+    
+        // Function to reset all form values
+        document.getElementById('resetFilterButton').addEventListener('click', function(event) {
+            event.preventDefault();
+            document.querySelectorAll('.filterApplicantsInput').forEach(function(input) {
+                if (input.type === 'checkbox') {
+                    input.checked = false;
+                } else if (input.type === 'radio') {
+                    input.checked = false;
+                } else {
+                    input.value = '';
+                }
+            });
+            // 
+            getYoutubePageData();
+        });
+    </script>
 @endpush
