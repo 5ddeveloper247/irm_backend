@@ -132,4 +132,6 @@ Route::middleware('auth:register')->group(function () {
     Route::get('getMyCourses', [EnrollCourseController::class, 'getMyCourses']);
     // myCourseDetail
     Route::get('myCourseDetail/{id}', [EnrollCourseController::class, 'myCourseDetail']);
+    // updateCourseViewIndex
+    Route::post('updateCourseViewIndex', [EnrollCourseController::class, 'updateCourseViewIndex']);
 });

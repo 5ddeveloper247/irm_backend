@@ -6,8 +6,31 @@ use Illuminate\Http\Request;
 use App\Models\EnrollCourse;
 use Illuminate\Support\Facades\Validator;
 use App\Models\Course;
+// APIYoutubeController
+use App\Http\Controllers\API\YoutubeController as APIYoutubeController;
 class EnrollCourseController extends Controller
 {
+    // updateCourseViewIndex users table
+    public function updateCourseViewIndex(Request $request)
+    {
+        $validate = Validator::make($request->all(), [
+            'course_id' => 'required',
+            // view_index
+            'view_index' => 'required|numeric|min:0'
+        ]);
+        if ($validate->fails()) {
+            return response()->json([
+                'message' => 'Validation Error',
+                'errors' => $validate->errors()
+            ], 422);
+        }
+        auth()->user()->course_view_index = $request->view_index;
+        auth()->user()->save();
+        return response()->json([
+            'message' => 'Course View Index Updated Successfully',
+            'data' => auth()->user()
+        ], 200);
+    }
     // enrollCourses
     public function enrollCourses(){
         return view('admin.enrollcourses');
@@ -145,9 +168,29 @@ class EnrollCourseController extends Controller
             'data' => $myCourses
         ], 200);
     }
+    private function _getYouTubeVideoId($url) {
+        preg_match('/(?:youtube\.com\/(?:[^\/]+\/[^\/]+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/|youtube\.com\/embed\/)([^"&?\/\s]{11})/', $url, $matches);
+        return $matches[1] ?? null;
+    }
+    private function _formatYouTubeDuration($duration)
+    {
+        preg_match('/PT(\d+H)?(\d+M)?(\d+S)?/', $duration, $matches);
+
+        $hours = isset($matches[1]) ? (int) filter_var($matches[1], FILTER_SANITIZE_NUMBER_INT) : 0;
+        $minutes = isset($matches[2]) ? (int) filter_var($matches[2], FILTER_SANITIZE_NUMBER_INT) : 0;
+        $seconds = isset($matches[3]) ? (int) filter_var($matches[3], FILTER_SANITIZE_NUMBER_INT) : 0;
+
+        if ($hours > 0) {
+            return sprintf("%d:%02d:%02d", $hours, $minutes, $seconds); // Format as H:MM:SS
+        } else {
+            return sprintf("%d:%02d", $minutes, $seconds); // Format as MM:SS
+        }
+    }
+
     // myCourseDetail
     public function myCourseDetail($id)
     {
+        $view_index = auth()->user()->course_view_index;
         $course = Course::with('type','videos','enrollCourses')->where('id',$id)->first();
         if($course){
             // instructor_name
@@ -158,6 +201,17 @@ class EnrollCourseController extends Controller
             $course->image = url('/'.$course->thumbnail);
             // duration_minutes to duration_hours
             $course->duration_hours = round(($course->duration_minutes / 60),1); 
+            // Initialize YouTube Controller using Laravel's app() helper
+            $youtube = app(APIYoutubeController::class);
+            // Process course videos
+            $course->videos = $course->videos->map(function ($video) use ($youtube) {
+                // Extract YouTube video ID
+                $videoId = $this->_getYouTubeVideoId($video->video_url);
+                // Fetch YouTube video details
+                $video->youtube_details = $youtube->videoDetail($videoId);
+                $video->duration = $this->_formatYouTubeDuration($video->youtube_details['video']['contentDetails']['duration']);
+                return $video;
+            });
              // releated courses
             $releatedCourses = Course::with('videos','type')->where('status',1)->where('type_id',$course->type_id)->where('id','!=',$id)->limit(3)->get()->map(function($course){
                 // add base url to thumbnail
@@ -166,7 +220,7 @@ class EnrollCourseController extends Controller
                 $course->duration_hours = round(($course->duration_minutes / 60),1); 
                 return $course;
             });
-            return response()->json(['status' => 200, 'course' => $course, 'releatedCourses' => $releatedCourses]);
+            return response()->json(['status' => 200, 'course' => $course, 'releatedCourses' => $releatedCourses, 'view_index' => $view_index]);
         }else{
             return response()->json(['status' => 404, 'message' => 'Course not found']);
         }
