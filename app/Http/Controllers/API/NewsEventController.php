@@ -162,8 +162,8 @@ class NewsEventController extends Controller
 
         $collection = collect($events);
         $events['first_news_events'] = $collection->first();
-        $first_index = $collection->keys()->first();
-        unset($events['news_events'][$first_index]);
+        // $first_index = $collection->keys()->first();
+        // unset($events['news_events'][$first_index]);
         return response()->json(['status' => 200, 'data' => $events]);
     }
     
