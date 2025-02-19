@@ -96,9 +96,7 @@ function makeAudioCategoryListing(categoryList) {
                                         </svg>
                                         Edit
                                     </a>
-                                    <a class="dropdown-item" href="javascript:;" onclick="deleteAudioCategoryConfirm(${
-                                        category.id
-                                    })">
+                                    <a class="dropdown-item" href="javascript:;" onclick="deleteAudioCategoryConfirm(${ category.id })">
                                         <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24">
                                             <g fill="none">
                                                 <path fill="currentColor" d="M20 5a1 1 0 1 1 0 2h-1l-.933 13.071A2 2 0 0 1 16.069 22H7.93a2 2 0 0 1-1.995-1.858l-.933-13.07L5 7H4a1 1 0 0 1 0-2zm-3.003 2H7.003l.928 13h8.138zM14 2a1 1 0 1 1 0 2h-4a1 1 0 0 1 0-2z"></path>
@@ -391,6 +389,13 @@ function deleteAudioCategoryConfirmedResponse(response) {
         getAudioLecturesPageData();
 
         toastr.success(response.message, "", {
+            timeOut: 3000,
+        });
+    }else{
+        tempId = "";
+        $("#deleteConfirm_btn").attr("onclick", "");
+        $("#delete_confirm_modal").modal("hide");
+        toastr.error(response.message, "", {
             timeOut: 3000,
         });
     }

@@ -535,11 +535,17 @@ class AdminController extends Controller
         $AudioCategory = AudioCategory::find($request->category_id);
 
         if ($AudioCategory) {
+            if($AudioCategory->audio_lectures == null){
+                $AudioCategory->audio_lectures()->delete();
+                $AudioCategory->delete();
 
-            $AudioCategory->audio_lectures()->delete();
-            $AudioCategory->delete();
+                return response()->json(['status' => 200, 'message' => "Audio Category Deleted Successfully."]);
+            }else{
+                return response()->json(['status' => 400, 'message' => "Audio lectures exist against this category, first delete lecture then delete category."]); 
+            }
+            
 
-            return response()->json(['status' => 200, 'message' => "Audio Category Deleted Successfully."]);
+            
         } else {
             return response()->json(['status' => 400, 'message' => "Audio Category not found."]);
         }
@@ -552,8 +558,6 @@ class AdminController extends Controller
             'audio_title' => 'required|max:50',
             'audio_description' => 'required|max:250',
             'audio_status' => 'required',
-            'audio_duration' => 'required',
-
         ]);
         if ($request->audio_id == '') {
             $validatedData = $request->validate([
@@ -563,6 +567,9 @@ class AdminController extends Controller
 
             ]);
         }
+        $validatedData = $request->validate([
+            'audio_duration' => 'required',
+        ]);
 
 
         if ($request->audio_id != '') {
@@ -1121,10 +1128,17 @@ class AdminController extends Controller
 
         if ($GalleryType) {
 
-            $GalleryType->galleries()->delete();
-            $GalleryType->delete();
+            if($GalleryType->galleries == null){
+                $GalleryType->galleries()->delete();
+                $GalleryType->delete();
 
-            return response()->json(['status' => 200, 'message' => "Type Deleted Successfully."]);
+                return response()->json(['status' => 200, 'message' => "Type Deleted Successfully."]);
+            }else{
+                return response()->json(['status' => 400, 'message' => "Gallery exist against this type, first delete gallery then delete type."]);
+            }
+            
+
+            
         } else {
             return response()->json(['status' => 400, 'message' => "Type not found."]);
         }
@@ -1313,10 +1327,17 @@ class AdminController extends Controller
 
         if ($CourseType) {
 
-            $CourseType->courses()->delete();
-            $CourseType->delete();
+            if($CourseType->courses == null){
+                $CourseType->courses()->delete();
+                $CourseType->delete();
+    
+                return response()->json(['status' => 200, 'message' => "Type Deleted Successfully."]);
+            }else{
+                return response()->json(['status' => 400, 'message' => "Course exist against this type, first delete course then delete type."]);
+            }
+            
 
-            return response()->json(['status' => 200, 'message' => "Type Deleted Successfully."]);
+
         } else {
             return response()->json(['status' => 400, 'message' => "Type not found."]);
         }

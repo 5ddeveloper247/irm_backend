@@ -365,7 +365,14 @@ function deleteCourseTypeConfirmedResponse(response) {
         toastr.success(response.message, '', {
             timeOut: 3000
         });
-    } 
+    } else{
+        $("#deleteConfirm_btn").attr('onclick', '');
+        $("#delete_confirm_modal").modal('hide');
+        
+        toastr.error(response.message, '', {
+            timeOut: 3000
+        });
+    }
 }
 
 

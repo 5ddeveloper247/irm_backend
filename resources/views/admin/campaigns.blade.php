@@ -390,7 +390,7 @@
         id="add_payment_canvas" aria-labelledby="offcanvas_add_label">
         <div class="offcanvas-header">
             <h5 id="offcanvas_add_label">Add Manual Payment</h5>
-            <button type="button" class="btn-close closeCanvas" data-bs-dismiss="offcanvas"
+            <button type="button" class="btn-close closePaymentCanvas" data-bs-dismiss="offcanvas"
                 aria-label="Close"></button>
         </div>
         <div style="padding: 6%;" class="offcanvas-body">

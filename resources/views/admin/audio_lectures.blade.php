@@ -272,7 +272,7 @@
                                                                     <th class="text-start text-nowrap" scope="col">
                                                                         Lecture Name</th>
                                                                     <th class="text-start text-nowrap" scope="col">
-                                                                        category Name</th>
+                                                                        Category Name</th>
                                                                     <th class="text-start text-nowrap" scope="col">
                                                                         Description</th>
                                                                     <th class="text-start text-nowrap" scope="col">Date

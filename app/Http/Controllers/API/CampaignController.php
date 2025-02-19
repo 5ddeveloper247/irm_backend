@@ -222,8 +222,8 @@ class CampaignController extends Controller
                  'status' => 200, 'message' => "", 
                  'data' => $data, 
                  'success' => true,
-                 'payment'=> $payment,
-                 'whatsAppResponse' => $whatsAppResponse
+                 'payment'=> $payment
+                //  'whatsAppResponse' => $whatsAppResponse
                 ]);
         } catch (ApiErrorException $e) {
             return response()->json(['error' => $e->getMessage()]);

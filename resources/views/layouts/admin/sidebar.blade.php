@@ -87,10 +87,26 @@
                 </div>
 
                 <div class="form-floating">
+                    <input type="password" class="form-control" id="old_password" name="old_password"
+                        placeholder="Old Password" maxlength="50">
+                    <label class="ms-2" for="password">Old Password</label>
+                    <i class="fa fa-eye position-absolute view_pass" style="top: 40%; right: 7%;font-size:12px;"></i>
+                </div>
+
+                <div class="form-floating">
                     {{-- password --}}
                     <input type="password" class="form-control" id="profile_password" name="password"
                         placeholder="Password" maxlength="50">
                     <label class="ms-2" for="password">Password</label>
+                    <i class="fa fa-eye position-absolute view_pass" style="top: 40%; right: 7%;font-size:12px;"></i>
+                </div>
+
+                <div class="form-floating">
+                    {{-- password --}}
+                    <input type="password" class="form-control" id="password_confirmation" name="password_confirmation"
+                        placeholder="Confirm Password" maxlength="50">
+                    <label class="ms-2" for="password">Password</label>
+                    <i class="fa fa-eye position-absolute view_pass" style="top: 40%; right: 7%;font-size:12px;"></i>
                 </div>
 
                 <div class="row">
@@ -126,6 +142,12 @@
 </div>
 @push('js')
     <script>
+        $(document).on('click', '.view_pass', function (e) {
+            var passwordField = $(this).siblings('.form-control');
+            var type = passwordField.attr('type') === 'password' ? 'text' : 'password';
+            passwordField.attr('type', type);
+            $(this).toggleClass('fa-eye-slash').toggleClass('fa-eye');
+        });
         function saveAdminProfile() {
 
             let type = 'POST';
@@ -195,6 +217,7 @@
         // openProfileCanvas
         $(".openProfileCanvas").on("click", function() {
             // $(".profileCanvas").toggleClass("d-none");
+            $('#old_password, #profile_password, #password_confirmation').val('');
             $('#profile_canvas').addClass('show');
         });
         document.querySelectorAll('.nav-link-acc').forEach((link) => {

@@ -190,7 +190,7 @@ function makeCampaignListing(campaignList) {
                                         </svg>
                                         Edit
                                     </a>
-                                    <a class="dropdown-item" href="javascript:;" onclick="deleteCampaignConfirm(${
+                                    <a class="dropdown-item d-none" href="javascript:;" onclick="deleteCampaignConfirm(${
                                         campaign.id
                                     })">
                                         <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24">

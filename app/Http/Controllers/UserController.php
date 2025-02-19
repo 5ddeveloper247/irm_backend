@@ -6,6 +6,10 @@ use Illuminate\Http\Request;
 use App\Models\User;
 use App\Models\Menu;
 use App\Models\MenuControl;
+
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Password;
+
 class UserController extends Controller
 {
     // subAdmins
@@ -121,22 +125,48 @@ class UserController extends Controller
     public function saveAdminProfile(Request $request)
     {
         // validate
-        $validated = $request->validate([
-            'name' => 'required',
-            'email' => 'required',
-            'username' => 'required',
-            'email' => 'required|unique:users,email,' . auth()->user()->id,
-            'password' => 'required|min:6',
-            'username' => 'required|unique:users,username,' . auth()->user()->id,
-        ]);
+        if($request->old_password != ''){
+            $user = auth()->user();
+            if (!Hash::check($request->old_password, $user->password)) {
+                return response()->json(['status' => 402, 'message' => 'The old password is incorrect.']);
+            }
+            $validated = $request->validate([
+                'name' => 'required',
+                'email' => 'required',
+                'username' => 'required',
+                'email' => 'required|unique:users,email,' . auth()->user()->id,
+                'username' => 'required|unique:users,username,' . auth()->user()->id,
+                'old_password' => 'required',
+                'password' => [
+                    'required',
+                    'string',
+                    'min:8',
+                    'max:20',
+                    'regex:/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).+$/',
+                    'confirmed'
+                ],
+                'password_confirmation' => 'same:password',
+            ], [
+                'password_confirmation.regex' => 'The new password must contain at least one uppercase letter, one lowercase letter, one number, and one special character.',
+            ]);
+        }else{
+            $validated = $request->validate([
+                'name' => 'required',
+                'email' => 'required',
+                'username' => 'required',
+                'email' => 'required|unique:users,email,' . auth()->user()->id,
+                'password' => 'nullable|min:6',
+                'username' => 'required|unique:users,username,' . auth()->user()->id,
+            ]);
+        }
+        
         $user = User::find(auth()->user()->id);
         $user->name = $request->name;
         $user->email = $request->email;
         $user->username = $request->username;
         // password
-        if ($request->password) {
-            
-            $user->password = bcrypt($request->password);
+        if($request->password != ''){
+            $user->password= bcrypt($request->password);
         }
         // Save the thumbnail file profile_thumbnail_file
         if ($request->hasFile('thumbnail')) {
