@@ -589,7 +589,7 @@ class AdminController extends Controller
         // Save the thumbnail file
         if ($request->hasFile('thumbnail')) {
             $thumbnailFile = $request->file('thumbnail');
-            $thumbnailName = 'thumbnail_' . time() . '_' . $thumbnailFile->getClientOriginalName();
+            $thumbnailName = 'thumbnail_' . time() . '.' . $thumbnailFile->getClientOriginalExtension();
             $thumbnailPath = 'uploads/images';
             $thumbnailFile->move(public_path($thumbnailPath), $thumbnailName);
             $AudioLecture->thumbnail = $thumbnailPath . '/' . $thumbnailName;
@@ -602,7 +602,7 @@ class AdminController extends Controller
             // delete previous attachments
             $AudioLecture->attachments()->delete();
             foreach ($request->file('audio_files') as $audioFile) {
-                $audioName = 'audio_' . time() . '_' . $audioFile->getClientOriginalName();
+                $audioName = 'audio_' . time() . '.' . $audioFile->getClientOriginalExtension();
                 $audioPath = 'uploads/audio';
                 $audioFile->move(public_path($audioPath), $audioName);
 
@@ -893,6 +893,7 @@ class AdminController extends Controller
             $fileName = 'book' . time() . '_' . $file->getClientOriginalName();
             $filePath = 'uploads/books';
             $file->move(public_path($filePath), $fileName);
+            $BookLibrary->book_name = $file->getClientOriginalName();
             $BookLibrary->book = $filePath . '/' . $fileName;
         }
 

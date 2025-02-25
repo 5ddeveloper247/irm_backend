@@ -62,6 +62,7 @@ function makeContactListing(contactList){
                         <td class="text-start text-nowrap">${contact.subject}</td> 
                         <td class="text-start text-nowrap">${contact.message.substring(0, 40)}...</td>
                         <td class="text-start text-nowrap">${formatDate(contact.created_at)}</td>
+                        <td class="text-start text-nowrap">${contact.replies.length > 0 ? 'Replied' : 'Pending'}</td>
                         <td class="text-start text-nowrap">
                             <button type="button" class="btn btn-purple" onclick="editReplyContact(${contact.id})"><i class="fa-solid fa-reply"></i></button>
                         </td>

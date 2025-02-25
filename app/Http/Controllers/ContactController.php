@@ -18,7 +18,7 @@ class ContactController extends Controller
     // getContactsPageData
     public function getContactPageData(){
         // $data['contact_list'] = Contact::orderBy('id', 'desc')->get();
-        $query = Contact::orderBy('id', 'desc')->latest();
+        $query = Contact::with('replies')->orderBy('id', 'desc')->latest();
         // name: 
         if(request()->has('name') && request('name') != ''){
             $query->where('name', 'like', '%'.request('name').'%');

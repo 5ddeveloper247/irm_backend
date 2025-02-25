@@ -26,20 +26,27 @@ function getPaymentsPageDataResponse(response) {
 }
 
 function makePaymentsListing(paymentsList){
-    console.log(paymentsList);
-   
+    
     var html = '';
     if ($.fn.DataTable.isDataTable('#payments_table')) {
         $('#payments_table').DataTable().destroy();
     }
     if (paymentsList.length > 0) {
         $.each(paymentsList, function (index, payment) {
+            var paymentData = JSON.parse(payment.data);
             
+            // Extract required values
+            var firstName = paymentData.donatation_submit.firstName;
+            var lastName = paymentData.donatation_submit.lastName;
+            var email = paymentData.donatation_submit.email;
+
             html += `<tr>
                         <td class="text-start text-nowrap">${index+1}</td>
                         <td class="text-start text-nowrap">${payment.module_code}</td>
                         <td class="text-start text-nowrap">${payment.amount}</td>
                         <td class="text-start text-nowrap">${payment.payment_intent}</td>
+                        <td class="text-start text-nowrap">${firstName} ${lastName}</td>
+                        <td class="text-start text-nowrap">${email}</td>
                         <td class="text-start text-nowrap">${formatDate(payment.created_at)}</td>
                         <td class="text-start text-nowrap">
                             ${payment.status == "succeeded" ? 

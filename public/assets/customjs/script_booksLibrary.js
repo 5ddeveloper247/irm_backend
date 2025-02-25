@@ -145,8 +145,10 @@ $(document).on('change', '#book_file', function() {
     var filePreview = $('.book_preview');
 
     if (file) {
+        $('.book_preview_name').text(file.name);
         filePreview.show(); // Show the image preview
     } else {
+        $('.book_preview_name').text('');
         filePreview.hide();
     }
 });
@@ -165,6 +167,7 @@ function resetBookForm(){
     $(".thumbnail_preview").attr('src', '').hide();
     $(".book_preview").hide();
     $('.book_preview_a').attr('href', 'javascript:;');
+    $('.book_preview_name').text('');
 }
 
 $(document).on('click', '.closeCanvas', function (e) {
@@ -256,9 +259,11 @@ function editBookResponse(response) {
 
             if(bookDetail.book != null){
                 $('.book_preview_a').attr('href', bookDetail.book);
+                $('.book_preview_name').text(bookDetail.book_name);
                 $(".book_preview").show();
             }else{
                 $('.book_preview_a').attr('href', 'javascript:;');
+                $('.book_preview_name').text('');
                 $(".book_preview").hide();
             }
 

@@ -38,6 +38,7 @@ class CampaignController extends Controller
         })
         ->select('campaigns.*', DB::raw('SUM(payments.amount) as total_amount'))
         ->groupBy('campaigns.id')
+        ->where('campaigns.status', '1')
         ->get();
 
         // set base url on image

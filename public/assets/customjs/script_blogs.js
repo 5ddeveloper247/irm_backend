@@ -28,7 +28,7 @@ function getBlogsPageDataResponse(response) {
 function makeBlogsListing(blogsList){
    
     var html = '';
-   $("#blogs_table_body").html('');
+    $("#blogs_table_body").html('');
     if (blogsList.length > 0) {
         $.each(blogsList, function (index, blog) {
             

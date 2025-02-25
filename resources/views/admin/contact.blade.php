@@ -142,6 +142,8 @@
                                                                         Message</th>
                                                                     <th class="text-start text-nowrap" scope="col">Date
                                                                     </th>
+                                                                    <th class="text-start text-nowrap" scope="col">Status
+                                                                    </th>
                                                                     <th class="text-start text-nowrap" scope="col">Action</th>
                                                                 </tr>
                                                             </thead>

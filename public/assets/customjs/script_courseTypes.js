@@ -411,9 +411,12 @@ function resetCourseForm(){
 	form.trigger("reset");
 
     // selectedFiles = [];
-    $("#fields_container").html('');
+    $("#fields_container, #instructor_fields_container").html('');
     $("#thumbnail_file, #course_id").val('');
     $(".thumbnail_preview").hide();
+    
+    editorInstance.course_description.setData('');
+    editorInstance.course_eligibility.setData('');
 }
 
 $(document).on('click', '.closeCanvas1', function (e) {

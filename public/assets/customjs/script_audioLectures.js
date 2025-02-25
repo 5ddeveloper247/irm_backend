@@ -210,39 +210,40 @@ function makeAudioLectureListing(lectureList) {
                     </tr>`;
         });
         $("#audioLecture_table_body").html(html);
-        $("#audioLecture_table").DataTable({
-            bDestroy: true,
-            paging: true,
-            lengthChange: true,
-            searching: true,
-            info: true,
-            autoWidth: false,
-            responsive: true,
-            scrollX: true,
-            language: {
-                search: "_INPUT_",
-                searchPlaceholder: "Search",
-            },
-            dom: "Bfrtip",
-            buttons: [
-                { extend: "copy", className: "btn btn-copy", text: "Copy" },
-                { extend: "csv", className: "btn btn-csv", text: "CSV" },
-                { extend: "excel", className: "btn btn-excel", text: "Excel" },
-                { extend: "pdf", className: "btn btn-pdf", text: "PDF" },
-                { extend: "print", className: "btn btn-print", text: "Print" },
-                {
-                    text: "Refresh",
-                    className: "btn btn-refresh",
-                    action: function () {
-                        console.log("Refresh button clicked");
-                        $("#resetFilterButton").click();
-
-                        getAudioLecturesPageData();
-                    },
-                },
-            ],
-        });
     }
+    
+    $("#audioLecture_table").DataTable({
+        bDestroy: true,
+        paging: true,
+        lengthChange: true,
+        searching: true,
+        info: true,
+        autoWidth: false,
+        responsive: true,
+        scrollX: true,
+        language: {
+            search: "_INPUT_",
+            searchPlaceholder: "Search",
+        },
+        dom: "Bfrtip",
+        buttons: [
+            { extend: "copy", className: "btn btn-copy", text: "Copy" },
+            { extend: "csv", className: "btn btn-csv", text: "CSV" },
+            { extend: "excel", className: "btn btn-excel", text: "Excel" },
+            { extend: "pdf", className: "btn btn-pdf", text: "PDF" },
+            { extend: "print", className: "btn btn-print", text: "Print" },
+            {
+                text: "Refresh",
+                className: "btn btn-refresh",
+                action: function () {
+                    console.log("Refresh button clicked");
+                    $("#resetFilterButton").click();
+
+                    getAudioLecturesPageData();
+                },
+            },
+        ],
+    });
 }
 
 function addNewCategory() {

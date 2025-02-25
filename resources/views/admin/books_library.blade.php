@@ -215,7 +215,11 @@
                         <input type="file" id="book_file" name="book" accept=".pdf" style="display:none;">
 
                         <div class="col-12 my-2">
-                            <a href="javascript:;" class="book_preview_a" download><img class="book_preview" src="{{asset('assets/images/pdf-placeholder.png')}}" style="display:none;width: 70px;height: 70px;object-fit: cover;border-radius: 10px;"></a>
+                            <a href="javascript:;" class="book_preview_a" download>
+                                <img class="book_preview" src="{{asset('assets/images/pdf-placeholder.png')}}" style="display:none;width: 70px;height: 70px;object-fit: cover;border-radius: 10px;">
+                                
+                            </a>
+                            <div class="book_preview_name"></div>
                         </div>
                     </div>
 

@@ -690,13 +690,16 @@ $(document).ready(function () {
                 .empty()
                 .append('<option value="">Select Campaign</option>');
             $.each(data, function (key, value) {
-                $("#payment_campaign_id").append(
-                    '<option value="' +
-                        value.id +
-                        '">' +
-                        value.title +
-                        "</option>"
-                );
+                if(value.status == '1'){
+                    $("#payment_campaign_id").append(
+                        '<option value="' +
+                            value.id +
+                            '">' +
+                            value.title +
+                            "</option>"
+                    );
+                }
+                
             });
         },
     });

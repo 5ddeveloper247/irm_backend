@@ -123,6 +123,8 @@
                                                                     <th class="text-start text-nowrap">Module Code</th>
                                                                     <th class="text-start text-nowrap">Price (PKR)</th>
                                                                     <th class="text-start text-nowrap">Payment Indent</th>
+                                                                    <th class="text-start text-nowrap">Username</th>
+                                                                    <th class="text-start text-nowrap">Email</th>
                                                                     <th class="text-start text-nowrap">Date</th>
                                                                     <th class="text-start text-nowrap">Status</th>
                                                                 </tr>
@@ -131,6 +133,8 @@
                                                                     <th><input type="text" class="column-filter form-control" placeholder="Filter Module Code"></th>
                                                                     <th><input type="text" class="column-filter form-control" placeholder="Filter Price"></th>
                                                                     <th><input type="text" class="column-filter form-control" placeholder="Filter Payment Indent"></th>
+                                                                    <th><input type="text" class="column-filter form-control" placeholder="Filter Username"></th>
+                                                                    <th><input type="text" class="column-filter form-control" placeholder="Filter Email"></th>
                                                                     <th><input type="text" class="column-filter form-control"></th>
                                                                     <th>
                                                                         <select class="column-filter form-control">
@@ -148,6 +152,8 @@
                                                                     <th><input type="text" class="column-filter form-control" placeholder="Filter Module Code"></th>
                                                                     <th><input type="text" class="column-filter form-control" placeholder="Filter Price"></th>
                                                                     <th><input type="text" class="column-filter form-control" placeholder="Filter Payment Indent"></th>
+                                                                    <th><input type="text" class="column-filter form-control" placeholder="Filter Username"></th>
+                                                                    <th><input type="text" class="column-filter form-control" placeholder="Filter Email"></th>
                                                                     <th><input type="date" class="column-filter form-control"></th>
                                                                     <th>
                                                                         <select class="column-filter form-control">

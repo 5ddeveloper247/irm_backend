@@ -356,7 +356,7 @@
     <div style="max-width:33rem;" class="offcanvas offcanvas-end add-new-project-offcanvas" tabindex="-1"
         id="addCourse_canvas" aria-labelledby="offcanvas_add_label">
         <div class="offcanvas-header">
-            <h5 id="offcanvas_add_label">Gallery Details</h5>
+            <h5 id="offcanvas_add_label">Course Details</h5>
             <button type="button" class="btn-close closeCanvas1" data-bs-dismiss="offcanvas"
                 aria-label="Close"></button>
         </div>
@@ -424,7 +424,7 @@
                             <option value="Arabic">Arabic</option>
                             <option value="English">English</option>
                         </select>
-                        <label class="ms-2" for="course_language">Course Level</label>
+                        <label class="ms-2" for="course_language">Course Language</label>
                     </div>
 
                     <div class="form-floating">
