@@ -120,23 +120,16 @@
             @section('title','Login')
 
             
-            <div class="w-100 my-3" style="background-color:#65cb02; height:15px;"></div>
+            {{-- <div class="w-100 my-3" style="background-color:#65cb02; height:15px;"></div> --}}
 
             
-            <section class="login d-flex align-items-center justify-content-center" style="background-image:unset;">
+            <section class="login vh-100 d-flex align-items-center justify-content-center overflow-hidden" style="background-image:unset; background: antiquewhite;">
     
-                <div class="container-fluid h-100">
-                    <div class="row ">
-                        <div class="col-md-6 col-12">
-                            <div class="d-flex justify-content-center align-items-center h-100">
-                                
-                                <img class="" src="{{url('assets/images/logo-new.png')}}" 
-                                    alt="phoenix" width="200">
-                            </div>
-                        </div>
-                        <div class="col-md-6 col-12  p-5 h-100 text-center d-flex flex-column justify-content-center">
+                <div class="container-fluid">
+                    <div class="row align-items-center">
+                        <div class="col-lg-6 col-12  p-5 text-center d-flex flex-column justify-content-center">
                             <div class="text-start ">
-                                <h1 class="text-center" style="color:#65cb02;">
+                                <h1 class="text-center" style="color: #1C8DEE;">
                                     LOGIN
                                 </h1>
                                 @if(session('error'))
@@ -157,10 +150,14 @@
                                         <label for="">Email</label><br>
                                         <input class="form-control w-100 p-2 mt-1" type="email" placeholder="Enter Username" name="email">
                                     </div>
-                                    <div class="mt-3">
-                                        <label for="">Password</label>
-                                        <br>
-                                        <input class="form-control w-100 p-2 mt-1" type="password" placeholder="Enter Password" name="password">
+                                    <div class="mt-3 position-relative">
+                                        <label for="password">Password</label>
+                                        <div class="input-group">
+                                            <input id="password" class="form-control w-100 p-2 mt-1" type="password" placeholder="Enter Password" name="password">
+                                            <button type="button" class="toggle-password position-absolute" onclick="togglePassword()" style="right: 10px; top: 50%; transform: translate(0%, -45%); border: none; background: none;">
+                                                <i id="eyeIcon" class="fa-solid fa-eye"></i>
+                                            </button>
+                                        </div>
                                     </div>
                                     <div class="form-options my-2 d-flex align-items-center justify-content-between gap-1">
                                         <div class="remember-me d-flex gap-1">
@@ -171,24 +168,18 @@
                                             <a href="{{route('forgetpass')}}" class="forgot-password">Forgot Password?</a>
                                         </div>
                                     </div>
-                                    <button class="py-2 px-4 mt-4 mb-3 w-100" type="submit" style="background-color:#65cb02; color: #fff;">
+                                    <button class="py-2 px-4 mt-4 mb-3 w-100 border-0 rounded-3" type="submit" style="background-color:#1C8DEE; color: #fff;">
                                         SIGN IN
                                     </button>
                                 </form>
                             </div>
                         </div>
+                        <div class="col-lg-6 d-none d-lg-block">
+                            <img src="http://localhost:5173/src/assets/images/activity-4.png" width="100%" height="100%" alt="">
+                        </div>
                     </div>
                 </div>
             </section>
-            
-            <footer class="">
-                <div class="main-footer border-end border-top toggle-button ">
-                    <div class="d-flex align-items-center justify-content-center p-3">
-                        <p class="mb-0">Thank you for creating with IRM | <?= date('Y') ?> ©</p>
-                        <a class="mx-1" href="https://themewagon.com">IRM</a>
-                    </div>
-                </div>
-            </footer>
         </div>
     </div>
 
@@ -248,6 +239,24 @@
         });
     });
 </script>
+
+<script>
+    function togglePassword() {
+        var passwordInput = document.getElementById("password");
+        var eyeIcon = document.getElementById("eyeIcon");
+
+        if (passwordInput.type === "password") {
+            passwordInput.type = "text";
+            eyeIcon.classList.remove("fa-eye");
+            eyeIcon.classList.add("fa-eye-slash"); // Change to "hide" icon
+        } else {
+            passwordInput.type = "password";
+            eyeIcon.classList.remove("fa-eye-slash");
+            eyeIcon.classList.add("fa-eye"); // Change back to "show" icon
+        }
+    }
+</script>
+
 <script>
     $(document).ready(function() {
         // When the "Edit" button is clicked
