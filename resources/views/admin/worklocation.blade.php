@@ -258,7 +258,7 @@
     <div style="max-width:43rem;" class="offcanvas offcanvas-end add-new-project-offcanvas" tabindex="-1"
         id="addWorklocation_canvas" aria-labelledby="offcanvas_add_label">
         <div class="offcanvas-header">
-            <h5 id="offcanvas_add_label">Worklocation</h5>
+            <h5 id="offcanvas_add_label">Location</h5>
             <button type="button" class="btn-close closeCanvas" data-bs-dismiss="offcanvas" aria-label="Close"></button>
         </div>
         <div style="padding: 6%;" class="offcanvas-body">

@@ -120,6 +120,7 @@
                                                             <thead style="background-color: #3259901c !important;">
                                                                 <tr>
                                                                     <th class="text-start text-nowrap">Seq No.</th>
+                                                                    <th class="text-start text-nowrap">Title</th>
                                                                     <th class="text-start text-nowrap">Module Code</th>
                                                                     <th class="text-start text-nowrap">Price (PKR)</th>
                                                                     <th class="text-start text-nowrap">Payment Indent</th>
@@ -130,6 +131,7 @@
                                                                 </tr>
                                                                 <tr class="filter-row" id="filters-header" style="display: none">
                                                                     <th><input type="text" class="column-filter form-control" placeholder="Filter Seq No."></th>
+                                                                    <th><input type="text" class="column-filter form-control" placeholder="Filter Title"></th>
                                                                     <th><input type="text" class="column-filter form-control" placeholder="Filter Module Code"></th>
                                                                     <th><input type="text" class="column-filter form-control" placeholder="Filter Price"></th>
                                                                     <th><input type="text" class="column-filter form-control" placeholder="Filter Payment Indent"></th>

@@ -36,13 +36,14 @@ function makePaymentsListing(paymentsList){
             var paymentData = JSON.parse(payment.data);
             
             // Extract required values
-            var firstName = paymentData.donatation_submit.firstName;
-            var lastName = paymentData.donatation_submit.lastName;
-            var email = paymentData.donatation_submit.email;
+            var firstName = paymentData?.donatation_submit?.firstName || 'N/A';
+            var lastName = paymentData?.donatation_submit?.lastName || 'N/A';
+            var email = paymentData?.donatation_submit?.email || 'N/A';
 
             html += `<tr>
                         <td class="text-start text-nowrap">${index+1}</td>
                         <td class="text-start text-nowrap">${payment.module_code}</td>
+                        <td class="text-start text-nowrap">${payment.module_title || 'N/A'}</td>
                         <td class="text-start text-nowrap">${payment.amount}</td>
                         <td class="text-start text-nowrap">${payment.payment_intent}</td>
                         <td class="text-start text-nowrap">${firstName} ${lastName}</td>

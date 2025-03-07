@@ -120,6 +120,9 @@
                                                             <thead style="background-color: #3259901c !important;">
                                                                 <tr>
                                                                     <th class="text-start text-nowrap" scope="col">Seq No.</th>
+                                                                    {{-- membership_type --}}
+                                                                    <th class="text-start text-nowrap" scope="col">Membership Type</th>
+                                                                    {{-- Name --}}
                                                                     <th class="text-start text-nowrap" scope="col">Name</th>
                                                                     <th class="text-start text-nowrap" scope="col">Email</th>
                                                                     <th class="text-start text-nowrap" scope="col">Phone</th>

@@ -240,6 +240,11 @@
                             placeholder="Password" maxlength="50">
                         <label class="ms-2" for="password">Password</label>
                     </div>
+                    {{-- c_password --}}
+                    <div class="form-floating">
+                        <input type="password" class="form-control" id="c_password" name="c_password"
+                            placeholder="Confirm Password" maxlength="50">
+                        <label class="ms-2" for="c_password">Confirm Password</label>
 
                     <!-- Status -->
                     <div class="form-floating">
@@ -264,7 +269,10 @@
                             @if ($menu->route != 'sub-admins')
                                 <div class="col-6">
                                     <input class="" id="menu_{{ $menu->id }}" type="checkbox" name="menus[]"
-                                        value="{{ $menu->id }}">
+                                        value="{{ $menu->id }}" @if($menu->route == 'dashboard') checked disabled @endif>
+                                        @if($menu->route == 'dashboard') 
+                                        <input type="hidden" name="menus[]" value="{{ $menu->id }}">
+                                        @endif
                                     <label class="" for="menu_{{ $menu->id }}">{{ $menu->name }}</label>
                                 </div>
                             @endif
@@ -317,11 +325,22 @@
 @endsection
 @push('js')
     <script src="{{ asset('assets/customjs/script_users.js') }}"></script>
-    <!-- <script>
-        $('#admin-query').DataTable({
-            responsive: true,
+    <script>
+        // $('#admin-query').DataTable({
+        //     responsive: true,
+        // });
+        // email on change not add spaces
+        $('#email').on('change', function() {
+            $(this).val($(this).val().replace(/\s/g, ''));
+            const email = $(this).val();
+            const emailPattern = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/;
+            if (!emailPattern.test(email)) {
+                toastr.error("Invalid Email", "", {
+                    timeOut: 3000,
+                });
+            }
         });
-    </script> -->
+    </script>
     <script>
         const formValues = {};
         // Function to get all form values

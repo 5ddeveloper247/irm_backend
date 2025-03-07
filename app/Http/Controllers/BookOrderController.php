@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\Payment;
 use App\Models\BookOrder;
 use App\Models\BookLibrary;
+use Illuminate\Support\Facades\Log;
 
 class BookOrderController extends Controller
 {
@@ -266,6 +267,24 @@ class BookOrderController extends Controller
 
         // update status
         $bookOrder->save();
+        try {
+            // send email
+            $book_order_data = json_decode($bookOrder->data);
+            $book = BookLibrary::find($bookOrder->book_id);
+            $data = [
+                'book_name' => $book->title,
+                'status' => $this->_status($bookOrder->status)
+            ];
+            $tags = ['@@book_name@@', '@@status@@'];
+            $template = '<p>Hello, your order for the book "<strong>@@book_name@@</strong>" is now "<strong>@@status@@</strong>". Thank you for shopping with us!</p>';
+            $template = str_replace($tags, $data, $template);
+            sendMail($book_order_data->donatation_submit->firstName, $book_order_data->donatation_submit->email, 'Book Order Status Update', $template);
+        } catch (\Exception $e) {
+            Log::error($e->getMessage());
+        }
+
+        // send email
+        // dd($data);
         return response()->json(['status' => 200, 'message' => "Status updated successfully", 'data' => $bookOrder]);
     }
     // view book order

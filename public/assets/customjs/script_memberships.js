@@ -88,6 +88,7 @@ function makeMembershipsListing(membershipsList){
             
             html += `<tr>
                         <td class="text-start text-nowrap">${index+1}</td>
+                        <td class="text-start text-nowrap">${(membership?.membership_type || 'N/A').toUpperCase()}</td>
                         <td class="text-start text-nowrap">${membership.username}</td>
                         <td class="text-start text-nowrap">${membership.email}</td>
                         <td class="text-start text-nowrap">${membership.phone}</td>
@@ -215,9 +216,9 @@ function viewMemberResponse(response){
                             <input type="text" class="form-control" id="floatingInput" placeholder="" value="${member.country.name  ?? 'N/A'}" readonly>
                             <label for="floatingInput">Country</label>
                         </div>
-                        <div class="form-floating">
-                            <input type="text" class="form-control" id="floatingInput" placeholder="" value="${member.message  ?? 'N/A'}" readonly>
-                            <label for="floatingInput">Message</label>
+                        <div class="">
+                        <label for="floatingTextarea">Message</label>
+                            <textarea class="form-control" rows="10" id="floatingTextarea" placeholder="" readonly>${member.message  ?? 'N/A'}</textarea>
                         </div>
                         <div class="form-floating">
                             <input type="text" class="form-control" id="floatingInput" placeholder="" value="${member.education  ?? 'N/A'}" readonly>
@@ -272,7 +273,6 @@ function viewMemberResponse(response){
                             <label for="floatingInput">Email</label>
                         </div>
                         <div class="form-floating">
-
                             <input type="text" class="form-control" id="floatingInput" placeholder="" value="${member.phone  ?? 'N/A'}" readonly>
                             <label for="floatingInput">Phone</label>
                         </div>
@@ -284,9 +284,10 @@ function viewMemberResponse(response){
                             <input type="text" class="form-control" id="floatingInput" placeholder="" value="${member.country.name  ?? 'N/A'}" readonly>
                             <label for="floatingInput">Country</label>
                         </div>
-                        <div class="form-floating">
-                            <input type="text" class="form-control" id="floatingInput" placeholder="" value="${member.message  ?? 'N/A'}" readonly>
-                            <label for="floatingInput">Message</label>
+                        <div class="">
+                        <label for="floatingTextarea">Message</label>
+                            <textarea class="form-control" rows="10" id="floatingTextarea" placeholder="" readonly>${member.message  ?? 'N/A'}</textarea>
+                            
                         </div>
                     </div>`;
         }

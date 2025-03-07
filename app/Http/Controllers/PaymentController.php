@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Payment;
+use App\Models\BookLibrary as Book;
+use App\Models\Campaign;
 class PaymentController extends Controller
 {
     // payments
@@ -34,6 +36,18 @@ class PaymentController extends Controller
             $query->whereDate('created_at', request('date'));
         }
         $data['payment_list'] = $query->get();
+        // get book name or campaign title based on module code
+        foreach ($data['payment_list'] as $key => $value) {
+            // payment_list payment_intent is nnull then set N/A
+            $data['payment_list'][$key]->payment_intent = $value->payment_intent ?? uniqid();
+            if($value->module_code == 'BOOK'){
+                $book = Book::find($value->compaign_id);
+                $data['payment_list'][$key]->module_title = $book->title ?? 'N/A';
+            }elseif($value->module_code == 'CAMPAIGN'){
+                $campaign = Campaign::find($value->compaign_id);
+                $data['payment_list'][$key]->module_title = $campaign->title ?? 'N/A';
+            }
+        }
         // $data['payment_list'] = Payment::all();
         return response()->json(['status' => 200, 'message' => "", 'data' => $data]);
     }

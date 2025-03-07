@@ -61,7 +61,6 @@ class UserController extends Controller
         $validated = $request->validate([
             'name' => 'required',
             'status' => 'required',
-            'password' => 'required|min:6',
         ]);
         // dd($request->all());
         // user_id
@@ -77,6 +76,17 @@ class UserController extends Controller
             $validated = $request->validate([
                 'email' => 'required|unique:users',
                 'username' => 'required|unique:users',
+                'password' => [
+                'required',
+                'string',
+                'min:8',
+                'max:20',
+                'regex:/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).+$/'
+            ],
+            // c_password
+            'c_password' => 'required|same:password',
+            ], [
+                'password.regex' => 'The password must contain at least one uppercase letter, one lowercase letter, one number, and one special character.',
             ]);
             $user = new User();
         }
@@ -91,10 +101,14 @@ class UserController extends Controller
         // Save the thumbnail file
         if ($request->hasFile('thumbnail')) {
             $thumbnailFile = $request->file('thumbnail');
-            $thumbnailName = 'thumbnail_' . time() . '_' . $thumbnailFile->getClientOriginalName();
+            $thumbnailName = 'thumbnail_' . time() . '_' . trim($thumbnailFile->getClientOriginalName());
             $thumbnailPath = 'uploads/users'; 
+            $thumbnailName = str_replace('', '_', $thumbnailName);
+
+            
             $thumbnailFile->move(public_path($thumbnailPath), $thumbnailName);
-            $user->image = $thumbnailPath . '/' . $thumbnailName;
+            
+            $user->image = trim($thumbnailPath.'/'.$thumbnailName);
         }
         $user->save();
         // first delete all MenuControl

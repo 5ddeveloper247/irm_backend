@@ -556,7 +556,7 @@ class AdminController extends Controller
         $validatedData = $request->validate([
             'audio_category' => 'required',
             'audio_title' => 'required|max:50',
-            'audio_description' => 'required|max:250',
+            'audio_description' => 'required',
             'audio_status' => 'required',
         ]);
         if ($request->audio_id == '') {
@@ -858,11 +858,15 @@ class AdminController extends Controller
             $validatedData = $request->validate([
                 'thumbnail' => 'required|image|mimes:jpeg,png,jpg,gif|max:1024',
                 'book' => 'required|mimes:pdf|max:10240',
+            ], [
+                'book.max' => 'Book file size must be less than 10MB.',
             ]);
         } else {
             $validatedData = $request->validate([
                 'thumbnail' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:1024',
                 'book' => 'nullable|mimes:pdf|max:10240',
+            ], [
+                'book.max' => 'Book file size must be less than 10MB.',
             ]);
         }
 
@@ -1523,8 +1527,8 @@ class AdminController extends Controller
         $validatedData = $request->validate([
             'title' => 'required|max:50',
             'description' => 'required|string',
-            'start_date' => 'required|date',
-            'end_date' => 'required|date',
+            'start_date' => 'required|date|after_or_equal:today',
+            'end_date' => 'required|date|after_or_equal:start_date',
             // add validation on event date between start and end date
             'event_date' => 'required|date|after_or_equal:start_date|before_or_equal:end_date',
             'event_time' => 'required',
