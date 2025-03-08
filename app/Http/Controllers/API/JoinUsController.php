@@ -28,6 +28,26 @@ class JoinUsController extends Controller
         $join_us->subject = $request->subject;
         $join_us->message = $request->message;
         $join_us->save();
+        // send email
+        $data = array(
+            'name' => $request->name,
+            'email' => $request->email,
+            'phone' => $request->phone,
+            'subject' => $request->subject,
+            'message' => $request->message,
+        );
+        $tags = ["@@name@@", "@@email@@", "@@phone@@", "@@subject@@", "@@message@@"];
+        $template = "Hello @@name@@, <br><br> Your message has been received. We will get back to you soon. <br><br> Regards, <br> Team";
+        // subject add tags
+        $subject = "Join Us - @@name@@";
+        $subject = str_replace($tags, $data, $subject);
+        // message add tags
+        $template = str_replace($tags, $data, $template);
+        try{
+            sendMail($request->name, $request->email, $subject, $template);
+        }catch(\Exception $e){
+            return response()->json(['status' => 500, 'message' => 'Something went wrong. Please try again later.']);
+        }
         return response()->json(['status' => 200, 'message' => 'Join Us saved successfully']);
     }
 }

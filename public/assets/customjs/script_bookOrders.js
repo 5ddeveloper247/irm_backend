@@ -477,6 +477,8 @@ function viewBookOrder(id){
 function viewBookOrderResponse(response) {
     bookOrderOpenDetailsPage = true;
     $("#bookOrders-page").slideUp();
+    // myTab
+    $('#myTab').slideUp();
     resetBookOrderDetails();
     // console.log(response);
     // SHOWING MESSAGE ACCORDING TO RESPONSE
@@ -510,6 +512,8 @@ function closeOrderDetailsPage(){
     bookOrderOpenDetailsPage = false;
     $('#order-detials-page').slideUp();
     $("#bookOrders-page").slideDown();
+    // myTab
+    $('#myTab').slideDown();
     resetBookOrderDetails();
 }
 function resetBookOrderDetails(){

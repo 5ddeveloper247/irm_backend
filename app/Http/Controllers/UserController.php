@@ -51,6 +51,7 @@ class UserController extends Controller
             // $user['user_detail']->image = url('/uploads/users/default.png');
         }else{
             $user['user_detail']->image = url('/',$user['user_detail']->image);
+            $user['user_detail']->image = str_replace('%2F', '/', $user['user_detail']->image);
         }
         return response()->json(['status' => 200, 'data' => $user]);
     }

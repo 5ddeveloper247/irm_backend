@@ -389,8 +389,7 @@
                     </div>
 
                     <div class="form-floating">
-                        <textarea class="form-control" id="audio_description" name="audio_description" placeholder="Audio Description"
-                            maxlength="250" style="height:150px;"></textarea>
+                        <textarea class="form-control" id="audio_description" name="audio_description" placeholder="Audio Description" style="height:150px;"></textarea>
                         <label class="ms-2" for="audio_description">Audio Description</label>
                     </div>
 

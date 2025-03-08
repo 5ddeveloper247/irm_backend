@@ -147,6 +147,25 @@ class EnrollCourseController extends Controller
         $enrollCourse->name = $request->name;
         $enrollCourse->phone = $request->phone;
         $enrollCourse->save();
+        // send email
+        $data = array(
+            'name' => $request->name,
+            'email' => $request->email,
+            'phone' => $request->phone,
+            'address' => $request->address,
+        );
+        $tags = ["@@name@@", "@@email@@", "@@phone@@", "@@address@@"];
+        $template = "Hello @@name@@, <br><br> Your course has been enrolled successfully. <br><br> Regards, <br> Team";
+        // subject add tags
+        $subject = "Course Enrolled - @@name@@";
+        $subject = str_replace($tags, $data, $subject);
+        // message add tags
+        $template = str_replace($tags, $data, $template);
+        try {
+            sendMail($request->name, $request->email, $subject, $template);
+        } catch (\Exception $e) {
+            return response()->json(['status' => 500, 'message' => 'Something went wrong. Please try again later.']);
+        }
         return response()->json([
             'message' => 'Course Enrolled Successfully',
             'data' => $enrollCourse
@@ -207,6 +226,7 @@ class EnrollCourseController extends Controller
             $course->videos = $course->videos->map(function ($video) use ($youtube) {
                 // Extract YouTube video ID
                 $videoId = $this->_getYouTubeVideoId($video->video_url);
+                $video->video_url = "https://www.youtube.com/embed/".$videoId;
                 // Fetch YouTube video details
                 $video->youtube_details = $youtube->videoDetail($videoId);
                 $video->duration = $this->_formatYouTubeDuration($video->youtube_details['video']['contentDetails']['duration']);

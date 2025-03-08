@@ -105,7 +105,7 @@
                     {{-- password --}}
                     <input type="password" class="form-control" id="password_confirmation" name="password_confirmation"
                         placeholder="Confirm Password" maxlength="50">
-                    <label class="ms-2" for="password">Password</label>
+                    <label class="ms-2" for="password">Confrim Password</label>
                     <i class="fa fa-eye position-absolute view_pass" style="top: 40%; right: 7%;font-size:12px;"></i>
                 </div>
 

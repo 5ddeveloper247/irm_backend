@@ -563,7 +563,7 @@ class AdminController extends Controller
             $validatedData = $request->validate([
                 'thumbnail' => 'required|image|mimes:jpeg,png,jpg,gif|max:1024', // Must be an image file
                 'audio_files' => 'required|array', // Ensure it's an array of files
-                'audio_files.*' => 'mimes:mp3,MP3|max:5120', // Each file must be an MP3 and max 5MB
+                'audio_files.*' => 'mimes:mp3,MP3|max:20480', // Each file must be an MP3 and max 5MB
 
             ]);
         }
@@ -1580,7 +1580,7 @@ class AdminController extends Controller
                 $NewsEventAttachment = new NewsEventAttachment();
                 $NewsEventAttachment->news_id = $NewsEvent->id;
                 $NewsEventAttachment->name = $imageFile->getClientOriginalName();
-                $NewsEventAttachment->path = $filePath . '/' . $fileName;
+                $NewsEventAttachment->path = trim($filePath . '/' . $fileName);
                 $NewsEventAttachment->save();
             }
         }

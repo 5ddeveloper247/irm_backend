@@ -30,7 +30,7 @@ class NewsEventController extends Controller
             // create new_event_date field via concatenate the date, month and year
             $data['news_events'][$key]->new_event_date = date('Y-m-d', strtotime($news_event->event_date));
             $data['news_events'][$key]->attachments->map(function ($attachment) {
-                $attachment->path = url('/', $attachment->path);
+                $attachment->path = str_replace('%2F', '/', url('/', $attachment->path));
             });
     
             if ($news_event->type == "Recurring") {
