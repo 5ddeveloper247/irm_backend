@@ -129,7 +129,7 @@
                                                                     <th class="text-start text-nowrap">Date</th>
                                                                     <th class="text-start text-nowrap">Status</th>
                                                                 </tr>
-                                                                <tr class="filter-row" id="filters-header" style="display: none">
+                                                                {{-- <tr class="filter-row" id="filters-header" style="display: none">
                                                                     <th><input type="text" class="column-filter form-control" placeholder="Filter Seq No."></th>
                                                                     <th><input type="text" class="column-filter form-control" placeholder="Filter Title"></th>
                                                                     <th><input type="text" class="column-filter form-control" placeholder="Filter Module Code"></th>
@@ -146,7 +146,7 @@
                                                                             <option value="Failed">Failed</option>
                                                                         </select>
                                                                     </th>
-                                                                </tr>
+                                                                </tr> --}}
                                                             </thead>
                                                             {{-- <tfoot>
                                                                 <tr>

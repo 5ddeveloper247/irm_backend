@@ -34,10 +34,12 @@ function makePaymentsListing(paymentsList){
     if (paymentsList.length > 0) {
         $.each(paymentsList, function (index, payment) {
             var paymentData = JSON.parse(payment.data);
-            
+            console.log(paymentData);
             // Extract required values
-            var firstName = paymentData?.donatation_submit?.firstName || 'N/A';
-            var lastName = paymentData?.donatation_submit?.lastName || 'N/A';
+            // var firstName = paymentData?.donatation_submit?.firstName || 'N/A';
+            var firstName = payment?.data2?.donatation_submit.firstName || 'N/A';
+            var lastName = payment?.data2?.donatation_submit.lastName || 'N/A';
+            // var lastName = paymentData?.donatation_submit?.lastName || 'N/A';
             var email = paymentData?.donatation_submit?.email || 'N/A';
 
             html += `<tr>

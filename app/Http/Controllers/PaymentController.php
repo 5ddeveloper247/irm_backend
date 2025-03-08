@@ -38,7 +38,9 @@ class PaymentController extends Controller
         $data['payment_list'] = $query->get();
         // get book name or campaign title based on module code
         foreach ($data['payment_list'] as $key => $value) {
+            $data['payment_list'][$key]->data2 = json_decode($value->data);
             // payment_list payment_intent is nnull then set N/A
+            // $data['payment_list'][$key]->donatation_submit = $value->payment_intent ?? uniqid();
             $data['payment_list'][$key]->payment_intent = $value->payment_intent ?? uniqid();
             if($value->module_code == 'BOOK'){
                 $book = Book::find($value->compaign_id);

@@ -553,6 +553,9 @@ class AdminController extends Controller
 
     public function saveAudioLecture(Request $request)
     {
+        // dd($request->all());
+
+        // dd($request->file('audio_files')[0]->getMimeType());
         $validatedData = $request->validate([
             'audio_category' => 'required',
             'audio_title' => 'required|max:50',
@@ -563,10 +566,11 @@ class AdminController extends Controller
             $validatedData = $request->validate([
                 'thumbnail' => 'required|image|mimes:jpeg,png,jpg,gif|max:1024', // Must be an image file
                 'audio_files' => 'required|array', // Ensure it's an array of files
-                'audio_files.*' => 'mimes:mp3,MP3|max:20480', // Each file must be an MP3 and max 5MB
+                'audio_files.*' => 'required|file|max:20480', // Each file must be an MP3 and max 20MB
 
             ]);
         }
+
         $validatedData = $request->validate([
             'audio_duration' => 'required',
         ]);
@@ -590,6 +594,8 @@ class AdminController extends Controller
         if ($request->hasFile('thumbnail')) {
             $thumbnailFile = $request->file('thumbnail');
             $thumbnailName = 'thumbnail_' . time() . '.' . $thumbnailFile->getClientOriginalExtension();
+            // remove sapaces $thumbnailName
+            $thumbnailName = str_replace(' ', '_', $thumbnailName);
             $thumbnailPath = 'uploads/images';
             $thumbnailFile->move(public_path($thumbnailPath), $thumbnailName);
             $AudioLecture->thumbnail = $thumbnailPath . '/' . $thumbnailName;
@@ -602,6 +608,7 @@ class AdminController extends Controller
             // delete previous attachments
             $AudioLecture->attachments()->delete();
             foreach ($request->file('audio_files') as $audioFile) {
+                // dd($audioFile->guessExtension()); // Check the guessed extension
                 $audioName = 'audio_' . time() . '.' . $audioFile->getClientOriginalExtension();
                 $audioPath = 'uploads/audio';
                 $audioFile->move(public_path($audioPath), $audioName);
