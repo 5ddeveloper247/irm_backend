@@ -141,7 +141,8 @@ class BookOrderController extends Controller
                 $name = $request->name;
         
                 $q->where(function ($query) use ($name) {
-                    $query->whereRaw("JSON_UNQUOTE(JSON_EXTRACT(data, '$.donatation_submit.firstName')) LIKE ?", ["%$name%"])
+                    $query->whereNotNull('data')
+                          ->whereRaw("JSON_UNQUOTE(JSON_EXTRACT(data, '$.donatation_submit.firstName')) LIKE ?", ["%$name%"])
                           ->orWhereRaw("JSON_UNQUOTE(JSON_EXTRACT(data, '$.donatation_submit.lastName')) LIKE ?", ["%$name%"])
                           ->orWhereRaw("CONCAT(JSON_UNQUOTE(JSON_EXTRACT(data, '$.donatation_submit.firstName')), ' ', JSON_UNQUOTE(JSON_EXTRACT(data, '$.donatation_submit.lastName'))) LIKE ?", ["%$name%"]);
                 });
@@ -154,11 +155,10 @@ class BookOrderController extends Controller
         if ($request->has('email') && $request->email != '') {
             $query->whereHas('payment', function ($q) use ($request) {
                 $email = $request->email;
-        
+                
                 $q->where(function ($query) use ($email) {
-                    $query->whereRaw("JSON_UNQUOTE(JSON_EXTRACT(data, '$.donatation_submit.email')) LIKE ?", ["%$email%"])
-                            ->orWhereRaw("JSON_UNQUOTE(JSON_EXTRACT(data, '$.donatation_submit.email')) LIKE ?", ["%$email%"]);
-
+                    $query->whereNotNull('data')
+                          ->whereRaw("JSON_UNQUOTE(JSON_EXTRACT(data, '$.donatation_submit.email')) LIKE ?", ["%$email%"]);
                 });
             });
         }

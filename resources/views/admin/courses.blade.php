@@ -275,6 +275,14 @@
                                                                         Name</th>
                                                                     <th class="text-start text-nowrap" scope="col">
                                                                         Instructor Name</th>
+                                                                        {{-- language --}}
+                                                                    <th class="text-start text-nowrap" scope="col">
+                                                                        Language</th>
+                                                                        {{-- level --}}
+                                                                    <th class="text-start text-nowrap" scope="col">Level</th>
+                                                                    {{-- certificate --}}
+                                                                    <th class="text-start text-nowrap" scope="col">
+                                                                        Certificate</th>
                                                                     <th class="text-start text-nowrap" scope="col">Date
                                                                     </th>
                                                                     <th class="text-start text-nowrap" scope="col">Status

@@ -124,12 +124,12 @@
                                                 @include('admin.filter.index')
                                                 {{-- include --}}
                                                 <div class="row align-items-center">
-                                                    <div class="col-sm-4">
+                                                    {{-- <div class="col-sm-4">
                                                         <div class="icon-form mb-3 mb-sm-0">
                                                             <span class="form-icon"></span>
                                                             <input id="search_filter" type="text" class="form-control" placeholder="Search Here...">
                                                         </div>
-                                                    </div>
+                                                    </div> --}}
                         
                                                     <div class="col-sm-8">
                                                         <div class="d-flex align-items-center flex-wrap row-gap-2 justify-content-sm-end">

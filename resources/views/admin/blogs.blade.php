@@ -84,6 +84,7 @@
                                                         ['name' => 'published_date', 'type' => 'date', 'label' => 'Published Date'],
                                                         ['name' => 'end_date', 'type' => 'date', 'label' => 'End Date'],
                                                         ['name' => 'status', 'type' => 'select', 'label' => 'Status', 'options' => [
+                                                            ['value' => '', 'label' => 'Select Status'],
                                                             ['value' => '1', 'label' => 'Active'],
                                                             ['value' => '0', 'label' => 'In-Active']
                                                         ]],

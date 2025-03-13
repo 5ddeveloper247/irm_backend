@@ -39,11 +39,12 @@ function makeEventsListing(eventsList){
                         <td class="text-start text-nowrap">${formatDate(value.start_date)}</td>
                         <td class="text-start text-nowrap">${formatDate(value.end_date)}</td>
                         <td class="text-start text-nowrap">
-                            ${value.status == '1' ? 
+                        ${ value.expiry_status == 'Expired'? '<span class="badge bg-danger">Expired</span>':
+                            value.status == '1' ? 
                             '<span class="badge bg-success">Active</span>' 
                             : 
-                            '<span class="badge bg-danger">In-Active</span>'}
-                            
+                            '<span class="badge bg-danger">In-Active</span>'
+                        }
                         </td>
                         <td class="text-start text-nowrap">
                             <div class="btn-group">
@@ -107,7 +108,7 @@ function makeEventsListing(eventsList){
                 action: function () { 
                     console.log("Refresh button clicked");
                     $("#resetFilterButton").click(); 
-                    getBookOrdersPageData(); 
+                    getNewsEventsPageData();
                     // resetFilterButton click
 
 

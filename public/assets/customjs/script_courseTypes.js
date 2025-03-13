@@ -148,6 +148,9 @@ function makeCourseListing(courseList){
                         <td class="text-start text-nowrap">${course.title != null ? course.title : ''}</td>
                         <td class="text-start text-nowrap">${course?.type?.title != null ? course?.type?.title : ''}</td>
                         <td class="text-start text-nowrap">${course.instructor_name != null ? course.instructor_name : ''}</td>
+                        <td class="text-start text-nowrap">${course.language != null ? course.language : ''}</td>
+                        <td class="text-start text-nowrap">${course.level != null ? course.level : ''}</td>
+                        <td class="text-start text-nowrap">${course.certificate != null ? course.certificate : ''}</td>
                         <td class="text-start text-nowrap">${formatDate(course.date)}</td>
                         <td class="text-start text-nowrap">
                             ${course.status == '1' ? 

@@ -107,7 +107,7 @@ class AdminController extends Controller
             'company_logo' => 'nullable|image|mimes:jpeg,png,jpg|dimensions:width=128,height=128', // Must be an image file
             'company_name' => 'required|max:50|string',
             'company_address' => 'required',
-            'company_phone' => 'required',
+            'company_phone' => 'required|string|regex:/^\+?[0-9]{7,15}$/',
             'company_email' => 'required|email',
 
         ]);
@@ -1571,6 +1571,11 @@ class AdminController extends Controller
             $query->where('status', $request->status);
         }
         $data['events_list'] = $query->get();
+        // add expiry_status start_date and end_date 
+        $data['events_list']->map(function ($event) {
+            $event->expiry_status = $event->end_date < Carbon::now()->toDateString() ? 'Expired' : 'Active';
+            return $event;
+        });
 
 
         return response()->json(['status' => 200, 'message' => "", 'data' => $data]);
