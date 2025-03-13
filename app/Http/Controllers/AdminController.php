@@ -707,12 +707,59 @@ class AdminController extends Controller
             // 'payment_task_id.required' => 'Task ID is required.',
             // 'campaign_amount.required' => 'Amount is required.',
         ]);
+        $manual_data = [];
+        $manual_data['amount'] = $request->campaign_amount;
+        $manual_data['currency'] = 'pkr';
+        $manual_data['donatation_submit']['campaign_id'] = $request->payment_campaign_id;
+        // cardHolder = ''
+        $manual_data['donatation_submit']['cardHolder'] = '';
+        // cardNumber = ''
+        $manual_data['donatation_submit']['cardNumber'] = '';
+        // city = ''
+        $manual_data['donatation_submit']['city'] = '';
+        // country = ''
+        $manual_data['donatation_submit']['country'] = '';
+        // custom_task = false
+        $manual_data['donatation_submit']['custom_task'] = false;
+        // custom_task_amount = 0
+        $manual_data['donatation_submit']['custom_task_amount'] = 0;
+        // custom_task_name = null
+        $manual_data['donatation_submit']['custom_task_name'] = null;
+        // cvv = ''
+        $manual_data['donatation_submit']['cvv'] = '';
+        // user_id = ''
+        $manual_data['donatation_submit']['user_id'] = Auth::user()->id;
+        // email get from auth
+        $manual_data['donatation_submit']['email'] = Auth::user()->email;
+        // expiry = ''
+        $manual_data['donatation_submit']['expiry'] = '';
+        // firstName = ''
+        $manual_data['donatation_submit']['firstName'] = Auth::user()->name;
+        // lastName
+        $manual_data['donatation_submit']['lastName'] = '';
+        // module_code = 'CAMPAIGN'
+        $manual_data['donatation_submit']['module_code'] = 'CAMPAIGN';
+        // phoneNumber
+        $manual_data['donatation_submit']['phoneNumber'] = '';
+        // policies
+        $manual_data['donatation_submit']['policies'] = true;
+        // streetAddress = ''
+        $manual_data['donatation_submit']['streetAddress'] = '';
+        // task_id = ''
+        $manual_data['donatation_submit']['task_id'] = [$request->payment_task_id];
+        // total_amount =
+        $manual_data['donatation_submit']['total_amount'] = $request->campaign_amount;
+        // transaction_id
+        $manual_data['donatation_submit']['transaction_id'] = uniqid();
+        // dd($manual_data);
         $Payment = new Payment();
         $Payment->module_code = 'CAMPAIGN';
         $Payment->compaign_id = $request->payment_campaign_id;
         $Payment->task_id = $request->payment_task_id;
         $Payment->amount = $request->campaign_amount;
         $Payment->status = 'succeeded';
+        // data
+        $Payment->data = json_encode($manual_data);
         $Payment->is_manual_payment = 1;
         $Payment->save();
         return response()->json(['status' => 200, 'message' => "Payment Added Successfully."]);

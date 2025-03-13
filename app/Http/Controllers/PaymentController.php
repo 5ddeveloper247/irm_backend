@@ -82,6 +82,10 @@ class PaymentController extends Controller
             $query->where('status', request('payment_status'));
         }
         $data['payment_list'] = $query->get();
+        // data field to json decode
+        foreach ($data['payment_list'] as $key => $value) {
+            $data['payment_list'][$key]->data2 = json_decode($value->data);
+        }
         return response()->json(['status' => 200, 'message' => "", 'data' => $data]);
     }
 }

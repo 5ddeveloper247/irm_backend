@@ -52,6 +52,12 @@ function campaignPaymentsListing(campaignPayments) {
                         <td class="text-start text-nowrap">${
                             campaignPayment?.amount ?? ""
                         }</td>
+                         <td class="text-start text-nowrap">${
+                            campaignPayment?.data2?.donatation_submit?.firstName ?? "N/A"
+                        }</td>
+                         <td class="text-start text-nowrap">${
+                            campaignPayment?.data2?.donatation_submit?.email ?? "N/A"
+                        }</td>
                         <td class="text-start text-nowrap">${
                             campaignPayment?.payment_intent ?? "MANUAL PAYMENT"
                         }</td>

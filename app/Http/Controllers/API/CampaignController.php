@@ -217,6 +217,45 @@ class CampaignController extends Controller
                     Log::error($e->getMessage());
                 }
             }
+            // email send for donation and campaign
+            if($data['donatation_submit']['module_code'] == 'DONATION' || $data['donatation_submit']['module_code'] == 'CAMPAIGN'){
+                // send message to whatsapp
+                // $whatsapp = new WhatsAppController();
+                // if (isset($data['donatation_submit']['phoneNumber'])) {
+                //     $phoneNumber = $data['donatation_submit']['phoneNumber'];
+                //     if (strpos($phoneNumber, '+') !== 0) {
+                //         $phoneNumber = '+' . $phoneNumber;
+                //     }
+                //     $message = "Hello {$data['donatation_submit']['firstName']} {$data['donatation_submit']['lastName']},\n\n";
+                //     $message .= "Thank you for your donation! Your donation has been placed successfully. Here are the details:\n\n";
+                //     $message .= "Order ID: {$payment}\n";
+                //     $message .= "Amount: {$data['donatation_submit']['custom_task_amount']} {$data['currency']}\n";
+                //     $message .= "Email: {$data['donatation_submit']['email']}\n\n";
+                //     $message .= "We will notify you once your donation is processed!\n\n";
+                //     $message .= "Thank you for your donation!";
+                    
+                //     $whatsAppResponse = $whatsapp->sendMessage($phoneNumber, $message);
+                // } else {
+                //     $whatsAppResponse = 'Phone number not provided';
+                
+                // send emai
+                $message = "Hello {$data['donatation_submit']['firstName']} {$data['donatation_submit']['lastName']},<br><br>";
+                $message .= "Thank you for your donation! Your donation has been placed successfully. Here are the details:<br><br>";
+                $message .= "Order ID: {$payment}<br>";
+                $message .= "Amount: {$data['donatation_submit']['custom_task_amount']} {$data['currency']}<br>";
+                $message .= "Email: {$data['donatation_submit']['email']}<br><br>";
+                $message .= "We will notify you once your donation is processed!<br><br>";
+                $message .= "Thank you for your donation!";
+                $to_name = $data['donatation_submit']['firstName'];
+                $to_email = $data['donatation_submit']['email'];
+                $subject = "Donation Confirmation";
+                try{
+                    // mail for customer
+                    sendMail($to_name, $to_email, $subject, $message);
+                }catch(\Exception $e){
+                    Log::error($e->getMessage());
+                }
+            }
             return response()->json([
                 'clientSecret' => $paymentIntent->client_secret,
                 'details' => $paymentIntent,

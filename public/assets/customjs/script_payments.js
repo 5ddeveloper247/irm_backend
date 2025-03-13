@@ -44,8 +44,9 @@ function makePaymentsListing(paymentsList){
 
             html += `<tr>
                         <td class="text-start text-nowrap">${index+1}</td>
-                        <td class="text-start text-nowrap">${payment.module_code}</td>
+                        
                         <td class="text-start text-nowrap">${payment.module_title || 'N/A'}</td>
+                        <td class="text-start text-nowrap">${payment.module_code}</td>
                         <td class="text-start text-nowrap">${payment.amount}</td>
                         <td class="text-start text-nowrap">${payment.payment_intent}</td>
                         <td class="text-start text-nowrap">${firstName} ${lastName}</td>

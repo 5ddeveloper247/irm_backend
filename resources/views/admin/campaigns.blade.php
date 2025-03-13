@@ -7,8 +7,8 @@
         }
 
         /* .collapse.show {
-                    background-color: #ecf4ff00 !important;
-                } */
+                        background-color: #ecf4ff00 !important;
+                    } */
 
         .img-prev {
             width: 70px;
@@ -21,7 +21,7 @@
             font-size: 18px !important;
             color: red;
             /* position: absolute;
-                    top: 265px; */
+                        top: 265px; */
         }
     </style>
 @endpush
@@ -94,18 +94,36 @@
                                                             </a>';
                                                     $filters = [
                                                         // get columns from Campaigns table
-                                                        ['name' => 'campaign_title', 'type' => 'text', 'label' => 'Campaign Title', 'placeholder' => 'Search Campaign Title'],
-                                                        
-                                                        ['name' => 'campaign_target_amount', 'type' => 'text', 'label' => 'Target Amount', 'placeholder' => 'Search Target Amount'],
+                                                        [
+                                                            'name' => 'campaign_title',
+                                                            'type' => 'text',
+                                                            'label' => 'Campaign Title',
+                                                            'placeholder' => 'Search Campaign Title',
+                                                        ],
+
+                                                        [
+                                                            'name' => 'campaign_target_amount',
+                                                            'type' => 'text',
+                                                            'label' => 'Target Amount',
+                                                            'placeholder' => 'Search Target Amount',
+                                                        ],
                                                         // campaign_date
-                                                        ['name' => 'campaign_date', 'type' => 'date', 'label' => 'Date'],
-                                                        ['name' => 'campaign_status', 'type' => 'select', 'label' => 'Status', 'options' => [
-                                                            ['value' => '', 'label' => 'Select Status'],
-                                                            ['value' => '1', 'label' => 'Active'],
-                                                            ['value' => '0', 'label' => 'In-Active']
-                                                        ]],
-                                                        
-                                                        
+                                                        [
+                                                            'name' => 'campaign_date',
+                                                            'type' => 'date',
+                                                            'label' => 'Date',
+                                                        ],
+                                                        [
+                                                            'name' => 'campaign_status',
+                                                            'type' => 'select',
+                                                            'label' => 'Status',
+                                                            'options' => [
+                                                                ['value' => '', 'label' => 'Select Status'],
+                                                                ['value' => '1', 'label' => 'Active'],
+                                                                ['value' => '0', 'label' => 'In-Active'],
+                                                            ],
+                                                        ],
+
                                                         //
                                                         // ['name' => 'email', 'type' => 'text', 'label' => 'Email', 'placeholder' => 'Search Email'],
                                                         // // Select options
@@ -128,7 +146,7 @@
                                                 @endphp
                                                 @include('admin.filter.index')
                                                 {{-- include --}}
-                                                
+
 
                                                 <hr>
 
@@ -175,8 +193,8 @@
                                 </div>
                                 {{-- paym --}}
 
-                                <div class="tab-pane fade" id="payment-tab" role="tabpanel"
-                                    aria-labelledby="payment-tab" tabindex="0">
+                                <div class="tab-pane fade" id="payment-tab" role="tabpanel" aria-labelledby="payment-tab"
+                                    tabindex="0">
                                     <div class="schedule">
                                         <div class="card">
 
@@ -192,18 +210,38 @@
                                                             </a>';
                                                     $filters = [
                                                         // get columns from Payment table
-                                                        ['name' => 'campaign_title', 'type' => 'text', 'label' => 'Campaign Title', 'placeholder' => 'Search Campaign Title'],
-                                                        
-                                                        ['name' => 'payment_amount', 'type' => 'text', 'label' => 'Payment Amount', 'placeholder' => 'Search Payment Amount'],
+                                                        [
+                                                            'name' => 'campaign_title',
+                                                            'type' => 'text',
+                                                            'label' => 'Campaign Title',
+                                                            'placeholder' => 'Search Campaign Title',
+                                                        ],
+
+                                                        [
+                                                            'name' => 'payment_amount',
+                                                            'type' => 'text',
+                                                            'label' => 'Payment Amount',
+                                                            'placeholder' => 'Search Payment Amount',
+                                                        ],
                                                         // Payment Indent
-                                                        ['name' => 'payment_indent', 'type' => 'text', 'label' => 'Payment Indent', 'placeholder' => 'Search Payment Indent'],
+                                                        [
+                                                            'name' => 'payment_indent',
+                                                            'type' => 'text',
+                                                            'label' => 'Payment Indent',
+                                                            'placeholder' => 'Search Payment Indent',
+                                                        ],
                                                         ['name' => 'payment_date', 'type' => 'date', 'label' => 'Date'],
-                                                        ['name' => 'payment_status', 'type' => 'select', 'label' => 'Status', 'options' => [
-                                                            ['value' => '', 'label' => 'Select Status'],
-                                                            ['value' => 'succeeded', 'label' => 'Success'],
-                                                            ['value' => 'failed', 'label' => 'Failed']
-                                                        ]],
-                                                        
+                                                        [
+                                                            'name' => 'payment_status',
+                                                            'type' => 'select',
+                                                            'label' => 'Status',
+                                                            'options' => [
+                                                                ['value' => '', 'label' => 'Select Status'],
+                                                                ['value' => 'succeeded', 'label' => 'Success'],
+                                                                ['value' => 'failed', 'label' => 'Failed'],
+                                                            ],
+                                                        ],
+
                                                         //
                                                         // ['name' => 'email', 'type' => 'text', 'label' => 'Email', 'placeholder' => 'Search Email'],
                                                         // // Select options
@@ -226,7 +264,7 @@
                                                 @endphp
                                                 @include('admin.filter.index')
                                                 {{-- include --}}
-                                                
+
 
                                                 <hr>
 
@@ -245,10 +283,13 @@
                                                                     <th class="text-start text-nowrap" scope="col">Seq
                                                                         No.</th>
                                                                     <th class="text-start text-nowrap" scope="col">
-                                                                    Title</th>
+                                                                        Title</th>
+                                                                    <th class="text-start text-nowrap" scope="col">Amount (PKR)</th>
+                                                                    <th class="text-start text-nowrap" scope="col">Name</th>
+                                                                    <th class="text-start text-nowrap" scope="col">Email</th>
+                                                                    
                                                                     <th class="text-start text-nowrap" scope="col">
-                                                                        Amount (PKR)</th>
-                                                                    <th class="text-start text-nowrap" scope="col">Payment Indent
+                                                                        Payment Indent
                                                                     </th>
                                                                     <th class="text-start text-nowrap" scope="col">Date
                                                                     </th>
@@ -360,18 +401,18 @@
                         <div class="col-12" id="tasks_container">
 
                             <!-- <div class="d-flex align-items-center justify-content-between task_div">
-                                        <div class="form-floating col-5 my-2">
-                                            <input class="form-control" type="text" id="task_title1" name="tasks[1][title]" placeholder="Enter Title 1">
-                                            <label class="ms-2" for="task_title1">Title</label>
-                                        </div>
-                                        <div class="form-floating col-5 my-2">
-                                            <input class="form-control" type="text" id="task_amount1" name="tasks[1][amount]" placeholder="Enter Amount 1">
-                                            <label class="ms-2" for="task_amount1">Amount</label>
-                                        </div>
-                                        <svg class="cross-svg remove_task" xmlns="http://www.w3.org/2000/svg" width="0.9em" height="0.9em" viewBox="0 0 15 15">
-                                            <path fill="currentColor" d="M3.64 2.27L7.5 6.13l3.84-3.84A.92.92 0 0 1 12 2a1 1 0 0 1 1 1a.9.9 0 0 1-.27.66L8.84 7.5l3.89 3.89A.9.9 0 0 1 13 12a1 1 0 0 1-1 1a.92.92 0 0 1-.69-.27L7.5 8.87l-3.85 3.85A.92.92 0 0 1 3 13a1 1 0 0 1-1-1a.9.9 0 0 1 .27-.66L6.16 7.5L2.27 3.61A.9.9 0 0 1 2 3a1 1 0 0 1 1-1c.24.003.47.1.64.27"></path>
-                                        </svg>
-                                    </div> -->
+                                            <div class="form-floating col-5 my-2">
+                                                <input class="form-control" type="text" id="task_title1" name="tasks[1][title]" placeholder="Enter Title 1">
+                                                <label class="ms-2" for="task_title1">Title</label>
+                                            </div>
+                                            <div class="form-floating col-5 my-2">
+                                                <input class="form-control" type="text" id="task_amount1" name="tasks[1][amount]" placeholder="Enter Amount 1">
+                                                <label class="ms-2" for="task_amount1">Amount</label>
+                                            </div>
+                                            <svg class="cross-svg remove_task" xmlns="http://www.w3.org/2000/svg" width="0.9em" height="0.9em" viewBox="0 0 15 15">
+                                                <path fill="currentColor" d="M3.64 2.27L7.5 6.13l3.84-3.84A.92.92 0 0 1 12 2a1 1 0 0 1 1 1a.9.9 0 0 1-.27.66L8.84 7.5l3.89 3.89A.9.9 0 0 1 13 12a1 1 0 0 1-1 1a.92.92 0 0 1-.69-.27L7.5 8.87l-3.85 3.85A.92.92 0 0 1 3 13a1 1 0 0 1-1-1a.9.9 0 0 1 .27-.66L6.16 7.5L2.27 3.61A.9.9 0 0 1 2 3a1 1 0 0 1 1-1c.24.003.47.1.64.27"></path>
+                                            </svg>
+                                        </div> -->
                         </div>
                     </div>
 
@@ -404,24 +445,24 @@
                         <select class="form-select select2 p-5" id="payment_campaign_id" name="payment_campaign_id">
                             <option value="">Select Campaign</option>
                         </select>
-                        
+
                     </div>
-                    
+
                     {{-- select shows according to campaign tasks --}}
                     <div class="">
                         <label class="ms-2" for="payment_task_id">Task</label>
                         <select class="form-select select2 p-5" id="payment_task_id" name="payment_task_id">
                             <option value="">Select Task</option>
                         </select>
-                        
+
                     </div>
-                    
+
                     <div class="form-floating">
-                        <input type="number" class="form-control" id="campaign_amount"
-                            name="campaign_amount" placeholder="Target Amount">
+                        <input type="number" class="form-control" id="campaign_amount" name="campaign_amount"
+                            placeholder="Target Amount">
                         <label class="ms-2" for="campaign_amount">Campaign Amount (PKR)</label>
                     </div>
-                     
+
                 </div>
                 <!-- Action Buttons -->
                 <div class="d-flex justify-content-end mt-3">
