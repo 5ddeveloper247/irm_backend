@@ -141,11 +141,12 @@ class BookOrderController extends Controller
                 $name = $request->name;
         
                 $q->where(function ($query) use ($name) {
-                    $query->whereNotNull('data')
-                          ->whereRaw("JSON_UNQUOTE(JSON_EXTRACT(data, '$.donatation_submit.firstName')) LIKE ?", ["%$name%"])
-                          ->orWhereRaw("JSON_UNQUOTE(JSON_EXTRACT(data, '$.donatation_submit.lastName')) LIKE ?", ["%$name%"])
-                          ->orWhereRaw("CONCAT(JSON_UNQUOTE(JSON_EXTRACT(data, '$.donatation_submit.firstName')), ' ', JSON_UNQUOTE(JSON_EXTRACT(data, '$.donatation_submit.lastName'))) LIKE ?", ["%$name%"]);
+                    $query->where('data', 'LIKE', '%"firstName":"%'.$name.'%"%')
+                          ->orWhere('data', 'LIKE', '%"lastName":"%'.$name.'%"%')
+                          ->orWhere('data', 'LIKE', '%"firstName":"%' . explode(' ', $name)[0] . '%"%"lastName":"%' . explode(' ', $name)[1] . '%"%');
                 });
+                
+              
             });
         }
         
@@ -156,10 +157,9 @@ class BookOrderController extends Controller
             $query->whereHas('payment', function ($q) use ($request) {
                 $email = $request->email;
                 
-                $q->where(function ($query) use ($email) {
-                    $query->whereNotNull('data')
-                          ->whereRaw("JSON_UNQUOTE(JSON_EXTRACT(data, '$.donatation_submit.email')) LIKE ?", ["%$email%"]);
-                });
+                $q->where('data', 'LIKE', '%"email":"'.$email.'"%');
+
+
             });
         }
 

@@ -98,6 +98,7 @@
                                                         ['name' => 'playlist_id', 'type' => 'text', 'label' => 'Playlist ID', 'placeholder' => 'Search Playlist ID'],
                                                         ['name' => 'playlist_title', 'type' => 'text', 'label' => 'Title', 'placeholder' => 'Search Title'],
                                                         ['name' => 'status', 'type' => 'select', 'label' => 'Status', 'options' => [
+                                                            ['value' => '', 'label' => 'Choose'],
                                                             ['value' => '1', 'label' => 'Active'],
                                                             ['value' => '0', 'label' => 'In-Active']
                                                         ]],
