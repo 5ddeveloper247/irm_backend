@@ -162,6 +162,9 @@ function makeCampaignListing(campaignList) {
                             campaign.title
                         }</td>
                         <td class="text-start text-nowrap">${
+                            campaign.all_task_amount || 'N/A'
+                        }</td>
+                         <td class="text-start text-nowrap">${
                             campaign.target_amount
                         }</td>
                         <td class="text-start text-nowrap">${trimText(

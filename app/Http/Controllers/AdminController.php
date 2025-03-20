@@ -668,8 +668,7 @@ class AdminController extends Controller
     {
 
         // $data['campaign_list'] = Campaign::get();
-        $query = Campaign::latest();
-        // campaign_title: 
+        $query = Campaign::with('tasks')->latest();
         if($request->has('campaign_title') && !empty($request->campaign_title)){
             $query->where('title', 'like', '%' . $request->campaign_title . '%');
         }
@@ -1149,7 +1148,11 @@ class AdminController extends Controller
         $validatedData = $request->validate([
             'type_title' => 'required|max:50',
             'type_description' => 'required|max:250',
-            'type_status' => 'required',
+            'type_status' => function ($attribute, $value, $fail) use ($request) {
+            if ($value == 0 && Gallery::where('type_id', $request->type_id)->exists()) {
+                $fail('Cannot set type status to inactive as there are galleries associated with this type.');
+            }
+            },
         ]);
 
         if ($request->type_id != '') {
@@ -1187,8 +1190,7 @@ class AdminController extends Controller
 
         if ($GalleryType) {
 
-            if($GalleryType->galleries == null){
-                $GalleryType->galleries()->delete();
+            if($GalleryType->galleries->isEmpty()){
                 $GalleryType->delete();
 
                 return response()->json(['status' => 200, 'message' => "Type Deleted Successfully."]);
@@ -1631,6 +1633,8 @@ class AdminController extends Controller
 
         // Save the image files
         if ($request->hasFile('images')) {
+            // remove first all images
+            $NewsEvent->attachments()->delete();
             foreach ($request->file('images') as $imageFile) {
                 $fileName = 'image_' . time() . '_' . $imageFile->getClientOriginalName();
                 $filePath = 'uploads/images';

@@ -96,7 +96,7 @@ class GalleryController extends Controller
                     : null, // First attachment image
             ];
         });
-
+        // $formattedData = [];
         return response()->json($formattedData);
     }
 

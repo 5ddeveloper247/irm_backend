@@ -18,7 +18,7 @@ class YoutubeController extends Controller
         $query = Youtube::orderBy('id', 'desc')->latest();
         // playlist_id: 
         if(request()->has('playlist_id') && request('playlist_id') != ''){
-            $query->where('playlist_id', request('playlist_id'));
+            $query->where('playlist_id', 'like', '%'.request('playlist_id').'%');
         }
         // playlist_title: 
         if(request()->has('playlist_title') && request('playlist_title') != ''){

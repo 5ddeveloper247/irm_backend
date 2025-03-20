@@ -166,6 +166,9 @@
                                                                         No.</th>
                                                                     <th class="text-start text-nowrap" scope="col">
                                                                         Campaigns Title</th>
+                                                                        {{-- Task Amount --}}
+                                                                    <th class="text-start text-nowrap" scope="col">
+                                                                        Task Amount (PKR)</th>
                                                                     <th class="text-start text-nowrap" scope="col">
                                                                         Target (PKR)</th>
                                                                     <th class="text-start text-nowrap" scope="col">

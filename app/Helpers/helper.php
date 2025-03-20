@@ -33,6 +33,7 @@ if (!function_exists('sendMail')) {
                 $send->replyto($mail_val['email_from'], $mail_val['email_from_name']);
                 $send->to($mail_val['send_to'], $mail_val['send_to_name'])->subject($mail_val['subject']);
             });
+            Log::info('Mail sent to ' . $send_to_email);
             return true;
         } catch (\Exception $e) {
             Log::error($e->getMessage());

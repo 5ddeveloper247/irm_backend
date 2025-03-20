@@ -185,35 +185,35 @@ $(document).on('click', '#addImage_btn', function (e) {
 });
 
 $('#image_file').on('change', function (event) {
+    // reset the selectedFiles array
+    selectedFiles = [];
+    // reset the file container
+    $('#file_container_uploaded').empty();
     const files = event.target.files; // New files
-    var allfileslength = files.length + selectedFiles.length; // Total files count
 
-    // Check if total files exceed the limit
-    if (allfileslength > 7) {
-        toastr.error('You can upload a maximum of 7 image files.');
+    // Check if a file is already selected
+    if (selectedFiles.length > 0) {
+        toastr.error('You can upload only one image file.');
         // Clear the file input value to allow re-uploading the same file later
         $('#image_file').val('');
         return;
     }
 
-    // Validate and add selected files to selectedFiles array
-    for (let i = 0; i < files.length; i++) {
-        const file = files[i];
-        const fileType = file.type;
+    // Validate and add selected file to selectedFiles array
+    const file = files[0];
+    const fileType = file.type;
 
-        // Check if the file is an image of the allowed types
-        if (!fileType.match('image/jpeg') && !fileType.match('image/png') && 
-            !fileType.match('image/jpg') && !fileType.match('image/gif') && 
-            !fileType.match('image/svg+xml')) {
-            toastr.error('Only JPEG, JPG, PNG, GIF, and SVG image files are allowed.');
-            continue;
-        }
-
+    // Check if the file is an image of the allowed types
+    if (!fileType.match('image/jpeg') && !fileType.match('image/png') && 
+        !fileType.match('image/jpg') && !fileType.match('image/gif') && 
+        !fileType.match('image/svg+xml')) {
+        toastr.error('Only JPEG, JPG, PNG, GIF, and SVG image files are allowed.');
+    } else {
         // Add the valid image file to the selectedFiles array
         selectedFiles.push(file);
+        // Display selected file
+        displaySelectedFiles();
     }
-    // Display selected files
-    displaySelectedFiles();
     
     // Clear the file input value to allow re-uploading the same file later
     $('#image_file').val('');

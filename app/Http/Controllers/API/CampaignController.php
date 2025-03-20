@@ -252,6 +252,7 @@ class CampaignController extends Controller
                 try{
                     // mail for customer
                     sendMail($to_name, $to_email, $subject, $message);
+                    // Log::info($to_name.'-'.$to_email.'-'.$subject.sendMail($to_name, $to_email, $subject, $message));
                 }catch(\Exception $e){
                     Log::error($e->getMessage());
                 }
