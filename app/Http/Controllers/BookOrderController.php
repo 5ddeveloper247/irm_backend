@@ -142,8 +142,11 @@ class BookOrderController extends Controller
         
                 $q->where(function ($query) use ($name) {
                     $query->where('data', 'LIKE', '%"firstName":"%'.$name.'%"%')
-                          ->orWhere('data', 'LIKE', '%"lastName":"%'.$name.'%"%')
-                          ->orWhere('data', 'LIKE', '%"firstName":"%' . explode(' ', $name)[0] . '%"%"lastName":"%' . explode(' ', $name)[1] . '%"%');
+                          ->orWhere('data', 'LIKE', '%"lastName":"%'.$name.'%"%');
+                    $nameParts = explode(' ', $name);
+                    if (count($nameParts) > 1) {
+                        $query->orWhere('data', 'LIKE', '%"firstName":"%' . $nameParts[0] . '%"%"lastName":"%' . $nameParts[1] . '%"%');
+                    }
                 });
                 
               

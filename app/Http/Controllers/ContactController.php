@@ -61,6 +61,7 @@ class ContactController extends Controller
         $contact->replies->map(function($reply){
             $reply->attachments->map(function($attachment){
                 $attachment->path = url('/',$attachment->path);
+                $attachment->path = urldecode(urldecode($attachment->path));
             });
         });
         return  response()->json(['status' => 200, 'message' => "", 'data' => $contact]);
