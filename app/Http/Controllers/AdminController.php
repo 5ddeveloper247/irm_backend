@@ -535,20 +535,29 @@ class AdminController extends Controller
         $AudioCategory = AudioCategory::find($request->category_id);
 
         if ($AudioCategory) {
-            if($AudioCategory->audio_lectures == null){
-                $AudioCategory->audio_lectures()->delete();
-                $AudioCategory->delete();
-
-                return response()->json(['status' => 200, 'message' => "Audio Category Deleted Successfully."]);
-            }else{
-                return response()->json(['status' => 400, 'message' => "Audio lectures exist against this category, first delete lecture then delete category."]); 
+            if ($AudioCategory->audio_lectures()->exists()) {
+                return response()->json([
+                    'status' => 400,
+                    'message' => "Audio lectures exist against this category. First, delete the lectures before deleting the category."
+                ]);
             }
-            
 
-            
-        } else {
-            return response()->json(['status' => 400, 'message' => "Audio Category not found."]);
+            // Delete related audio lectures first (if any exist)
+            $AudioCategory->audio_lectures()->delete();
+
+            // Now delete the category
+            $AudioCategory->delete();
+
+            return response()->json([
+                'status' => 200,
+                'message' => "Audio Category Deleted Successfully."
+            ]);
         }
+
+        return response()->json([
+            'status' => 400,
+            'message' => "Audio Category not found."
+        ]);
     }
 
     public function saveAudioLecture(Request $request)
@@ -669,19 +678,19 @@ class AdminController extends Controller
 
         // $data['campaign_list'] = Campaign::get();
         $query = Campaign::with('tasks')->latest();
-        if($request->has('campaign_title') && !empty($request->campaign_title)){
+        if ($request->has('campaign_title') && !empty($request->campaign_title)) {
             $query->where('title', 'like', '%' . $request->campaign_title . '%');
         }
         // campaign_target_amount: 
-        if($request->has('campaign_target_amount') && !empty($request->campaign_target_amount)){
+        if ($request->has('campaign_target_amount') && !empty($request->campaign_target_amount)) {
             $query->where('target_amount', $request->campaign_target_amount);
         }
         // campaign_date: 
-        if($request->has('campaign_date') && !empty($request->campaign_date)){
+        if ($request->has('campaign_date') && !empty($request->campaign_date)) {
             $query->whereDate('date', $request->campaign_date);
         }
         // campaign_status: 
-        if($request->has('campaign_status') && $request->campaign_status !=""){
+        if ($request->has('campaign_status') && $request->campaign_status != "") {
             $query->where('status', $request->campaign_status);
         }
         $data['campaign_list'] = $query->get();
@@ -877,19 +886,19 @@ class AdminController extends Controller
         // $data['books_list'] = BookLibrary::get();
         $query = BookLibrary::latest();
         // book_title: 
-        if($request->has('book_title') && !empty($request->book_title)){
+        if ($request->has('book_title') && !empty($request->book_title)) {
             $query->where('title', 'like', '%' . $request->book_title . '%');
         }
         // book_price: 
-        if($request->has('book_price') && !empty($request->book_price)){
+        if ($request->has('book_price') && !empty($request->book_price)) {
             $query->where('price', $request->book_price);
         }
         // book_date: 
-        if($request->has('book_date') && !empty($request->book_date)){
+        if ($request->has('book_date') && !empty($request->book_date)) {
             $query->whereDate('date', $request->book_date);
         }
         // book_status: 
-        if($request->has('book_status') && $request->book_status !=""){
+        if ($request->has('book_status') && $request->book_status != "") {
             $query->where('status', $request->book_status);
         }
         $data['books_list'] = $query->get();
@@ -993,23 +1002,23 @@ class AdminController extends Controller
         // $data['blogs_list'] = Blog::get();
         $query = Blog::latest();
         // author_name: 
-        if($request->has('author_name') && !empty($request->author_name)){
+        if ($request->has('author_name') && !empty($request->author_name)) {
             $query->where('author_name', 'like', '%' . $request->author_name . '%');
         }
         // title: 
-        if($request->has('title') && !empty($request->title)){
+        if ($request->has('title') && !empty($request->title)) {
             $query->where('title', 'like', '%' . $request->title . '%');
         }
         // published_date: 
-        if($request->has('published_date') && !empty($request->published_date)){
+        if ($request->has('published_date') && !empty($request->published_date)) {
             $query->whereDate('published_date', $request->published_date);
         }
         // end_date: 
-        if($request->has('end_date') && !empty($request->end_date)){
+        if ($request->has('end_date') && !empty($request->end_date)) {
             $query->whereDate('end_date', $request->end_date);
         }
         // status: 
-        if($request->has('status') && $request->status !=""){
+        if ($request->has('status') && $request->status != "") {
             $query->where('status', $request->status);
         }
         $data['blogs_list'] = $query->get();
@@ -1113,7 +1122,7 @@ class AdminController extends Controller
             $query->whereDate('date', $request->date);
         }
         // type_status: 
-        if ($request->has('type_status') && $request->type_status !="") {
+        if ($request->has('type_status') && $request->type_status != "") {
             $query->where('status', $request->type_status);
         }
         $data['type_list'] = $query->get();
@@ -1134,7 +1143,7 @@ class AdminController extends Controller
             $query->whereDate('date', $request->gallery_date);
         }
         // gallery_status: 
-        if ($request->has('gallery_status') && $request->gallery_status !="") {
+        if ($request->has('gallery_status') && $request->gallery_status != "") {
             $query->where('status', $request->gallery_status);
         }
         $data['gallery_list'] = $query->get();
@@ -1149,9 +1158,9 @@ class AdminController extends Controller
             'type_title' => 'required|max:50',
             'type_description' => 'required|max:250',
             'type_status' => function ($attribute, $value, $fail) use ($request) {
-            if ($value == 0 && Gallery::where('type_id', $request->type_id)->exists()) {
-                $fail('Cannot set type status to inactive as there are galleries associated with this type.');
-            }
+                if ($value == 0 && Gallery::where('type_id', $request->type_id)->exists()) {
+                    $fail('Cannot set type status to inactive as there are galleries associated with this type.');
+                }
             },
         ]);
 
@@ -1190,16 +1199,13 @@ class AdminController extends Controller
 
         if ($GalleryType) {
 
-            if($GalleryType->galleries->isEmpty()){
+            if ($GalleryType->galleries->isEmpty()) {
                 $GalleryType->delete();
 
                 return response()->json(['status' => 200, 'message' => "Type Deleted Successfully."]);
-            }else{
+            } else {
                 return response()->json(['status' => 400, 'message' => "Gallery exist against this type, first delete gallery then delete type."]);
             }
-            
-
-            
         } else {
             return response()->json(['status' => 400, 'message' => "Type not found."]);
         }
@@ -1302,7 +1308,7 @@ class AdminController extends Controller
             $query->where('title', 'like', '%' . $request->type_title . '%');
         }
         // type_status: 
-        if ($request->has('type_status') && $request->type_status!="") {
+        if ($request->has('type_status') && $request->type_status != "") {
             $query->where('status', $request->type_status);
         }
         // date
@@ -1318,7 +1324,7 @@ class AdminController extends Controller
             $query->where('title', 'like', '%' . $request->course_title . '%');
         }
         // course_type: 
-        if ($request->has('course_type') && $request->course_type!="") {
+        if ($request->has('course_type') && $request->course_type != "") {
             $query->whereHas('type', function ($query) use ($request) {
                 $query->where('title', 'like', '%' . $request->course_type . '%');
             });
@@ -1338,7 +1344,7 @@ class AdminController extends Controller
             $query->whereDate('date', $request->course_date);
         }
         // course_status: 
-        if ($request->has('course_status') && $request->course_status!="") {
+        if ($request->has('course_status') && $request->course_status != "") {
             $query->where('status', $request->course_status);
         }
         $data['course_list'] = $query->get();
@@ -1388,17 +1394,14 @@ class AdminController extends Controller
 
         if ($CourseType) {
 
-            if($CourseType->courses == null){
+            if ($CourseType->courses == null) {
                 $CourseType->courses()->delete();
                 $CourseType->delete();
-    
+
                 return response()->json(['status' => 200, 'message' => "Type Deleted Successfully."]);
-            }else{
+            } else {
                 return response()->json(['status' => 400, 'message' => "Course exist against this type, first delete course then delete type."]);
             }
-            
-
-
         } else {
             return response()->json(['status' => 400, 'message' => "Type not found."]);
         }
@@ -1557,7 +1560,7 @@ class AdminController extends Controller
         if ($request->has('start_date') && $request->has('end_date') && $request->start_date != '' && $request->end_date != '') {
             $query->where(function ($q) use ($request) {
                 $q->where('start_date', '>=', Carbon::parse($request->start_date)->toDateString())
-                  ->where('end_date', '<=', Carbon::parse($request->end_date)->toDateString());
+                    ->where('end_date', '<=', Carbon::parse($request->end_date)->toDateString());
             });
         } else {
             if ($request->has('start_date') && $request->start_date != '') {
