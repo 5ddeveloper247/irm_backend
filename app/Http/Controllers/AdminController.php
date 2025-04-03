@@ -573,9 +573,9 @@ class AdminController extends Controller
         ]);
         if ($request->audio_id == '') {
             $validatedData = $request->validate([
-                'thumbnail' => 'required|image|mimes:jpeg,png,jpg,gif|max:1024', // Must be an image file
+                'thumbnail' => 'required|image|mimes:jpeg,png,jpg,gif|max:20480', // Must be an image file
                 'audio_files' => 'required|array', // Ensure it's an array of files
-                'audio_files.*' => 'required|file|max:20480', // Each file must be an MP3 and max 20MB
+                'audio_files.*' => 'required|file', // Each file must be an MP3 and max 20MB |max:20480
 
             ]);
         }
@@ -791,11 +791,11 @@ class AdminController extends Controller
 
         if ($request->campaign_id == '') {
             $validatedData = $request->validate([
-                'thumbnail' => 'required|image|mimes:jpeg,png,jpg,gif|max:1024', // Must be an image file
+                'thumbnail' => 'required|image|mimes:jpeg,png,jpg,gif|max:20480', // Must be an image file
             ]);
         } else {
             $validatedData = $request->validate([
-                'thumbnail' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:1024', // Must be an image file
+                'thumbnail' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:20480', // Must be an image file
             ]);
         }
 
@@ -918,17 +918,17 @@ class AdminController extends Controller
         if ($request->book_id == '') {
 
             $validatedData = $request->validate([
-                'thumbnail' => 'required|image|mimes:jpeg,png,jpg,gif|max:1024',
-                'book' => 'required|mimes:pdf|max:10240',
+                'thumbnail' => 'required|image|mimes:jpeg,png,jpg,gif|max:20480',
+                'book' => 'required|mimes:pdf|max:51200',
             ], [
                 'book.max' => 'Book file size must be less than 10MB.',
             ]);
         } else {
             $validatedData = $request->validate([
-                'thumbnail' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:1024',
-                'book' => 'nullable|mimes:pdf|max:10240',
+                'thumbnail' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:20480',
+                'book' => 'nullable|mimes:pdf|max:51200',
             ], [
-                'book.max' => 'Book file size must be less than 10MB.',
+                'book.max' => 'Book file size must be less than 50MB.',
             ]);
         }
 
@@ -1043,11 +1043,11 @@ class AdminController extends Controller
             $validatedData = $request->validate([
                 'blog_published_date' => 'required|date|after_or_equal:today',
                 'blog_end_date' => 'required|date|after:blog_published_date',
-                'thumbnail' => 'required|image|mimes:jpeg,png,jpg,gif|max:1024', // Must be an image file
+                'thumbnail' => 'required|image|mimes:jpeg,png,jpg,gif|max:20480', // Must be an image file
             ]);
         } else {
             $validatedData = $request->validate([
-                'thumbnail' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:1024', // Must be an image file
+                'thumbnail' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:20480', // Must be an image file
             ]);
         }
 
@@ -1423,7 +1423,7 @@ class AdminController extends Controller
         ]);
         if ($request->course_id == '') {
             $validatedData = $request->validate([
-                'thumbnail' => 'required|image|mimes:jpeg,png,jpg,gif|max:1024', // Must be an image file
+                'thumbnail' => 'required|image|mimes:jpeg,png,jpg,gif|max:20480', // Must be an image file
                 'videos' => 'required|array', // Videos array is required
                 'videos.*.url' => [
                     'required',
@@ -1436,7 +1436,7 @@ class AdminController extends Controller
             ]);
         } else {
             $validatedData = $request->validate([
-                'thumbnail' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:1024', // Must be an image file
+                'thumbnail' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:20480', // Must be an image file
                 'videos' => 'nullable|array', // Videos array is required
                 'videos.*.url' => [
                     'required_with:videos',
