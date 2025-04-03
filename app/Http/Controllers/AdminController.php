@@ -919,16 +919,16 @@ class AdminController extends Controller
 
             $validatedData = $request->validate([
                 'thumbnail' => 'required|image|mimes:jpeg,png,jpg,gif|max:20480',
-                'book' => 'required|mimes:pdf|max:51200',
+                'book' => 'required|mimes:pdf|max:614400',
             ], [
                 'book.max' => 'Book file size must be less than 10MB.',
             ]);
         } else {
             $validatedData = $request->validate([
                 'thumbnail' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:20480',
-                'book' => 'nullable|mimes:pdf|max:51200',
+                'book' => 'nullable|mimes:pdf|max:614400',
             ], [
-                'book.max' => 'Book file size must be less than 50MB.',
+                'book.max' => 'Book file size must be less than 600MB.',
             ]);
         }
 
