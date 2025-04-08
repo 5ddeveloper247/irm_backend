@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::table('books_library', function (Blueprint $table) {
             //
             // book_category_id
-            $table->foreignId('book_category_id')->default(0)->after('id');
+            $table->unsignedBigInteger('book_category_id')->default(0)->after('id');
 
         });
     }
