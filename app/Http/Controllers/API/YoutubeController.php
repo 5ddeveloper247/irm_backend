@@ -80,6 +80,16 @@ class YoutubeController extends Controller
             'comments' => $comments['items'] ?? []
         ]);
     }
+    // get playlist videos
+    public function getPlaylistVideos($playlistId)
+    {
+        $playlistItemsUrl = "https://www.googleapis.com/youtube/v3/playlistItems?part=snippet&maxResults=50&playlistId={$playlistId}&key={$this->apiKey}";
+        $videos = $this->fetchAllVideos($playlistItemsUrl);
+        return response()->json([
+            'videos' => $videos,
+            'status' => 200
+        ]);
+    }
     private function fetchData($url)
     {
         $ch = curl_init();

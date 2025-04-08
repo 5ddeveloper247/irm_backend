@@ -1,3 +1,252 @@
+function makeBookCategoryListing(categoryList) {
+    var html = "";
+    // empty
+    $("#bookCategory_table_body").html("");
+    // bookCategory_table table destroy and empty
+    if ($.fn.DataTable.isDataTable("#bookCategory_table")) {
+        $("#bookCategory_table").DataTable().destroy().clear();
+    }
+    if (categoryList.length > 0) {
+        $.each(categoryList, function (index, category) {
+            html += `<tr>
+                        <td class="text-start text-nowrap">${index + 1}</td>
+                        <td class="text-start text-nowrap">${
+                            category.title
+                        }</td>
+                        <td class="text-start text-nowrap">${trimText(
+                            category.description,
+                            50
+                        )}</td>
+                        <td class="text-start text-nowrap">
+                            ${
+                                category.status == "1"
+                                    ? '<span class="badge bg-success">Active</span>'
+                                    : '<span class="badge bg-danger">In-Active</span>'
+                            }
+                            
+                        </td>
+                        <td class="text-start text-nowrap">
+                            <div class="btn-group">
+                                <button class="btn action-buttons dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24">
+                                        <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 5.92A.96.96 0 1 0 12 4a.96.96 0 0 0 0 1.92m0 7.04a.96.96 0 1 0 0-1.92a.96.96 0 0 0 0 1.92M12 20a.96.96 0 1 0 0-1.92a.96.96 0 0 0 0 1.92" />
+                                    </svg>
+                                </button>
+                                <ul class="dropdown-menu dropdown-menu-custom">
+                                    <a class="dropdown-item" href="javascript:;" onclick="editBookCategory(${
+                                        category.id
+                                    })">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 16 16">
+                                            <path fill="currentColor" d="M15.49 7.3h-1.16v6.35H1.67V3.28H8V2H1.67A1.21 1.21 0 0 0 .5 3.28v10.37a1.21 1.21 0 0 0 1.17 1.25h12.66a1.21 1.21 0 0 0 1.17-1.25z" />
+                                            <path fill="currentColor" d="M10.56 2.87L6.22 7.22l-.44.44l-.08.08l-1.52 3.16a1.08 1.08 0 0 0 1.45 1.45l3.14-1.53l.53-.53l.43-.43l4.34-4.36l.45-.44l.25-.25a2.18 2.18 0 0 0 0-3.08a2.17 2.17 0 0 0-1.53-.63a2.2 2.2 0 0 0-1.54.63l-.7.69l-.45.44zM5.51 11l1.18-2.43l1.25 1.26zm2-3.36l3.9-3.91l1.3 1.31L8.85 9zm5.68-5.31a.9.9 0 0 1 .65.27a.93.93 0 0 1 0 1.31l-.25.24l-1.3-1.3l.25-.25a.88.88 0 0 1 .69-.25z" />
+                                        </svg>
+                                        Edit
+                                    </a>
+                                    <a class="dropdown-item" href="javascript:;" onclick="deleteBookCategoryConfirm(${ category.id })">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24">
+                                            <g fill="none">
+                                                <path fill="currentColor" d="M20 5a1 1 0 1 1 0 2h-1l-.933 13.071A2 2 0 0 1 16.069 22H7.93a2 2 0 0 1-1.995-1.858l-.933-13.07L5 7H4a1 1 0 0 1 0-2zm-3.003 2H7.003l.928 13h8.138zM14 2a1 1 0 1 1 0 2h-4a1 1 0 0 1 0-2z"></path>
+                                            </g>
+                                        </svg> 
+                                        Delete
+                                    </a>
+                                </ul>
+                            </div>
+                        </td>
+                    </tr>`;
+        });
+    }
+    $("#bookCategory_table_body").html(html);
+    // bookCategory_table
+    $("#bookCategory_table").DataTable({
+        bDestroy: true,
+        paging: true,
+        lengthChange: true,
+        searching: true,
+        info: true,
+        autoWidth: false,
+        responsive: true,
+        scrollX: true,
+        language: {
+            search: "_INPUT_",
+            searchPlaceholder: "Search",
+        },
+        dom: "Bfrtip",
+        buttons: [
+            { extend: "copy", className: "btn btn-copy", text: "Copy" },
+            { extend: "csv", className: "btn btn-csv", text: "CSV" },
+            { extend: "excel", className: "btn btn-excel", text: "Excel" },
+            { extend: "pdf", className: "btn btn-pdf", text: "PDF" },
+            { extend: "print", className: "btn btn-print", text: "Print" },
+            {
+                text: "Refresh",
+                className: "btn btn-refresh",
+                action: function () {
+                    console.log("Refresh button clicked");
+                    $("#resetFilterButton2").click();
+
+                    getBooksPageData();
+                },
+            },
+        ],
+    });
+}
+function addNewCategory() {
+    resetCategoryForm();
+    $("#addBookCategory_canvas").addClass("show");
+}
+
+$(document).on("click", ".closeCanvas", function (e) {
+    resetCategoryForm();
+    $("#addBookCategory_canvas").removeClass("show");
+});
+
+function resetCategoryForm() {
+    let form = $("#category_form");
+    form.trigger("reset");
+
+    $("#category_id").val("");
+}
+
+function saveBookCategory() {
+    let type = "POST";
+    let url = "/saveBookCategory";
+    let message = "";
+    let form = $("#category_form");
+    let data = new FormData(form[0]);
+
+    // PASSING DATA TO FUNCTION
+    $("input").removeClass("is-invalid");
+    SendAjaxRequestToServer(
+        type,
+        url,
+        data,
+        "",
+        saveBookCategoryResponse,
+        "",
+        "#addCategory_btn"
+    );
+}
+
+function saveBookCategoryResponse(response) {
+    // SHOWING MESSAGE ACCORDING TO RESPONSE
+    if (response.status == 200 || response.status == "200") {
+        resetCategoryForm();
+        getBooksPageData();
+        $("#addBookCategory_canvas").removeClass("show");
+        toastr.success(response.message, "", {
+            timeOut: 3000,
+        });
+    } else {
+        if (response.status == 402) {
+            error = response.message;
+        } else {
+            error = response.responseJSON.message;
+            var is_invalid = response.responseJSON.errors;
+
+            $.each(is_invalid, function (key) {
+                // Assuming 'key' corresponds to the form field name
+                var inputField = $('[name="' + key + '"]');
+                // Add the 'is-invalid' class to the input field's parent or any desired container
+                inputField.closest(".form-control").addClass("is-invalid");
+            });
+        }
+        toastr.error(error, "", {
+            timeOut: 3000,
+        });
+    }
+}
+
+function editBookCategory(id) {
+    let type = "POST";
+    let url = "/getSpecificBookCategory";
+    let message = "";
+    let form = "";
+    let data = new FormData();
+    data.append("category_id", id);
+    // PASSING DATA TO FUNCTION
+    SendAjaxRequestToServer(
+        type,
+        url,
+        data,
+        "",
+        editBookCategoryResponse,
+        "",
+        ""
+    );
+}
+
+function editBookCategoryResponse(response) {
+    // SHOWING MESSAGE ACCORDING TO RESPONSE
+    if (response.status == 200 || response.status == "200") {
+        var data = response.data;
+
+        var categoryDetail = data.category_detail;
+        console.log(categoryDetail);
+        if (categoryDetail != null) {
+            $("#category_id").val(categoryDetail.id);
+            $("#category_title").val(categoryDetail.title);
+            $("#category_description").val(categoryDetail.description);
+            $("#category_status").val(categoryDetail.status);
+            $("#addBookCategory_canvas").addClass("show");
+        }
+    }
+}
+
+var tempId = "";
+function deleteBookCategoryConfirm(id) {
+    tempId = id;
+    $("#deleteConfirm_btn").attr("onclick", "deleteBookCategoryConfirmed()");
+    $("#delete_confirm_modal").modal("show");
+}
+
+$(document).on("click", "#close_confirm", function (e) {
+    tempId = "";
+    $("#deleteConfirm_btn").attr("onclick", "");
+    $("#delete_confirm_modal").modal("hide");
+});
+
+function deleteBookCategoryConfirmed() {
+    let type = "POST";
+    let url = "/deleteBookCategory";
+    let message = "";
+    let form = "";
+    let data = new FormData();
+    data.append("category_id", tempId);
+    // PASSING DATA TO FUNCTION
+    SendAjaxRequestToServer(
+        type,
+        url,
+        data,
+        "",
+        deleteBookCategoryConfirmedResponse,
+        "",
+        ""
+    );
+}
+
+function deleteBookCategoryConfirmedResponse(response) {
+    // SHOWING MESSAGE ACCORDING TO RESPONSE
+    if (response.status == 200 || response.status == "200") {
+        tempId = "";
+        $("#deleteConfirm_btn").attr("onclick", "");
+        $("#delete_confirm_modal").modal("hide");
+        
+        getBooksPageData();
+
+        toastr.success(response.message, "", {
+            timeOut: 3000,
+        });
+    }else{
+        tempId = "";
+        $("#deleteConfirm_btn").attr("onclick", "");
+        $("#delete_confirm_modal").modal("hide");
+        toastr.error(response.message, "", {
+            timeOut: 3000,
+        });
+    }
+}
+
 function getBooksPageData(formValues = {}){
 
     let type = 'POST';
@@ -22,6 +271,7 @@ function getBooksPageDataResponse(response) {
         var booksList = data.books_list;
         
         makeBooksListing(booksList);
+        makeBookCategoryListing(data.book_category_list);
     } 
 }
 
@@ -40,6 +290,7 @@ function makeBooksListing(booksList){
             html += `<tr>
                         <td class="text-start text-nowrap">${index+1}</td>
                         <td class="text-start text-nowrap">${book.title}</td>
+                        <td class="text-start text-nowrap">${book?.bookcategory?.title || 'N/A'}</td>
                         <td class="text-start text-nowrap">${book.price}</td>
                         <td class="text-start text-nowrap">${trimText(book.description, 50)}</td>
                         <td class="text-start text-nowrap">${formatDate(book.date)}</td>
@@ -243,13 +494,15 @@ function editBookResponse(response) {
         var data = response.data;
 
         var bookDetail = data.book_detail;
-        
+        console.log(bookDetail);
         if(bookDetail != null){
             $("#book_id").val(bookDetail.id);
             $("#book_title").val(bookDetail.title);
             $("#book_description").val(bookDetail.description);
             $("#book_price").val(bookDetail.price);
             $("#book_status").val(bookDetail.status);
+            // book_category_id
+            $("#book_category_id").val(bookDetail?.bookcategory?.id || "");
 
             if(bookDetail.thumbnail != null){
                 $(".thumbnail_preview").attr('src', bookDetail.thumbnail).show();

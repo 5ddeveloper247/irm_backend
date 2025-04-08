@@ -19,5 +19,10 @@ class BookLibrary extends Model
     {
         return ucwords($value);
     }
+    // book category
+    public function bookcategory()
+    {
+        return $this->belongsTo('App\Models\BookCategory','book_category_id');
+    }
     
 }

@@ -26,6 +26,7 @@ use App\Models\CourseVideo;
 use App\Models\NewsEvent;
 use App\Models\NewsEventAttachment;
 use App\Models\Payment;
+use App\Models\BookCategory;
 
 
 
@@ -184,8 +185,8 @@ class AdminController extends Controller
 
     public function books_library(Request $request)
     {
-
-        return view('admin/books_library');
+        $categories = BookCategory::where('status', 1)->get();
+        return view('admin/books_library', ['categories' => $categories]);
     }
 
     public function blogs(Request $request)
@@ -520,7 +521,72 @@ class AdminController extends Controller
             return response()->json(['status' => 200, 'message' => "Audio Category Saved Successfully."]);
         }
     }
+    // saveBookCategory 
+    public function saveBookCategory(Request $request)
+    {
+        $validatedData = $request->validate([
+            'category_title' => 'required|max:50',
+            'category_description' => 'nullable|max:250',
+            'category_status' => 'required',
 
+        ]);
+        if ($request->category_id != '') {
+            $BookCategory = BookCategory::find($request->category_id);
+            // status not set in-active then books are exist
+            if ($request->category_status == 0) {
+                if ($BookCategory->books()->exists()) {
+                    return response()->json([
+                        'status' => 402,
+                        'message' => "Books exist against this category. First, delete the books before In-activating the category."
+                    ]);
+                }
+            }
+
+        } else {
+            $BookCategory = new BookCategory;
+        }
+        $BookCategory->title = $request->category_title;
+        $BookCategory->description = $request->category_description;
+        // $BookCategory->date = Carbon::now()->format('Y-m-d');
+        $BookCategory->status = $request->category_status;
+        $BookCategory->save();
+        if ($request->category_id != '') {
+            return response()->json(['status' => 200, 'message' => "Book Category Updated Successfully."]);
+        } else {
+            return response()->json(['status' => 200, 'message' => "Book Category Saved Successfully."]);
+        }
+    }
+    // deleteBookCategory
+    public function deleteBookCategory(Request $request)
+    {
+        $BookCategory = BookCategory::find($request->category_id);
+        if ($BookCategory) {
+            if ($BookCategory->books()->exists()) {
+                return response()->json([
+                    'status' => 400,
+                    'message' => "Books exist against this category. First, delete the books before deleting the category."
+                ]);
+            }
+            // Delete related books first (if any exist)
+            $BookCategory->books()->delete();
+            // Now delete the category
+            $BookCategory->delete();
+            return response()->json([
+                'status' => 200,
+                'message' => "Book Category Deleted Successfully."
+            ]);
+        }
+        return response()->json([
+            'status' => 400,
+            'message' => "Book Category not found."
+        ]);
+    }
+    // getSpecificBookCategory
+    public function getSpecificBookCategory(Request $request)
+    {
+        $data['category_detail'] = BookCategory::where('id', $request->category_id)->first();
+        return response()->json(['status' => 200, 'message' => "", 'data' => $data]);
+    }
     public function getSpecificAudioCategory(Request $request)
     {
 
@@ -559,6 +625,7 @@ class AdminController extends Controller
             'message' => "Audio Category not found."
         ]);
     }
+
 
     public function saveAudioLecture(Request $request)
     {
@@ -882,12 +949,32 @@ class AdminController extends Controller
     /* ******************** Books Library Page Code Start Here ********************* */
     public function getBooksPageData(Request $request)
     {
+        $query = BookCategory::latest();
+        // category_name: 
+        if ($request->has('category_name') && !empty($request->category_name)) {
+            $query->where('title', 'like', '%' . $request->category_name . '%');
+        }
+        // date: 
+        // if ($request->has('date') && !empty($request->date)) {
+        //     $query->whereDate('date', $request->date);
+        // }
+        // status
+        if ($request->has('status') && $request->status != '') {
+            $query->where('status', $request->status);
+        }
+        $data['book_category_list'] = $query->get();
 
         // $data['books_list'] = BookLibrary::get();
-        $query = BookLibrary::latest();
+        $query = BookLibrary::with('bookcategory')->latest();
         // book_title: 
         if ($request->has('book_title') && !empty($request->book_title)) {
             $query->where('title', 'like', '%' . $request->book_title . '%');
+        }
+        // book_category
+        if ($request->has('book_category') && !empty($request->book_category)) {
+            $query->whereHas('bookcategory', function ($q) use ($request) {
+                $q->where('title', 'like', '%' . $request->book_category . '%');
+            });
         }
         // book_price: 
         if ($request->has('book_price') && !empty($request->book_price)) {
@@ -910,9 +997,10 @@ class AdminController extends Controller
     {
         $validatedData = $request->validate([
             'book_title' => 'required|max:50',
-            'book_description' => 'required|max:250',
+            'book_description' => 'nullable|max:250',
             'book_price' => 'required',
             'book_status' => 'required',
+            'book_category_id' => 'required',
         ]);
 
         if ($request->book_id == '') {
@@ -943,6 +1031,7 @@ class AdminController extends Controller
         $BookLibrary->date = Carbon::now()->format('Y-m-d');
         $BookLibrary->price = $request->book_price;
         $BookLibrary->status = $request->book_status;
+        $BookLibrary->book_category_id = $request->book_category_id;
 
         // Save the thumbnail file
         if ($request->hasFile('thumbnail')) {
@@ -975,7 +1064,9 @@ class AdminController extends Controller
     public function getSpecificBook(Request $request)
     {
 
-        $data['book_detail'] = BookLibrary::where('id', $request->book_id)->first();
+        $data['book_detail'] = BookLibrary::where('id', $request->book_id)
+            ->with('bookcategory')
+            ->first();
 
         return response()->json(['status' => 200, 'message' => "", 'data' => $data]);
     }
@@ -1361,6 +1452,10 @@ class AdminController extends Controller
 
         if ($request->type_id != '') {
             $CourseType = CourseType::find($request->type_id);
+            // if status is 0 then check if any course exist against this type
+            if ($request->type_status == 0 && Course::where('type_id', $request->type_id)->exists()) {
+                return response()->json(['status' => 402, 'message' => "Cannot set type status to inactive as there are courses associated with this type."]);
+            }
         } else {
             $CourseType = new CourseType;
             $CourseType->date = Carbon::now()->format('Y-m-d');
@@ -1394,13 +1489,12 @@ class AdminController extends Controller
 
         if ($CourseType) {
 
-            if ($CourseType->courses == null) {
-                $CourseType->courses()->delete();
+            if ($CourseType->courses()->exists()) {
+                return response()->json(['status' => 400, 'message' => "Courses exist against this type. First, delete the courses before deleting the type."]);
+            } else {
                 $CourseType->delete();
 
                 return response()->json(['status' => 200, 'message' => "Type Deleted Successfully."]);
-            } else {
-                return response()->json(['status' => 400, 'message' => "Course exist against this type, first delete course then delete type."]);
             }
         } else {
             return response()->json(['status' => 400, 'message' => "Type not found."]);
@@ -1428,7 +1522,8 @@ class AdminController extends Controller
                 'videos.*.url' => [
                     'required',
                     'string',
-                    'regex:/^(https?\:\/\/)?(www\.youtube\.com|youtu\.?be)\/.+$/'
+                   'regex:/^(https?\:\/\/)?(www\.)?(youtube\.com\/(watch\?v\=[\w\-]+(\&[a-zA-Z0-9\=\-]+)*|live\/[\w\-]+|playlist\?list\=[\w\-]+(\&[a-zA-Z0-9\=\-\_\+]+)*))|youtu\.be\/[\w\-]+$/'
+
                 ]
             ], [
                 'videos.*.url.required' => 'Each video url field is required.',
@@ -1441,7 +1536,8 @@ class AdminController extends Controller
                 'videos.*.url' => [
                     'required_with:videos',
                     'string',
-                    'regex:/^(https?\:\/\/)?(www\.youtube\.com|youtu\.?be)\/.+$/'
+                    'regex:/^(https?\:\/\/)?(www\.)?(youtube\.com\/(watch\?v\=[\w\-]+(\&[a-zA-Z0-9\=\-]+)*|live\/[\w\-]+|playlist\?list\=[\w\-]+(\&[a-zA-Z0-9\=\-\_\+]+)*))|youtu\.be\/[\w\-]+$/'
+
                 ]
             ], [
                 'videos.*.url.required_with' => 'Each video url field is required.',

@@ -14,6 +14,7 @@ use App\Http\Controllers\YoutubeController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\JoinUsController;
 use App\Http\Controllers\WhatsAppController;
+use Illuminate\Support\Facades\Artisan;
 
 /*
 |--------------------------------------------------------------------------
@@ -175,6 +176,12 @@ Route::group(['middleware' => ['AdminAuth']], function () {
 
     // Books Library Page Routes
     Route::post('/getBooksPageData', [AdminController::class, 'getBooksPageData'])->name('getBooksPageData');
+    // saveBookCategory 
+    Route::post('/saveBookCategory', [AdminController::class, 'saveBookCategory'])->name('saveBookCategory');
+    // deleteBookCategory
+    Route::post('/deleteBookCategory', [AdminController::class, 'deleteBookCategory'])->name('deleteBookCategory');
+    // getSpecificBookCategory
+    Route::post('/getSpecificBookCategory', [AdminController::class, 'getSpecificBookCategory'])->name('getSpecificBookCategory');
     Route::post('/saveBook', [AdminController::class, 'saveBook'])->name('saveBook');
     Route::post('/getSpecificBook', [AdminController::class, 'getSpecificBook'])->name('getSpecificBook');
     Route::post('/deleteBook', [AdminController::class, 'deleteBook'])->name('deleteBook');
@@ -216,7 +223,20 @@ Route::group(['middleware' => ['AdminAuth']], function () {
     Route::post('/deleteEventAtt', [AdminController::class, 'deleteEventAtt'])->name('deleteEventAtt');
     Route::post('/deleteEvent', [AdminController::class, 'deleteEvent'])->name('deleteEvent');
 });
-
+// run migration
+Route::get('/run-migration', function () {
+    $migrations = [
+        'database/migrations/2025_04_07_050330_create_book_category_table.php',
+        'database/migrations/2025_04_07_050450_add_book_category_id_to_books_library_table.php'
+    ];
+    foreach ($migrations as $migration) {
+        Artisan::call('migrate', [
+            '--path' => $migration,
+            '--force' => true,
+        ]);
+    }
+    return 'Migration created!';
+});
 // Route::get('/', function () {
 //     return view('welcome');
 // });
