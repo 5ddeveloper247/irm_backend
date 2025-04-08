@@ -13,10 +13,10 @@ function makeBookCategoryListing(categoryList) {
                         <td class="text-start text-nowrap">${
                             category.title
                         }</td>
-                        <td class="text-start text-nowrap">${trimText(
+                        <td class="text-start text-nowrap">${category.description ? trimText(
                             category.description,
                             50
-                        )}</td>
+                        ) : 'N/A'}</td>
                         <td class="text-start text-nowrap">
                             ${
                                 category.status == "1"
@@ -292,7 +292,7 @@ function makeBooksListing(booksList){
                         <td class="text-start text-nowrap">${book.title}</td>
                         <td class="text-start text-nowrap">${book?.bookcategory?.title || 'N/A'}</td>
                         <td class="text-start text-nowrap">${book.price}</td>
-                        <td class="text-start text-nowrap">${trimText(book.description, 50)}</td>
+                        <td class="text-start text-nowrap">${book.description ? trimText(book.description, 50) : 'N/A'}</td>
                         <td class="text-start text-nowrap">${formatDate(book.date)}</td>
                         <td class="text-start text-nowrap">
                             ${book.status == '1' ? 
@@ -503,6 +503,12 @@ function editBookResponse(response) {
             $("#book_status").val(bookDetail.status);
             // book_category_id
             $("#book_category_id").val(bookDetail?.bookcategory?.id || "");
+            // book_homepage set checked if 1
+            if(bookDetail.book_homepage == 1){
+                $("#book_homepage").prop("checked", true);
+            }else{
+                $("#book_homepage").prop("checked", false);
+            }
 
             if(bookDetail.thumbnail != null){
                 $(".thumbnail_preview").attr('src', bookDetail.thumbnail).show();

@@ -1032,6 +1032,12 @@ class AdminController extends Controller
         $BookLibrary->price = $request->book_price;
         $BookLibrary->status = $request->book_status;
         $BookLibrary->book_category_id = $request->book_category_id;
+        // book_homepage
+        if($request->book_homepage == '1') {
+            $BookLibrary->book_homepage = 1;
+        } else {
+            $BookLibrary->book_homepage = 0;
+        }
 
         // Save the thumbnail file
         if ($request->hasFile('thumbnail')) {

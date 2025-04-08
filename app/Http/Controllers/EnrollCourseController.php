@@ -82,6 +82,12 @@ class EnrollCourseController extends Controller
             $query->whereDate('created_at', request('date'));
         }
         $data['enrollCourse_list'] = $query->get();
+        // delete enroll course is couse is null
+        // foreach ($data['enrollCourse_list'] as $enrollCourse) {
+        //     if ($enrollCourse->course == null) {
+        //         $enrollCourse->delete();
+        //     }
+        // }
         return response()->json(['status' => 200, 'message' => "", 'data' => $data]);
     }
     // enroll course
@@ -269,12 +275,6 @@ class EnrollCourseController extends Controller
 
                         if ($tempVideoId) {
                             $videoDetails = $youtube->videoDetail($tempVideoId);
-
-                            // $processedVideos->push((object)[
-                            //     'video_url' => "https://www.youtube.com/embed/" . $tempVideoId,
-                            //     'youtube_details' => $videoDetails,
-                            //     'duration' => $this->_formatYouTubeDuration($videoDetails['video']['contentDetails']['duration'] ?? ''),
-                            // ]);
                             $temp_list_vedios[] = (object)[
                                 'is_playlist' => true,
                                 'playlist_id'=> $playlistId,
@@ -289,14 +289,6 @@ class EnrollCourseController extends Controller
                             $video->temp_list_vedios = $temp_list_vedios;
                         }
                     }
-                    // return response()->json([
-                    //     'status' => 200,
-                    //     'playlist' => $video->playlist,
-                    // ]);
-                    // It's a playlist
-                    // $video->video_url = "https://www.youtube.com/embed/videoseries?list=" . $playlistId;
-                    // $video->youtube_details = ['playlist_id' => $playlistId];
-                    // $video->duration = null; // or calculate total playlist duration if needed
                 } else {
                     $video->youtube_details = null;
                     $video->duration = null;
@@ -319,7 +311,8 @@ class EnrollCourseController extends Controller
             }
             
             // Merge temp videos with course videos (as plain arrays)
-            $course->videos2 = collect(array_merge($course->videos->toArray(), $tempVideos));
+            $course->videos2 = collect($tempVideos);
+            // $course->videos2 = (array)$tempVideos;
             
             // releated courses
             $releatedCourses = Course::with('videos', 'type')->where('status', 1)->where('type_id', $course->type_id)->where('id', '!=', $id)->limit(3)->get()->map(function ($course) {

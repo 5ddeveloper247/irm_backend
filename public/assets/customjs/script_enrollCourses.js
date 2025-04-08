@@ -64,12 +64,12 @@ function makeEnrollCoursesListing(enrollCoursesList){
             
             html += `<tr>
                         <td class="text-start text-nowrap">${index+1}</td>
-                        <td class="text-start text-nowrap">${enrollCourse.name}</td>
-                        <td class="text-start text-nowrap">${enrollCourse.email}</td>
-                        <td class="text-start text-nowrap">${enrollCourse.course.title}</td>
-                        <td class="text-start text-nowrap">${enrollCourse.course.instructor_name}</td> 
-                        <td class="text-start text-nowrap">${enrollCourse.course.level}</td> 
-                        <td class="text-start text-nowrap">${formatDate(enrollCourse.created_at)}</td>
+                        <td class="text-start text-nowrap">${enrollCourse?.name || 'N/A'}</td>
+                        <td class="text-start text-nowrap">${enrollCourse?.email || 'N/A'}</td>
+                        <td class="text-start text-nowrap">${enrollCourse?.course?.title || 'N/A'}</td>
+                        <td class="text-start text-nowrap">${enrollCourse?.course?.instructor_name || "N/A"}</td> 
+                        <td class="text-start text-nowrap">${enrollCourse?.course?.level || "N/A"}</td> 
+                        <td class="text-start text-nowrap">${formatDate(enrollCourse?.created_at)}</td>
                         
                         
                     </tr>`;

@@ -5,11 +5,15 @@ namespace App\Http\Controllers\API;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\BookLibrary;
+use App\Models\BookCategory;
+
 class BookLibraryController extends Controller
 {
     // getBooks
     public function getBooks(Request $request)
     {
+        // get all categories
+        $data['book_category'] = BookCategory::where('status',1)->get();
         // get all books
         $data['book_list'] = BookLibrary::where('status',1)->get();
         // set base url on image
@@ -24,7 +28,8 @@ class BookLibraryController extends Controller
     public function getLastestBooks(Request $request)
     {
         // get lastest four books
-        $data['book_list'] = BookLibrary::where('status',1)->orderBy('id', 'desc')->limit(4)->get();
+        // $data['book_list'] = BookLibrary::where('status',1)->orderBy('id', 'desc')->limit(4)->get();
+        $data['book_list'] = BookLibrary::where('status',1)->orderBy('id', 'desc')->where('book_homepage',1)->get();
         // set base url on image
         foreach($data['book_list'] as $key => $value){
             $data['book_list'][$key]->thumbnail = url('/'.$value->thumbnail);
