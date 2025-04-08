@@ -183,11 +183,14 @@ class EnrollCourseController extends Controller
     {
         $myCourses = EnrollCourse::where('user_id', auth()->user()->id)->with('course')->get()->map(function ($enrollCourse) {
             // course image baseurl
-            $enrollCourse->course->image = url('/' . $enrollCourse->course->thumbnail);
-            // cut the description
-            $enrollCourse->course->description = substr($enrollCourse->course->description, 0, 100);
-            // course map and set instructor_name_list with comma separated
-            $enrollCourse->course->instructor_name_list  =  implode(', ', $enrollCourse->course->instructor_name);
+            
+            if ($enrollCourse->course) {
+                $enrollCourse->course->image = url('/' . ($enrollCourse->course->thumbnail ?? ''));
+                // cut the description
+                $enrollCourse->course->description = substr($enrollCourse->course->description ?? '', 0, 100);
+                // course map and set instructor_name_list with comma separated
+                $enrollCourse->course->instructor_name_list = implode(', ', $enrollCourse->course->instructor_name ?? []);
+            }
             return $enrollCourse;
         });
         return response()->json([
