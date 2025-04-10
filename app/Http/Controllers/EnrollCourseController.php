@@ -41,7 +41,7 @@ class EnrollCourseController extends Controller
     public function getEnrollCoursesPageData()
     {
         // $data['enrollCourse_list'] = EnrollCourse::with('course')->orderBy('id','desc')->get();
-        $query = EnrollCourse::with('course')->orderBy('id', 'desc')->latest();
+        $query = EnrollCourse::with('course', 'user')->orderBy('id', 'desc')->latest();
         // name: 
         if (request()->has('name') && request('name') != '') {
             $query->where('name', 'like', '%' . request('name') . '%');

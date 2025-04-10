@@ -524,6 +524,8 @@ function editCourseResponse(response) {
                 $("#instructor_fields_container").html(html);
             }
             $("#course_duration").val(courseDetail.duration_minutes);
+            // total_course_duration
+            $("#total_course_duration").val(courseDetail.total_course_duration);
             $("#course_total_lectures").val(courseDetail.total_lectures);
             $("#course_level").val(courseDetail.level);
             $("#course_language").val(courseDetail.language);
@@ -632,7 +634,14 @@ function deleteCourseConfirmedResponse(response) {
         toastr.success(response.message, '', {
             timeOut: 3000
         });
-    } 
+    }else{
+        $("#deleteConfirm_btn").attr('onclick', '');
+        $("#delete_confirm_modal").modal('hide');
+        
+        toastr.error(response.message, '', {
+            timeOut: 3000
+        });
+    }
 }
 
 $(document).on('click', '.remove_field', function (e) {

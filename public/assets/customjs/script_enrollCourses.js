@@ -64,6 +64,8 @@ function makeEnrollCoursesListing(enrollCoursesList){
             
             html += `<tr>
                         <td class="text-start text-nowrap">${index+1}</td>
+
+                        <td class="text-start text-nowrap has-tooltip" data-title="${enrollCourse?.user?.name + ' ' + enrollCourse?.user?.username || 'N/A'}">${enrollCourse?.user?.email || 'N/A'}</td>
                         <td class="text-start text-nowrap">${enrollCourse?.name || 'N/A'}</td>
                         <td class="text-start text-nowrap">${enrollCourse?.email || 'N/A'}</td>
                         <td class="text-start text-nowrap">${enrollCourse?.course?.title || 'N/A'}</td>

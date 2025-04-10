@@ -7,8 +7,8 @@
         }
 
         /* .collapse.show {
-                background-color: #ecf4ff00 !important;
-            } */
+                    background-color: #ecf4ff00 !important;
+                } */
 
         .img-prev {
             width: 70px;
@@ -21,7 +21,7 @@
             font-size: 18px !important;
             color: red;
             /* position: absolute;
-                top: 265px; */
+                    top: 265px; */
         }
     </style>
 @endpush
@@ -112,7 +112,7 @@
                                                             'name' => 'created_at',
                                                             'type' => 'date',
                                                             'label' => 'Created At',
-                                                        ],  
+                                                        ],
                                                         // ['name' => 'username', 'type' => 'text', 'label' => 'User Name', 'placeholder' => 'Search Username'],
                                                         // ['name' => 'email', 'type' => 'text', 'label' => 'Email', 'placeholder' => 'Search Email'],
                                                         // // Select options
@@ -223,8 +223,8 @@
                     </div>
 
                     <div class="form-floating">
-                        <input type="text" class="form-control" id="username" name="username"
-                            placeholder="User Title" maxlength="50">
+                        <input type="text" class="form-control" id="username" name="username" placeholder="User Title"
+                            maxlength="50">
                         <label class="ms-2" for="username">User Name</label>
                     </div>
 
@@ -246,67 +246,70 @@
                             placeholder="Confirm Password" maxlength="50">
                         <label class="ms-2" for="c_password">Confirm Password</label>
 
-                    <!-- Status -->
-                    <div class="form-floating">
-                        <select class="form-control" id="status" name="status">
-                            <option value="">Choose</option>
-                            <option value="1">Active</option>
-                            <option value="0">In-Active</option>
-                        </select>
-                        <label class="ms-2" for="status">Status</label>
-                    </div>
-                    {{-- checkbox menus --}}
-                    <div class="row">
-                        <div class="col-12">
-                            <label class="ms-2 badge-primary" for="menus">
-                                Role / Permissions
-                            </label>
+                        <!-- Status -->
+                        <div class="form-floating">
+                            <select class="form-control" id="status" name="status">
+                                <option value="">Choose</option>
+                                <option value="1">Active</option>
+                                <option value="0">In-Active</option>
+                            </select>
+                            <label class="ms-2" for="status">Status</label>
                         </div>
-                    </div>
-                    <div class="row m-1">
-                        @foreach ($menus as $menu)
-                            {{-- sub-admins  route check --}}
-                            @if ($menu->route != 'sub-admins')
-                                <div class="col-6">
-                                    <input class="" id="menu_{{ $menu->id }}" type="checkbox" name="menus[]"
-                                        value="{{ $menu->id }}" @if($menu->route == 'dashboard') checked disabled @endif>
-                                        @if($menu->route == 'dashboard') 
-                                        <input type="hidden" name="menus[]" value="{{ $menu->id }}">
+                        {{-- checkbox menus --}}
+                        <div class="row">
+                            <div class="col-12">
+                                <label class="ms-2 badge-primary" for="menus">
+                                    Role / Permissions
+                                </label>
+                            </div>
+                        </div>
+                        <div class="row m-1">
+                            @foreach ($menus as $menu)
+                                {{-- sub-admins  route check --}}
+                                @if ($menu->route != 'sub-admins')
+                                    <div class="col-6">
+                                        <input class="" id="menu_{{ $menu->id }}" type="checkbox"
+                                            name="menus[]" value="{{ $menu->id }}"
+                                            @if ($menu->route == 'dashboard') checked disabled @endif>
+                                        @if ($menu->route == 'dashboard')
+                                            <input type="hidden" name="menus[]" value="{{ $menu->id }}">
                                         @endif
-                                    <label class="" for="menu_{{ $menu->id }}">{{ $menu->name }}</label>
-                                </div>
-                            @endif
-                        @endforeach
-                    </div>
-                    <div class="row">
-                        <div class="col-4 my-2">
-                            <button class="btn btn-purple" type="button" id="addthumbnail_btn">
-                                User Profile
-                            </button>
+                                        <label class="" for="menu_{{ $menu->id }}">{{ $menu->name }}</label>
+                                    </div>
+                                @endif
+                            @endforeach
+                        </div>
+                        <div class="row">
+                            <div class="col-4 my-2">
+                                <button class="btn btn-purple" type="button" id="addthumbnail_btn">
+                                    User Profile
+                                </button>
+                            </div>
+
+                            <input type="file" id="thumbnail_file" name="thumbnail" accept="image/*" single
+                                style="display:none;">
+                            <div class="col-12 my-2">
+                                <img class="thumbnail_preview" src=""
+                                    style="display:none;width: 70px;height: 70px;object-fit: cover;border-radius: 10px;">
+                            </div>
                         </div>
 
-                        <input type="file" id="thumbnail_file" name="thumbnail" accept="image/*" single
-                            style="display:none;">
-                        <div class="col-12 my-2">
-                            <img class="thumbnail_preview" src=""
-                                style="display:none;width: 70px;height: 70px;object-fit: cover;border-radius: 10px;">
-                        </div>
                     </div>
-
-                </div>
-                <!-- Action Buttons -->
-                <div class="d-flex justify-content-end mt-3">
-                    <button type="button" class="btn btn-secondary me-2 closeCanvas">Cancel</button>
-                    <button type="button" class="btn btn-purple" onclick="saveUser();" id="saveUser_btn">Add</button>
-                </div>
+                    <!-- Action Buttons -->
+                    <div class="d-flex justify-content-end mt-3">
+                        <button type="button" class="btn btn-secondary me-2 closeCanvas">Cancel</button>
+                        <button type="button" class="btn btn-purple" onclick="saveUser();"
+                            id="saveUser_btn">Add</button>
+                    </div>
             </form>
         </div>
+    </div>
     </div>
 
 
     <!-- Delete Confirmation Modal -->
-    <div class="modal fade" id="delete_confirm_modal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
-        aria-labelledby="staticBackdropLabel" aria-hidden="true">
+    <div class="modal fade" id="delete_confirm_modal" tabindex="-1" aria-labelledby="delete_confirm_modal"
+        aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-body text-center">
@@ -346,7 +349,7 @@
         // Function to get all form values
         document.getElementById('filterButton').addEventListener('click', function(event) {
             event.preventDefault();
-            
+
             document.querySelectorAll('.filterApplicantsInput').forEach(function(input) {
                 if (input.type === 'checkbox') {
                     if (!formValues[input.name]) {
@@ -369,7 +372,7 @@
             // Log the form values (You can replace this with your actual save logic)
             console.log(formValues);
         });
-    
+
         // Function to reset all form values
         document.getElementById('resetFilterButton').addEventListener('click', function(event) {
             event.preventDefault();
