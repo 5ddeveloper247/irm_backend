@@ -5,30 +5,36 @@
         ul.dropdown-menu-custom {
             transform: translateX(-17px) !important;
         }
+
         /* .collapse.show {
-            background-color: #ecf4ff00 !important;
-        } */
-        
-        .img-prev{
-            width: 70px;height: 70px;object-fit: cover;border-radius: 10px;
+                                    background-color: #ecf4ff00 !important;
+                                } */
+
+        .img-prev {
+            width: 70px;
+            height: 70px;
+            object-fit: cover;
+            border-radius: 10px;
         }
-        .cancel-icon{
+
+        .cancel-icon {
             font-size: 20px !important;
             color: red;
             position: relative;
             top: -32px;
             right: 0px;
-            cursor:pointer;
+            cursor: pointer;
         }
+
         .select2-container {
             width: 100% !important;
-            
+
         }
-        .select2-container .select2-selection{
+
+        .select2-container .select2-selection {
             height: 55px !important;
         }
     </style>
-
 @endpush
 
 @section('content')
@@ -38,6 +44,7 @@
                 <div class="row align-items-center px-2">
                     <div class="col-md-6">
                         <div class="d-flex align-items-center">
+
                             <h5 class="mb-0">Youtube Playlist Section</h5>
                             <!-- <span class="count-title">123</span> -->
                         </div>
@@ -56,17 +63,19 @@
 
 
             <ul style="width:78rem;"class="nav nav-tabs" id="myTab" role="tablist">
-                  <li class="nav-item" role="presentation">
-                    <button class="nav-link active" id="profile-tab" data-bs-toggle="tab" 
-                        data-bs-target="#youtubes-tab-pane" type="button" role="tab" aria-controls="profile-tab-pane" 
+                <li class="nav-item" role="presentation">
+
+            
+                    <button class="nav-link active" id="profile-tab" data-bs-toggle="tab"
+                        data-bs-target="#youtubes-tab-pane" type="button" role="tab" aria-controls="profile-tab-pane"
                         aria-selected="false">Youtube Playlist</button>
                 </li>
                 <!-- <li class="nav-item fs-3" role="presentation">
-                    <button class="nav-link" id="listing-tab" data-bs-toggle="tab"
-                        data-bs-target="#listing-tab-pane" type="button" role="tab" aria-controls="listing-tab-pane"
-                        aria-selected="true">Gallery List</button>
-                </li> -->
-                
+                                            <button class="nav-link" id="listing-tab" data-bs-toggle="tab"
+                                                data-bs-target="#listing-tab-pane" type="button" role="tab" aria-controls="listing-tab-pane"
+                                                aria-selected="true">Gallery List</button>
+                                        </li> -->
+
             </ul>
 
 
@@ -81,27 +90,44 @@
 
                             <div class="tab-content" id="myTabContent">
 
-                                <div class="tab-pane fade show active" id="youtubes-tab-pane" role="tabpanel" aria-labelledby="profile-tab" tabindex="0">
+                                <div class="tab-pane fade show active" id="youtubes-tab-pane" role="tabpanel"
+                                    aria-labelledby="profile-tab" tabindex="0">
                                     <div class="schedule">
                                         <div class="card">
 
                                             <div class="card-body">
-                                                                                        {{-- filter --}}
+                                                {{-- filter --}}
                                                 {{-- include --}}
                                                 @php
+                                                   
                                                     $button = '<a href="javascript:void(0);" class="theme-btn d-flex align-items-center gap-1 py-2 px-3 rounded-2 text-white" onclick="addNewYoutube();" >
                                                                 <i class="fa-solid fa-plus"></i>
                                                                 Add Youtube Playlist
                                                             </a>';
                                                     $filters = [
-                                                        // get my page table names
-                                                        ['name' => 'playlist_id', 'type' => 'text', 'label' => 'Playlist ID', 'placeholder' => 'Search Playlist ID'],
-                                                        ['name' => 'playlist_title', 'type' => 'text', 'label' => 'Title', 'placeholder' => 'Search Title'],
-                                                        ['name' => 'status', 'type' => 'select', 'label' => 'Status', 'options' => [
-                                                            ['value' => '', 'label' => 'Choose'],
-                                                            ['value' => '1', 'label' => 'Active'],
-                                                            ['value' => '0', 'label' => 'In-Active']
-                                                        ]],
+                                                        //playlist_id and title always be channel_id and title
+                                                        [
+                                                            'name' => 'playlist_id',
+                                                            'type' => 'text',
+                                                            'label' => 'Playlist ID',
+                                                            'placeholder' => 'Search Playlist ID',
+                                                        ],
+                                                        [
+                                                            'name' => 'playlist_title',
+                                                            'type' => 'text',
+                                                            'label' => 'Title',
+                                                            'placeholder' => 'Search Title',
+                                                        ],
+                                                        [
+                                                            'name' => 'status',
+                                                            'type' => 'select',
+                                                            'label' => 'Status',
+                                                            'options' => [
+                                                                ['value' => '', 'label' => 'Choose'],
+                                                                ['value' => '1', 'label' => 'Active'],
+                                                                ['value' => '0', 'label' => 'In-Active'],
+                                                            ],
+                                                        ],
                                                         // ['name' => 'username', 'type' => 'text', 'label' => 'User Name', 'placeholder' => 'Search Username'],
                                                         // ['name' => 'email', 'type' => 'text', 'label' => 'Email', 'placeholder' => 'Search Email'],
                                                         // // Select options
@@ -131,50 +157,60 @@
                                                             <input id="search_filter" type="text" class="form-control" placeholder="Search Here...">
                                                         </div>
                                                     </div> --}}
-                        
+
                                                     <div class="col-sm-8">
-                                                        <div class="d-flex align-items-center flex-wrap row-gap-2 justify-content-sm-end">
-                                                            
+                                                        <div
+                                                            class="d-flex align-items-center flex-wrap row-gap-2 justify-content-sm-end">
+
                                                         </div>
                                                     </div>
-                                                </div> 
-                                                
+                                                </div>
+
                                                 <hr>
-                                                
-                                                <div class="d-flex align-items-center justify-content-between flex-wrap row-gap-2 mb-4">
+
+                                                <div
+                                                    class="d-flex align-items-center justify-content-between flex-wrap row-gap-2 mb-4">
 
                                                     <!-- ____________________________________ List View _______________________________________ -->
 
 
-                                                    <div class="table-responsive list-view-div w-100 mt-3"><!-- overflow-x:clip; -->
+                                                    <div class="table-responsive list-view-div w-100 mt-3">
+                                                        <!-- overflow-x:clip; -->
                                                         <table id="listing_table" class="table">
 
                                                             <thead style="background-color: #3259901c !important;">
                                                                 <tr>
-                                                                    <th class="text-start text-nowrap" scope="col">Seq No.</th>
-                                                                    <th class="text-start text-nowrap" scope="col">Title</th>
-                                                                    <th class="text-start text-nowrap" scope="col">Playlist Id</th>
+                                                                    <th class="text-start text-nowrap" scope="col">Seq
+                                                                        No.</th>
+
+                                                                    <th class="text-start text-nowrap" scope="col">Title
+                                                                    </th>
+                                                                    <th class="text-start text-nowrap" scope="col">
+                                                                        Playlist Id</th>
                                                                     {{-- created_at --}}
-                                                                    <th class="text-start text-nowrap" scope="col">Date</th>
-                                                                    <th class="text-start text-nowrap" scope="col">Status</th>
-                                                                    <th class="text-start text-nowrap" scope="col">Action</th>
+                                                                    <th class="text-start text-nowrap" scope="col">Date
+                                                                    </th>
+                                                                    <th class="text-start text-nowrap" scope="col">Status
+                                                                    </th>
+                                                                    <th class="text-start text-nowrap" scope="col">Action
+                                                                    </th>
                                                                 </tr>
                                                             </thead>
 
                                                             <tbody id="listing_table_body">
-                                                                
+
                                                             </tbody>
                                                         </table>
                                                     </div>
 
-                                                
+
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
 
-                                {{--<div class="tab-pane fade " id="listing-tab-pane" role="tabpanel" aria-labelledby="schedule-tab" tabindex="0">
+                                {{-- <div class="tab-pane fade " id="listing-tab-pane" role="tabpanel" aria-labelledby="schedule-tab" tabindex="0">
                                     <div class="schedule">
                                         <div class="card">
 
@@ -230,7 +266,7 @@
                                             </div>
                                         </div>
                                     </div>
-                                </div>--}}
+                                </div> --}}
 
                             </div>
                         </div>
@@ -241,7 +277,8 @@
     </div>
 
     <!-- Offcanvas Add News Youtube -->
-    <div style="max-width:33rem;" class="offcanvas offcanvas-end add-new-project-offcanvas" tabindex="-1"  id="addYoutube_canvas" aria-labelledby="offcanvas_add_label">
+    <div style="max-width:33rem;" class="offcanvas offcanvas-end add-new-project-offcanvas" tabindex="-1"
+        id="addYoutube_canvas" aria-labelledby="offcanvas_add_label">
         <div class="offcanvas-header">
             <h5 id="offcanvas_add_label">Youtube Playlist</h5>
             <button type="button" class="btn-close closeCanvas" data-bs-dismiss="offcanvas" aria-label="Close"></button>
@@ -250,20 +287,26 @@
             <form id="newsYoutube_form">
 
                 <input type="hidden" id="youtube_id" name="youtube_id" value="">
-                
+
                 <div class="row g-3">
+
+
+                    <!-- playlist_id and title always be channel_id and title -->
                     
-                    
+
                     {{-- playlist_id --}}
+
                     <div class="form-floating">
-                        <input type="text" class="form-control" id="playlist_id" name="playlist_id" placeholder="Playlist ID" maxlength="50">
-                        <label class="ms-2" for="playlist_id">Playlist ID*</label>
+                        <input type="text" class="form-control" id="playlist_id" name="playlist_id"
+                            placeholder="Playlist ID" maxlength="50">
+                        <label class="ms-2" for="playlist_id">Channel ID*</label> <!-- here i want to get channel id and fetch channel title down -->
                     </div>
                     <div class="form-floating">
-                        <input type="text" class="form-control" id="playlist_title" name="playlist_title" placeholder="Title" maxlength="50">
+                        <input type="text" class="form-control" id="playlist_title" name="playlist_title"
+                            placeholder="Title" maxlength="50">
                         <label class="ms-2" for="playlist_title">Title*</label>
                     </div>
-                    
+
                     <div class="form-floating">
                         <select class="form-control" id="status" name="status">
                             <option value="">Choose</option>
@@ -276,7 +319,8 @@
                 <!-- Action Buttons -->
                 <div class="d-flex justify-content-end mt-3">
                     <button type="button" class="btn btn-secondary me-2 closeCanvas">Cancel</button>
-                    <button type="button" class="btn btn-purple" onclick="saveYoutube();" id="saveYoutube_btn">Add</button>
+                    <button type="button" class="btn btn-purple" onclick="saveYoutube();"
+                        id="saveYoutube_btn">Add</button>
                 </div>
             </form>
         </div>
@@ -288,12 +332,12 @@
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-body text-center">
-                    <img src="{{asset('assets/images/remove.png')}}" width="60" alt="">
+                    <img src="{{ asset('assets/images/remove.png') }}" width="60" alt="">
                     <h6 class="text-danger mt-3">
                         Are you sure you want to delete this record?
                     </h6>
                 </div>
-                <div class="modal-footer d-flex align-items-center justify-content-center" style="border: none" >
+                <div class="modal-footer d-flex align-items-center justify-content-center" style="border: none">
                     <button type="button" class="btn btn-secondary px-5" id="close_confirm">No</button>
                     <button type="button" class="btn btn-danger px-5" id="deleteConfirm_btn">Yes</button>
                 </div>
@@ -302,7 +346,7 @@
     </div>
 @endsection
 @push('js')
-    <script src="{{asset('assets/customjs/script_youtube.js')}}"></script>
+    <script src="{{ asset('assets/customjs/script_youtube.js') }}"></script>
     <!-- <script>
         $('#admin-query').DataTable({
             responsive: true,
@@ -313,7 +357,7 @@
         // Function to get all form values
         document.getElementById('filterButton').addEventListener('click', function(event) {
             event.preventDefault();
-            
+
             document.querySelectorAll('.filterApplicantsInput').forEach(function(input) {
                 if (input.type === 'checkbox') {
                     if (!formValues[input.name]) {
@@ -336,7 +380,7 @@
             // Log the form values (You can replace this with your actual save logic)
             console.log(formValues);
         });
-    
+
         // Function to reset all form values
         document.getElementById('resetFilterButton').addEventListener('click', function(event) {
             event.preventDefault();

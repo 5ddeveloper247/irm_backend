@@ -34,6 +34,7 @@ function makeYoutubeListing(youtubesList){
             
             html += `<tr>
                         <td class="text-start text-nowrap">${index+1}</td>
+
                         <td class="text-start text-nowrap">${value.playlist_title}</td>
                         <td class="text-start text-nowrap">${value.playlist_id}</td>
                         // created_at
@@ -312,22 +313,27 @@ $(document).on('focusout', '#playlist_id', function (e) {
     SendAjaxRequestToServer(type, url, data, '', getYoutubePlaylistDataResponse, '', '');
 });
 function getYoutubePlaylistDataResponse(response) {
+    console.log('Response:', response); // For debugging
     
     // SHOWING MESSAGE ACCORDING TO RESPONSE
-    if (response.status == 200  || response.status == '200') {
-        var youtubeDetail = response.playlist;
-        // console.log(youtubeDetail, youtubeDetail.snippet.title);
-        if(youtubeDetail != null){
-            $("#playlist_title").val(youtubeDetail.snippet.title);
+    if (response.status == 200 || response.status == '200') {
+        var youtubeDetail = response.channels;
+        
+        if (youtubeDetail && 
+            youtubeDetail.original && 
+            youtubeDetail.original.channel && 
+            youtubeDetail.original.channel.snippet) {
+            
+            $("#playlist_title").val(youtubeDetail.original.channel.snippet.title);
             // enable submit button
             $('#saveYoutube_btn').removeAttr('disabled');
-        }else{
-            // dissble submit button
+        } else {
+            // disable submit button
             $('#saveYoutube_btn').attr('disabled', 'disabled');
-            toastr.error('Playlist id not found', '', {
+            toastr.error('Channel not found', '', {
                 timeOut: 3000
             });
-
         }
-    } 
+    }
 }
+

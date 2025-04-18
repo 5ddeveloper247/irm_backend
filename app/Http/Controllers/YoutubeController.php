@@ -16,6 +16,9 @@ class YoutubeController extends Controller
     {
         // $youtubes = Youtube::orderBy('id', 'desc')->get();
         $query = Youtube::orderBy('id', 'desc')->latest();
+
+        //playlist_id and title always be channel_id and title
+        
         // playlist_id: 
         if(request()->has('playlist_id') && request('playlist_id') != ''){
             if (request()->filled('playlist_id')) {
@@ -37,6 +40,7 @@ class YoutubeController extends Controller
     public function saveYoutube(Request $request)
     {
         $request->validate([
+            
             'playlist_id' => 'required',
             'playlist_title' => 'required',
             'status' => 'required',
@@ -47,6 +51,7 @@ class YoutubeController extends Controller
         }else{
             $youtube = new Youtube();
         }
+        
         $youtube->playlist_id = $request->playlist_id;
         $youtube->playlist_title = $request->playlist_title;
         $youtube->status = $request->status;

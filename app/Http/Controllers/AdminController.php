@@ -105,7 +105,7 @@ class AdminController extends Controller
     public function updateSettings(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'company_logo' => 'nullable|image|mimes:jpeg,png,jpg|dimensions:width=128,height=128', // Must be an image file
+            // 'company_logo' => 'nullable|image|mimes:jpeg,png,jpg|dimensions:width=128,height=128', // Must be an image file
             'company_name' => 'required|max:50|string',
             'company_address' => 'required',
             'company_phone' => 'required|string|regex:/^\+?[0-9]{7,15}$/',

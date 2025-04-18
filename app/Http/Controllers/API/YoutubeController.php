@@ -13,59 +13,274 @@ class YoutubeController extends Controller
     private $apiKey = 'AIzaSyBk1z-xAVabyzCk4VJOCSDJh_i49MlMpPI';
     // private $playlistId = 'PLgohHfkVYNArdtwrYAw-F0QfHYe1u7IdU&si=cXp8QUBiDwZLOxYV';
     private $playlistId = 'PLnWyyZtBFGDVV3g7EQVjNlouzVZ9eSzcv';
+    // public function getPlaylists(Request $request, $playlistId = null)
+    // {
+    //     $playlist = null;
+    //     $lastestPlaylists = Youtube::where('status', 1)->latest()->first();
+    //     if ($lastestPlaylists == null) {
+    //         return response()->json([
+    //             'message' => 'Playlist not found',
+    //             'status' => 404
+    //         ]);
+    //     }
+    //     if ($playlistId) {
+    //         $playlist = Youtube::where('playlist_id', $playlistId)->where('status', 1)->first();
+    //     } else {
+    //         $playlist = Youtube::where('playlist_id', $lastestPlaylists->playlist_id)->where('status', 1)->first();
+    //     }
+    //     if (!$playlist) {
+    //         return response()->json([
+    //             'message' => 'Playlist not found',
+    //             'status' => 404
+    //         ]);
+    //     }
+    //     $playlistDetailsUrl = "https://www.googleapis.com/youtube/v3/playlists?part=snippet&id={$playlist->playlist_id}&key={$this->apiKey}";
+    //     $playlistDetails = $this->fetchData($playlistDetailsUrl);
+    //     $playlist->details = $playlistDetails['items'][0] ?? null;
+    //     // vedios
+    //     $playlistItemsUrl = "https://www.googleapis.com/youtube/v3/playlistItems?part=snippet&maxResults=50&playlistId={$playlist->playlist_id}&key={$this->apiKey}";
+    //     $videos = $this->fetchAllVideos($playlistItemsUrl);
+    //     $playlist->videos = $videos;
+    //     $youtubeChannelLists = Youtube::where('status', 1)->latest()->get();
+    //     $youtubeChannelLists->map(function ($list) {
+    //         $words = explode(' ', $list->playlist_title); // Split the string into an array of words
+    //         $firstTwoWords = implode(' ', array_slice($words, 0, 2)); // Take the first two words
+    //         $list->stitle = $firstTwoWords;
+    //     });
+    //     return response()->json([
+    //         'playlist' => $playlist,
+    //         'lastestPlaylists' => $lastestPlaylists,
+    //         'youtubeChannelLists' => $youtubeChannelLists,
+    //         'status' => 200
+    //     ]);
+    // }
+
     public function getPlaylists(Request $request, $playlistId = null)
     {
-        $playlist = null;
-        $lastestPlaylists = Youtube::where('status', 1)->latest()->first();
-        if($lastestPlaylists == null){
-            return response()->json([
-                'message' => 'Playlist not found',
-                'status' => 404
-            ]);
+        // Get latest playlist or use requested one
+        $latestPlaylist = Youtube::where('status', 1)->latest()->first();
+        if (!$latestPlaylist) {
+            return response()->json(['message' => 'Playlist not found', 'status' => 404]);
         }
+
+        // Select playlist based on ID or fallback to latest
+        $playlist = null;
         if ($playlistId) {
             $playlist = Youtube::where('playlist_id', $playlistId)->where('status', 1)->first();
+            // Handle API playlists not in database
+            if (!$playlist) {
+                $parentChannel = Youtube::where('status', 1)->first();
+                if ($parentChannel) {
+                    $playlist = clone $parentChannel;
+                    $playlist->playlist_id = $playlistId;
+                }
+            }
         } else {
-            $playlist = Youtube::where('playlist_id', $lastestPlaylists->playlist_id)->where('status', 1)->first();
+            $playlist = $latestPlaylist;
         }
+
         if (!$playlist) {
-            return response()->json([
-                'message' => 'Playlist not found',
-                'status' => 404
-            ]);
+            return response()->json(['message' => 'Playlist not found', 'status' => 404]);
         }
-        $playlistDetailsUrl = "https://www.googleapis.com/youtube/v3/playlists?part=snippet&id={$playlist->playlist_id}&key={$this->apiKey}";
-        $playlistDetails = $this->fetchData($playlistDetailsUrl);
-        $playlist->details = $playlistDetails['items'][0] ?? null;
-        // vedios
-        $playlistItemsUrl = "https://www.googleapis.com/youtube/v3/playlistItems?part=snippet&maxResults=50&playlistId={$playlist->playlist_id}&key={$this->apiKey}";
-        $videos = $this->fetchAllVideos($playlistItemsUrl);
-        $playlist->videos = $videos;
-        $youtubeChannelLists = Youtube::where('status', 1)->latest()->get();
-        $youtubeChannelLists->map(function($list){
-            $words = explode(' ', $list->playlist_title); // Split the string into an array of words
-            $firstTwoWords = implode(' ', array_slice($words, 0, 2)); // Take the first two words
-            $list->stitle= $firstTwoWords;
+
+        // Initialize collections and determine if we're dealing with a channel
+        $databaseChannels = Youtube::where('status', 1)->latest()->get();
+        $youtubeChannelLists = collect([]);
+        $isChannelId = strpos($playlist->playlist_id, 'UC') === 0;
+        $selectedPlaylistId = $playlistId ?: $playlist->playlist_id;
+
+        if ($isChannelId) {
+            // CHANNEL HANDLING
+            $channelId = $playlist->playlist_id;
+
+            // Get channel details
+            $channelUrl = "https://www.googleapis.com/youtube/v3/channels?part=snippet&id={$channelId}&key={$this->apiKey}";
+            $channelDetails = $this->fetchData($channelUrl);
+            $playlist->details = $channelDetails['items'][0] ?? null;
+
+            // Get all playlists from this channel
+            $channelPlaylistsUrl = "https://www.googleapis.com/youtube/v3/playlists?part=snippet&channelId={$channelId}&maxResults=50&key={$this->apiKey}";
+            $channelPlaylistsData = $this->fetchData($channelPlaylistsUrl);
+            $filteredPlaylists = collect($channelPlaylistsData['items'] ?? [])
+                ->filter(function ($item) {
+                    return isset($item['id']) && strpos($item['id'], 'PL') === 0;
+                })
+                ->values()
+                ->all();
+
+            // Build sidebar channel list
+            foreach ($databaseChannels as $dbChannel) {
+                if ($dbChannel->playlist_id == $channelId) {
+                    // Add channel to sidebar
+                    $channelItem = clone $dbChannel;
+                    $channelItem->api_title = $channelDetails['items'][0]['snippet']['title'] ?? $dbChannel->playlist_title;
+                    $channelItem->is_channel = true;
+                    $youtubeChannelLists->push($channelItem);
+
+                    // Add all playlists from this channel to sidebar
+                    foreach ($filteredPlaylists as $pl) {
+                        $playlistItem = new \stdClass();
+                        $playlistItem->id = $dbChannel->id;
+                        $playlistItem->playlist_id = $pl['id'];
+                        $playlistItem->playlist_title = $pl['snippet']['title'];
+                        $playlistItem->api_title = $pl['snippet']['title'];
+                        $playlistItem->is_playlist = true;
+                        $playlistItem->parent_channel_id = $channelId;
+                        $youtubeChannelLists->push($playlistItem);
+                    }
+                } else {
+                    // Add other channels
+                    $channelItem = clone $dbChannel;
+                    $channelItem->is_channel = true;
+                    $youtubeChannelLists->push($channelItem);
+                }
+            }
+
+            // Set playlist data
+            $playlist->playlist_list = $filteredPlaylists;
+
+            // Determine which playlist videos to show
+            $targetPlaylistId = null;
+            $targetPlaylistTitle = '';
+
+            if ($playlistId && strpos($playlistId, 'PL') === 0) {
+                // Show selected playlist
+                $targetPlaylistId = $playlistId;
+                foreach ($filteredPlaylists as $pl) {
+                    if ($pl['id'] == $targetPlaylistId) {
+                        $targetPlaylistTitle = $pl['snippet']['title'] ?? '';
+                        break;
+                    }
+                }
+            } elseif (!empty($filteredPlaylists)) {
+                // Show first playlist as default
+                $targetPlaylistId = $filteredPlaylists[0]['id'];
+                $targetPlaylistTitle = $filteredPlaylists[0]['snippet']['title'] ?? '';
+            }
+
+            // Get videos for target playlist
+            if ($targetPlaylistId) {
+                $playlistItemsUrl = "https://www.googleapis.com/youtube/v3/playlistItems?part=snippet&maxResults=50&playlistId={$targetPlaylistId}&key={$this->apiKey}";
+                $playlist->videos = $this->fetchAllVideos($playlistItemsUrl);
+                $playlist->selected_playlist_title = $targetPlaylistTitle;
+                $playlist->selected_playlist_id = $targetPlaylistId;
+            } else {
+                $playlist->videos = [];
+                $playlist->selected_playlist_title = '';
+                $playlist->selected_playlist_id = '';
+            }
+        } else {
+            // REGULAR PLAYLIST HANDLING
+            $currentPlaylistId = $playlistId ?: $playlist->playlist_id;
+
+            // Get playlist details
+            $playlistDetailsUrl = "https://www.googleapis.com/youtube/v3/playlists?part=snippet&id={$currentPlaylistId}&key={$this->apiKey}";
+            $playlistDetails = $this->fetchData($playlistDetailsUrl);
+            $playlist->details = $playlistDetails['items'][0] ?? null;
+
+            // Set playlist metadata
+            if (isset($playlistDetails['items'][0]['snippet']['title'])) {
+                $playlist->api_title = $playlistDetails['items'][0]['snippet']['title'];
+            }
+            $playlist->selected_playlist_title = $playlistDetails['items'][0]['snippet']['title'] ?? '';
+            $playlist->selected_playlist_id = $currentPlaylistId;
+
+            // Get videos for this playlist
+            $playlistItemsUrl = "https://www.googleapis.com/youtube/v3/playlistItems?part=snippet&maxResults=50&playlistId={$currentPlaylistId}&key={$this->apiKey}";
+            $playlist->videos = $this->fetchAllVideos($playlistItemsUrl);
+
+            // Handle sidebar content - add channel and sibling playlists
+            if (isset($playlistDetails['items'][0]['snippet']['channelId'])) {
+                $channelId = $playlistDetails['items'][0]['snippet']['channelId'];
+                $channelPlaylistsUrl = "https://www.googleapis.com/youtube/v3/playlists?part=snippet&channelId={$channelId}&maxResults=50&key={$this->apiKey}";
+                $channelPlaylists = $this->fetchData($channelPlaylistsUrl);
+
+                foreach ($databaseChannels as $dbChannel) {
+                    // Add channel to sidebar
+                    $channelItem = clone $dbChannel;
+                    $channelItem->is_channel = true;
+                    $youtubeChannelLists->push($channelItem);
+
+                    // Add related playlists if this is related to current playlist's channel
+                    $isRelated = ($dbChannel->playlist_id == $playlist->playlist_id ||
+                        (isset($playlistDetails['items'][0]['snippet']['channelId']) &&
+                            $dbChannel->playlist_id == $playlistDetails['items'][0]['snippet']['channelId']));
+
+                    if ($isRelated) {
+                        foreach ($channelPlaylists['items'] ?? [] as $pl) {
+                            if (isset($pl['id'])) {
+                                $playlistItem = new \stdClass();
+                                $playlistItem->id = $dbChannel->id;
+                                $playlistItem->playlist_id = $pl['id'];
+                                $playlistItem->playlist_title = $pl['snippet']['title'];
+                                $playlistItem->api_title = $pl['snippet']['title'];
+                                $playlistItem->is_playlist = true;
+                                $playlistItem->parent_channel_id = $channelId;
+                                $youtubeChannelLists->push($playlistItem);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        // Create shortened titles for UI
+        $youtubeChannelLists = $youtubeChannelLists->map(function ($item) {
+            $title = $item->api_title ?? $item->playlist_title;
+            $words = explode(' ', $title);
+            $item->stitle = implode(' ', array_slice($words, 0, 2));
+            return $item;
         });
+
         return response()->json([
             'playlist' => $playlist,
-            'lastestPlaylists' => $lastestPlaylists,
+            'lastestPlaylists' => $latestPlaylist,
             'youtubeChannelLists' => $youtubeChannelLists,
             'status' => 200
         ]);
     }
+
+    public function getChannel($channelId)
+    {
+
+        $channelUrl = "https://www.googleapis.com/youtube/v3/channels?part=snippet&id={$channelId}&key={$this->apiKey}";
+        $channelDetails = $this->fetchData($channelUrl);
+
+        return response()->json([
+            'channel' => $channelDetails['items'][0] ?? null,
+            'status' => 200
+        ]);
+
+
+        return response()->json([
+            'message' => 'Channel ID is required',
+            'status' => 400
+        ]);
+    }
     public function getPlaylist(Request $request)
     {
-        if ($request->has('playlist_id')) {
-            $this->playlistId = $request->playlist_id;
+        if (!$request->has('playlist_id')) {
+            return response()->json([
+                'message' => 'Channel ID is required',
+                'status' => 400
+            ]);
         }
-        $playlistDetailsUrl = "https://www.googleapis.com/youtube/v3/playlists?part=snippet&id={$this->playlistId}&key={$this->apiKey}";
-        $playlistItemsUrl = "https://www.googleapis.com/youtube/v3/playlistItems?part=snippet&maxResults=50&playlistId={$this->playlistId}&key={$this->apiKey}";
-        $playlistDetails = $this->fetchData($playlistDetailsUrl);
-        $videos = $this->fetchAllVideos($playlistItemsUrl);
+
+        $channelId = $request->playlist_id;
+
+        // Get channel data directly instead of calling the response-returning method
+        $channelUrl = "https://www.googleapis.com/youtube/v3/channels?part=snippet&id={$channelId}&key={$this->apiKey}";
+        $channelDetails = $this->fetchData($channelUrl);
+
+        // Format the response to match what your frontend expects
+        $channelResponse = [
+            'original' => [
+                'channel' => $channelDetails['items'][0] ?? null
+            ]
+        ];
+
         return response()->json([
-            'playlist' => $playlistDetails['items'][0] ?? null,
-            'videos' => $videos,
+            'channels' => $channelResponse,
             'status' => 200
         ]);
     }
