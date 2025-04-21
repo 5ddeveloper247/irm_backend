@@ -14,12 +14,12 @@ class MenuSeeder extends Seeder
     {
         //
         $menu = [
-            [
-                'seq_no' => 1,
-                'name' => 'Dashboard',
-                'route' => 'dashboard',
-                'image' => 'fa-solid fa-house',
-            ],
+            // [
+            //     'seq_no' => 1,
+            //     'name' => 'Dashboard',
+            //     'route' => 'dashboard',
+            //     'image' => 'fa-solid fa-house',
+            // ],
             // audio_lectures, fa-file-audio
             [
                 'seq_no' => 2,

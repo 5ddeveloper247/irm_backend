@@ -228,7 +228,7 @@ class AdminController extends Controller
             // Authentication passed
             $user = Auth::user();
             if ($user->role == 1 || $user->role == 3) {
-                return redirect()->intended('/dashboard');
+                return redirect()->intended('/audio_lectures');
             } else {
 
                 return redirect('login')->withErrors([
