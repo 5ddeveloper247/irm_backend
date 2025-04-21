@@ -114,13 +114,13 @@ class YoutubeController extends Controller
                     // Add channel to sidebar
                     $channelItem = clone $dbChannel;
                     $channelItem->api_title = $channelDetails['items'][0]['snippet']['title'] ?? $dbChannel->playlist_title;
-                    $channelItem->is_channel = true;
-                    $youtubeChannelLists->push($channelItem);
+                    // $channelItem->is_channel = true;
+                    // $youtubeChannelLists->push($channelItem);
 
                     // Add all playlists from this channel to sidebar
                     foreach ($filteredPlaylists as $pl) {
                         $playlistItem = new \stdClass();
-                        $playlistItem->id = $dbChannel->id;
+                        $playlistItem->id = $pl['id'];
                         $playlistItem->playlist_id = $pl['id'];
                         $playlistItem->playlist_title = $pl['snippet']['title'];
                         $playlistItem->api_title = $pl['snippet']['title'];
@@ -130,9 +130,9 @@ class YoutubeController extends Controller
                     }
                 } else {
                     // Add other channels
-                    $channelItem = clone $dbChannel;
-                    $channelItem->is_channel = true;
-                    $youtubeChannelLists->push($channelItem);
+                    // $channelItem = clone $dbChannel;
+                    // $channelItem->is_channel = true;
+                    // $youtubeChannelLists->push($channelItem);
                 }
             }
 
@@ -197,9 +197,9 @@ class YoutubeController extends Controller
 
                 foreach ($databaseChannels as $dbChannel) {
                     // Add channel to sidebar
-                    $channelItem = clone $dbChannel;
-                    $channelItem->is_channel = true;
-                    $youtubeChannelLists->push($channelItem);
+                    // $channelItem = clone $dbChannel;
+                    // $channelItem->is_channel = true;
+                    // $youtubeChannelLists->push($channelItem);
 
                     // Add related playlists if this is related to current playlist's channel
                     $isRelated = ($dbChannel->playlist_id == $playlist->playlist_id ||
@@ -210,7 +210,7 @@ class YoutubeController extends Controller
                         foreach ($channelPlaylists['items'] ?? [] as $pl) {
                             if (isset($pl['id'])) {
                                 $playlistItem = new \stdClass();
-                                $playlistItem->id = $dbChannel->id;
+                                $playlistItem->id = $pl['id'];
                                 $playlistItem->playlist_id = $pl['id'];
                                 $playlistItem->playlist_title = $pl['snippet']['title'];
                                 $playlistItem->api_title = $pl['snippet']['title'];
@@ -232,10 +232,27 @@ class YoutubeController extends Controller
             return $item;
         });
 
+    
+        $responsePlaylist = new \stdClass();
+        $responsePlaylist->id = !$youtubeChannelLists->isEmpty() ? $youtubeChannelLists->first()->id : null;
+        // Copy other needed properties
+        $responsePlaylist->playlist_id = $latestPlaylist->playlist_id;
+        $responsePlaylist->playlist_title = $latestPlaylist->playlist_title;
+        $responsePlaylist->created_at = $latestPlaylist->created_at;
+        $responsePlaylist->details = $latestPlaylist->details;
+        $responsePlaylist->playlist_list = $latestPlaylist->playlist_list;
+        $responsePlaylist->selected_playlist_id = $latestPlaylist->selected_playlist_id;
+        $responsePlaylist->updated_at = $latestPlaylist->updated_at;
+        $responsePlaylist->status = $latestPlaylist->status;
+        $responsePlaylist->videos = $latestPlaylist->videos;
+
         return response()->json([
+           
             'playlist' => $playlist,
-            'lastestPlaylists' => $latestPlaylist,
+            'lastestPlaylists' => $responsePlaylist,
             'youtubeChannelLists' => $youtubeChannelLists,
+            'responsePlaylist' => $responsePlaylist,
+            'test' => $youtubeChannelLists->first()->id,
             'status' => 200
         ]);
     }
