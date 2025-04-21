@@ -123,11 +123,11 @@
             {{-- <div class="w-100 my-3" style="background-color:#65cb02; height:15px;"></div> --}}
 
             
-            <section class="login vh-100 d-flex align-items-center justify-content-center overflow-hidden" style="background-image:unset; background: antiquewhite;">
+            <section class="login vh-100 d-flex align-items-center justify-content-center overflow-hidden">
     
-                <div class="container-fluid">
-                    <div class="row align-items-center">
-                        <div class="col-lg-6 col-12  p-5 text-center d-flex flex-column justify-content-center">
+                <div class="container">
+                    <div class="row align-items-center justify-content-center">
+                        <div class="col-lg-6 col-12 p-5 text-center d-flex flex-column justify-content-center bg-white shadow">
                             <div class="text-start ">
                                 <h1 class="text-center" style="color: #1C8DEE;">
                                     LOGIN
@@ -174,9 +174,9 @@
                                 </form>
                             </div>
                         </div>
-                        <div class="col-lg-6 d-none d-lg-block">
+                        {{-- <div class="col-lg-6 d-none d-lg-block">
                             <img src="http://localhost:5173/src/assets/images/activity-4.png" width="100%" height="100%" alt="">
-                        </div>
+                        </div> --}}
                     </div>
                 </div>
             </section>
