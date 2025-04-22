@@ -221,11 +221,154 @@ class EnrollCourseController extends Controller
     }
 
     // myCourseDetail
+    // public function myCourseDetail($id)
+    // {
+    //     $view_index = auth()->user()->course_view_index;
+    //     $course = Course::with('type', 'videos', 'enrollCourses')->where('id', $id)->first();
+    //     // return response()->json(['status' => 200, 'course' => $course, 'view_index' => $view_index]);
+    //     if ($course) {
+    //         // instructor_name
+    //         $course->instructor_name_list  =  implode(', ', $course->instructor_name);
+    //         // count enrolled courses
+    //         $course->enrolled = count($course->enrollCourses);
+    //         // add base url to thumbnail
+    //         $course->image = url('/' . $course->thumbnail);
+    //         // duration_minutes to duration_hours
+    //         $course->duration_hours = round(($course->duration_minutes / 60), 1);
+    //         // Initialize YouTube Controller using Laravel's app() helper
+    //         $youtube = app(APIYoutubeController::class);
+    //         // return response()->json(['status' => 200, 'vv' => $course->videos, 'view_index' => $view_index]);
+    //         // Process course videos
+    //         // $course->videos = $course->videos->map(function ($video) use ($youtube) {
+    //         //     // Extract YouTube video ID
+    //         //     $videoId = $this->_getYouTubeVideoId($video->video_url);
+    //         //     $video->video_url = "https://www.youtube.com/embed/" . $videoId;
+    //         //     // Fetch YouTube video details
+    //         //     $video->youtube_details = $youtube->videoDetail($videoId);
+    //         //     $video->duration = $this->_formatYouTubeDuration($video->youtube_details['video']['contentDetails']['duration'] ?? '');
+    //         //     return $video;
+    //         // });
+    //         $temp_list_vedios = [];
+    //         $course->videos = $course->videos->map(function ($video) use ($youtube) {
+    //             $videoId = $this->_getYouTubeVideoId($video->video_url);
+    //             $playlistId = $this->_getYouTubePlaylistId($video->video_url);
+
+    //             if ($videoId) {
+    //                 // It's a video (normal or live)
+    //                 $video->video_url = "https://www.youtube.com/embed/" . $videoId;
+    //                 $video->youtube_details = $youtube->videoDetail($videoId);
+    //                 $video->duration = $this->_formatYouTubeDuration($video->youtube_details['video']['contentDetails']['duration'] ?? '');
+    //             } elseif ($playlistId) {
+    //                 // getPlaylistVideos
+    //                 // $all_playlist = $youtube->getPlaylistVideos($playlistId);
+    //                 $playlistResponse = $youtube->getPlaylistVideos($playlistId);
+    //                 $playlistData = $playlistResponse->getData();
+
+    //                 foreach ($playlistData->videos as $item) {
+    //                     $tempVideoId = $item->snippet->resourceId->videoId ?? null;
+
+    //                     if ($tempVideoId) {
+    //                         $videoDetails = $youtube->videoDetail($tempVideoId);
+
+    //                         // $processedVideos->push((object)[
+    //                         //     'video_url' => "https://www.youtube.com/embed/" . $tempVideoId,
+    //                         //     'youtube_details' => $videoDetails,
+    //                         //     'duration' => $this->_formatYouTubeDuration($videoDetails['video']['contentDetails']['duration'] ?? ''),
+    //                         // ]);
+    //                         $temp_list_vedios[] = (object)[
+    //                             'course_id' => $video->course_id,
+    //                             'video_id' => $video->id,
+    //                             'created_at' => $video->created_at,
+    //                             'updated_at' => $video->updated_at,
+    //                             'video_url' => "https://www.youtube.com/embed/" . $tempVideoId,
+    //                             'youtube_details' => $videoDetails,
+    //                             'duration' => $this->_formatYouTubeDuration($videoDetails['video']['contentDetails']['duration'] ?? ''),
+    //                         ];
+    //                         $video->temp_list_vedios = $temp_list_vedios;
+    //                     }
+    //                 }
+    //                 // return response()->json([
+    //                 //     'status' => 200,
+    //                 //     'playlist' => $video->playlist,
+    //                 // ]);
+    //                 // It's a playlist
+    //                 // $video->video_url = "https://www.youtube.com/embed/videoseries?list=" . $playlistId;
+    //                 // $video->youtube_details = ['playlist_id' => $playlistId];
+    //                 // $video->duration = null; // or calculate total playlist duration if needed
+    //             } else {
+    //                 $video->youtube_details = null;
+    //                 $video->duration = null;
+    //             }
+
+    //             return $video;
+    //         });
+
+
+    //         $tempVideos = [];
+
+    //         foreach ($course->videos as $video) {
+    //             if (isset($video->temp_list_vedios)) {
+    //                 foreach ($video->temp_list_vedios as $temp_video) {
+    //                     array_push($tempVideos, $temp_video);
+    //                 }
+    //             } else {
+    //                 array_push($tempVideos, $video);
+    //             }
+    //         }
+
+    //         // Merge temp videos with course videos (as plain arrays)
+    //         // $course->videos2 =(array)array_merge((array)$course->videos, $tempVideos);
+    //         // $allVideos = collect($course->videos);
+    //         // foreach ($tempVideos as $tempVideo) {
+    //         //     $allVideos->push($tempVideo);
+    //         // }
+    //         // $course->videos2 = $allVideos;
+
+    //         $videosArray = $course->videos->toArray();
+    //         $cleanedVideos = [];
+
+    //         // Process videos array
+    //         foreach ($videosArray as $video) {
+    //             if (isset($video['temp_list_vedios'])) {
+    //                 unset($video['temp_list_vedios']);
+    //             }
+    //             $cleanedVideos[] = $video;
+    //         }
+
+    //         // Process temp videos
+    //         $cleanedTempVideos = [];
+    //         foreach ($tempVideos as $video) {
+    //             $videoArray = (array)$video; // Convert to array if it's an object
+    //             if (isset($videoArray['temp_list_vedios'])) {
+    //                 unset($videoArray['temp_list_vedios']);
+    //             }
+    //             $cleanedTempVideos[] = (object)$videoArray; // Convert back to object
+    //         }
+
+    //         $course->videos2 = array_merge($cleanedVideos, $cleanedTempVideos);
+
+
+    //         // releated courses
+    //         $releatedCourses = Course::with('videos', 'type')->where('status', 1)->where('type_id', $course->type_id)->where('id', '!=', $id)->limit(3)->get()->map(function ($course) {
+    //             // add base url to thumbnail
+    //             $course->image = url('/' . $course->thumbnail);
+    //             // duration_minutes to duration_hours
+    //             $course->duration_hours = round(($course->duration_minutes / 60), 1);
+    //             return $course;
+    //         });
+    //         return response()->json(['status' => 200, 'course' => $course, 'releatedCourses' => $releatedCourses, 'view_index' => $view_index]);
+    //     } else {
+    //         return response()->json(['status' => 404, 'message' => 'Course not found']);
+    //     }
+    // }
+
+
+    // myCourseDetail
     public function myCourseDetail($id)
     {
         $view_index = auth()->user()->course_view_index;
         $course = Course::with('type', 'videos', 'enrollCourses')->where('id', $id)->first();
-        // return response()->json(['status' => 200, 'course' => $course, 'view_index' => $view_index]);
+
         if ($course) {
             // instructor_name
             $course->instructor_name_list  =  implode(', ', $course->instructor_name);
@@ -237,17 +380,7 @@ class EnrollCourseController extends Controller
             $course->duration_hours = round(($course->duration_minutes / 60), 1);
             // Initialize YouTube Controller using Laravel's app() helper
             $youtube = app(APIYoutubeController::class);
-            // return response()->json(['status' => 200, 'vv' => $course->videos, 'view_index' => $view_index]);
-            // Process course videos
-            // $course->videos = $course->videos->map(function ($video) use ($youtube) {
-            //     // Extract YouTube video ID
-            //     $videoId = $this->_getYouTubeVideoId($video->video_url);
-            //     $video->video_url = "https://www.youtube.com/embed/" . $videoId;
-            //     // Fetch YouTube video details
-            //     $video->youtube_details = $youtube->videoDetail($videoId);
-            //     $video->duration = $this->_formatYouTubeDuration($video->youtube_details['video']['contentDetails']['duration'] ?? '');
-            //     return $video;
-            // });
+
             $temp_list_vedios = [];
             $course->videos = $course->videos->map(function ($video) use ($youtube) {
                 $videoId = $this->_getYouTubeVideoId($video->video_url);
@@ -259,8 +392,7 @@ class EnrollCourseController extends Controller
                     $video->youtube_details = $youtube->videoDetail($videoId);
                     $video->duration = $this->_formatYouTubeDuration($video->youtube_details['video']['contentDetails']['duration'] ?? '');
                 } elseif ($playlistId) {
-                    // getPlaylistVideos
-                    // $all_playlist = $youtube->getPlaylistVideos($playlistId);
+                    // It's a playlist - get all videos from the playlist
                     $playlistResponse = $youtube->getPlaylistVideos($playlistId);
                     $playlistData = $playlistResponse->getData();
 
@@ -270,11 +402,6 @@ class EnrollCourseController extends Controller
                         if ($tempVideoId) {
                             $videoDetails = $youtube->videoDetail($tempVideoId);
 
-                            // $processedVideos->push((object)[
-                            //     'video_url' => "https://www.youtube.com/embed/" . $tempVideoId,
-                            //     'youtube_details' => $videoDetails,
-                            //     'duration' => $this->_formatYouTubeDuration($videoDetails['video']['contentDetails']['duration'] ?? ''),
-                            // ]);
                             $temp_list_vedios[] = (object)[
                                 'course_id' => $video->course_id,
                                 'video_id' => $video->id,
@@ -287,14 +414,6 @@ class EnrollCourseController extends Controller
                             $video->temp_list_vedios = $temp_list_vedios;
                         }
                     }
-                    // return response()->json([
-                    //     'status' => 200,
-                    //     'playlist' => $video->playlist,
-                    // ]);
-                    // It's a playlist
-                    // $video->video_url = "https://www.youtube.com/embed/videoseries?list=" . $playlistId;
-                    // $video->youtube_details = ['playlist_id' => $playlistId];
-                    // $video->duration = null; // or calculate total playlist duration if needed
                 } else {
                     $video->youtube_details = null;
                     $video->duration = null;
@@ -303,7 +422,7 @@ class EnrollCourseController extends Controller
                 return $video;
             });
 
-
+            // Create tempVideos array
             $tempVideos = [];
 
             foreach ($course->videos as $video) {
@@ -316,30 +435,164 @@ class EnrollCourseController extends Controller
                 }
             }
 
-            // Merge temp videos with course videos (as plain arrays)
-            // $course->videos2 =(array)array_merge((array)$course->videos, $tempVideos);
-            // $allVideos = collect($course->videos);
-            // foreach ($tempVideos as $tempVideo) {
-            //     $allVideos->push($tempVideo);
-            // }
-            // $course->videos2 = $allVideos;
+            // Extract only the necessary fields for videos array
+            $videosArray = [];
+            foreach ($course->videos as $video) {
+                // Skip any video with the specific playlist URL
+                if (is_string($video->video_url) && $video->video_url === "https://www.youtube.com/playlist?list=PLnWyyZtBFGDVbSSY0J3xoMCo1jx3hOVI1") {
+                    continue;
+                }
 
-            $course->videos2 = array_merge($course->videos->toArray(), $tempVideos);
+                // Extract only public attributes and added properties
+                $cleanVideo = [
+                    'id' => $video->id,
+                    'course_id' => $video->course_id,
+                    'video_url' => $video->video_url,
+                    'created_at' => $video->created_at,
+                    'updated_at' => $video->updated_at
+                ];
 
-            // releated courses
-            $releatedCourses = Course::with('videos', 'type')->where('status', 1)->where('type_id', $course->type_id)->where('id', '!=', $id)->limit(3)->get()->map(function ($course) {
-                // add base url to thumbnail
-                $course->image = url('/' . $course->thumbnail);
-                // duration_minutes to duration_hours
-                $course->duration_hours = round(($course->duration_minutes / 60), 1);
-                return $course;
-            });
-            return response()->json(['status' => 200, 'course' => $course, 'releatedCourses' => $releatedCourses, 'view_index' => $view_index]);
+                // Add any additional properties that were added during processing
+                if (isset($video->youtube_details)) {
+                    $cleanVideo['youtube_details'] = $video->youtube_details;
+                }
+                if (isset($video->duration)) {
+                    $cleanVideo['duration'] = $video->duration;
+                }
+
+                $videosArray[] = $cleanVideo;
+            }
+
+            // Clean temp videos
+            $cleanedTempVideos = [];
+            foreach ($tempVideos as $video) {
+                // Check if this video has the playlist URL and skip it
+                $videoUrl = null;
+                if ($video instanceof \Illuminate\Database\Eloquent\Model) {
+                    $videoUrl = $video->video_url;
+                } elseif (is_object($video)) {
+                    $videoUrl = $video->video_url ?? null;
+                } else {
+                    $videoUrl = $video['video_url'] ?? null;
+                }
+
+                // Skip videos with the specific playlist URL
+                if ($videoUrl === "https://www.youtube.com/playlist?list=PLnWyyZtBFGDVbSSY0J3xoMCo1jx3hOVI1") {
+                    continue;
+                }
+
+                if ($video instanceof \Illuminate\Database\Eloquent\Model) {
+                    // It's a model, extract specific attributes
+                    $cleanVideo = [
+                        'id' => $video->id ?? null,
+                        'course_id' => $video->course_id ?? null,
+                        'video_url' => $video->video_url ?? null,
+                        'created_at' => $video->created_at ?? null,
+                        'updated_at' => $video->updated_at ?? null
+                    ];
+
+                    // Add dynamic properties
+                    if (isset($video->youtube_details)) {
+                        $cleanVideo['youtube_details'] = $video->youtube_details;
+                    }
+                    if (isset($video->duration)) {
+                        $cleanVideo['duration'] = $video->duration;
+                    }
+                    if (isset($video->video_id)) {
+                        $cleanVideo['video_id'] = $video->video_id;
+                    }
+                } elseif (is_object($video)) {
+                    // Standard object, extract properties
+                    $cleanVideo = [
+                        'course_id' => $video->course_id ?? null,
+                        'video_id' => $video->video_id ?? null,
+                        'created_at' => $video->created_at ?? null,
+                        'updated_at' => $video->updated_at ?? null,
+                        'video_url' => $video->video_url ?? null
+                    ];
+
+                    if (isset($video->youtube_details)) {
+                        $cleanVideo['youtube_details'] = $video->youtube_details;
+                    }
+                    if (isset($video->duration)) {
+                        $cleanVideo['duration'] = $video->duration;
+                    }
+                } else {
+                    // It's already an array
+                    $cleanVideo = [
+                        'id' => $video['id'] ?? null,
+                        'course_id' => $video['course_id'] ?? null,
+                        'video_url' => $video['video_url'] ?? null,
+                        'created_at' => $video['created_at'] ?? null,
+                        'updated_at' => $video['updated_at'] ?? null
+                    ];
+
+                    if (isset($video['youtube_details'])) {
+                        $cleanVideo['youtube_details'] = $video['youtube_details'];
+                    }
+                    if (isset($video['duration'])) {
+                        $cleanVideo['duration'] = $video['duration'];
+                    }
+                    if (isset($video['video_id'])) {
+                        $cleanVideo['video_id'] = $video['video_id'];
+                    }
+                }
+
+                $cleanedTempVideos[] = $cleanVideo;
+            }
+
+            // Prevent duplicate videos by using a unique key
+            $uniqueVideos = [];
+            $uniqueKeys = [];
+
+            // Process original videos first
+            foreach ($videosArray as $video) {
+                // Create a unique key based on the video URL or ID
+                $key = $video['video_url'] ?? $video['id'];
+
+                if (!in_array($key, $uniqueKeys)) {
+                    $uniqueKeys[] = $key;
+                    $uniqueVideos[] = $video;
+                }
+            }
+
+            // Then process temp videos
+            foreach ($cleanedTempVideos as $video) {
+                // Create a unique key based on the video URL
+                $key = $video['video_url'] ?? $video['id'] ?? $video['video_id'];
+
+                if (!in_array($key, $uniqueKeys)) {
+                    $uniqueKeys[] = $key;
+                    $uniqueVideos[] = $video;
+                }
+            }
+
+            // Replace the merged array with our unique array
+            $course->videos2 = $uniqueVideos;
+
+            // Related courses
+            $relatedCourses = Course::with('videos', 'type')
+                ->where('status', 1)
+                ->where('type_id', $course->type_id)
+                ->where('id', '!=', $id)
+                ->limit(3)
+                ->get()
+                ->map(function ($course) {
+                    // Add base url to thumbnail
+                    $course->image = url('/' . $course->thumbnail);
+                    // Duration_minutes to duration_hours
+                    $course->duration_hours = round(($course->duration_minutes / 60), 1);
+                    return $course;
+                });
+
+            return response()->json([
+                'status' => 200,
+                'course' => $course,
+                'relatedCourses' => $relatedCourses,
+                'view_index' => $view_index
+            ]);
         } else {
             return response()->json(['status' => 404, 'message' => 'Course not found']);
         }
     }
-
-
-    
 }
