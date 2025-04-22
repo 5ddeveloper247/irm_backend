@@ -410,15 +410,15 @@ $(document).on('click', '#addGallery_btn', function (e) {
 
 $('#image_file').on('change', function (event) {
     const files = event.target.files; // New files
-    var allfileslength = files.length + selectedFiles.length; // Total files count
+    // var allfileslength = files.length + selectedFiles.length; // Total files count
 
-    // Check if total files exceed the limit
-    if (allfileslength > 7) {
-        toastr.error('You can upload a maximum of 7 image files.');
-        // Clear the file input value to allow re-uploading the same file later
-        $('#image_file').val('');
-        return;
-    }
+    // // Check if total files exceed the limit
+    // if (allfileslength > 7) {
+    //     toastr.error('You can upload a maximum of 7 image files.');
+    //     // Clear the file input value to allow re-uploading the same file later
+    //     $('#image_file').val('');
+    //     return;
+    // }
 
     // Validate and add selected files to selectedFiles array
     for (let i = 0; i < files.length; i++) {
@@ -637,29 +637,29 @@ function deleteGalleryConfirmedResponse(response) {
 }
 
 
-
 function displaySelectedFiles() {
     const $imageContainer = $('#file_container');
-    $imageContainer.empty()
-    if (selectedFiles.length < 8) {
-        $imageContainer.empty() // Clear previous images
-        selectedFiles.forEach((file, index) => {
-            const reader = new FileReader()
-            reader.onload = function (e) {
-                const $imageDiv = $('<div>').addClass('col-3 my-3')
-                const $image = $('<img>').attr('src', e.target.result).addClass('img-prev')
-                $imageDiv.append($image)
-                const $cancelButton = $('<span>').html('&times;').addClass('cancel-icon')
-                $cancelButton.on('click', function () {
-                    selectedFiles.splice(index, 1)
-                    displaySelectedFiles()
-                })
-                $imageDiv.append($cancelButton)
-                $imageContainer.append($imageDiv)
-            }
-        reader.readAsDataURL(file)
-        })
-    }
+    $imageContainer.empty(); // Clear previous images
+    
+    // Display all selected files regardless of count
+    selectedFiles.forEach((file, index) => {
+        const reader = new FileReader();
+        reader.onload = function (e) {
+            const $imageDiv = $('<div>').addClass('col-3 my-3');
+            const $image = $('<img>').attr('src', e.target.result).addClass('img-prev');
+            $imageDiv.append($image);
+            const $cancelButton = $('<span>').html('&times;').addClass('cancel-icon');
+            $cancelButton.on('click', function () {
+                selectedFiles.splice(index, 1);
+                displaySelectedFiles();
+            });
+            $imageDiv.append($cancelButton);
+            $imageContainer.append($imageDiv);
+        };
+        reader.readAsDataURL(file);
+    });
+    
+    
 }
 
 $(document).on('change', 'input, textarea, select', function (e) {
