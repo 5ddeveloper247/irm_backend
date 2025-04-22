@@ -276,10 +276,10 @@ class EnrollCourseController extends Controller
                             //     'duration' => $this->_formatYouTubeDuration($videoDetails['video']['contentDetails']['duration'] ?? ''),
                             // ]);
                             $temp_list_vedios[] = (object)[
-                                'course_id'=> $video->course_id,
-                                'video_id'=> $video->id,
-                                'created_at'=> $video->created_at,
-                                'updated_at'=> $video->updated_at,
+                                'course_id' => $video->course_id,
+                                'video_id' => $video->id,
+                                'created_at' => $video->created_at,
+                                'updated_at' => $video->updated_at,
                                 'video_url' => "https://www.youtube.com/embed/" . $tempVideoId,
                                 'youtube_details' => $videoDetails,
                                 'duration' => $this->_formatYouTubeDuration($videoDetails['video']['contentDetails']['duration'] ?? ''),
@@ -311,14 +311,21 @@ class EnrollCourseController extends Controller
                     foreach ($video->temp_list_vedios as $temp_video) {
                         array_push($tempVideos, $temp_video);
                     }
-                }else{
+                } else {
                     array_push($tempVideos, $video);
                 }
             }
-            
+
             // Merge temp videos with course videos (as plain arrays)
-            $course->videos2 =(array)array_merge((array)$course->videos, $tempVideos);
-            
+            // $course->videos2 =(array)array_merge((array)$course->videos, $tempVideos);
+            // $allVideos = collect($course->videos);
+            // foreach ($tempVideos as $tempVideo) {
+            //     $allVideos->push($tempVideo);
+            // }
+            // $course->videos2 = $allVideos;
+
+            $course->videos2 = array_merge($course->videos->toArray(), $tempVideos);
+
             // releated courses
             $releatedCourses = Course::with('videos', 'type')->where('status', 1)->where('type_id', $course->type_id)->where('id', '!=', $id)->limit(3)->get()->map(function ($course) {
                 // add base url to thumbnail
@@ -332,4 +339,7 @@ class EnrollCourseController extends Controller
             return response()->json(['status' => 404, 'message' => 'Course not found']);
         }
     }
+
+
+    
 }
