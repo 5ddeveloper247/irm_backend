@@ -232,7 +232,7 @@ class YoutubeController extends Controller
             return $item;
         });
 
-    
+
         $responsePlaylist = new \stdClass();
         $responsePlaylist->id = !$youtubeChannelLists->isEmpty() ? $youtubeChannelLists->first()->id : null;
         // Copy other needed properties
@@ -247,14 +247,16 @@ class YoutubeController extends Controller
         $responsePlaylist->videos = $latestPlaylist->videos;
 
         return response()->json([
-           
+
             'playlist' => $playlist,
             'lastestPlaylists' => $responsePlaylist,
             'youtubeChannelLists' => $youtubeChannelLists,
             'responsePlaylist' => $responsePlaylist,
-            'test' => $youtubeChannelLists->first()->id,
+            // 'test' => $youtubeChannelLists->first()->id,
             'status' => 200
         ]);
+
+        
     }
 
     public function getChannel($channelId)
