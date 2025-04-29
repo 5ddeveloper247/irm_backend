@@ -439,7 +439,7 @@ class EnrollCourseController extends Controller
             $videosArray = [];
             foreach ($course->videos as $video) {
                 // Skip any video with the specific playlist URL
-                if (is_string($video->video_url) && $video->video_url === "https://www.youtube.com/playlist?list=PLnWyyZtBFGDVbSSY0J3xoMCo1jx3hOVI1") {
+                if (is_string($video->video_url) && (strpos($video->video_url, "playlist?list=PL") !== false || preg_match('/\/playlist\?list=PL[a-zA-Z0-9_-]+/', $video->video_url))) {
                     continue;
                 }
 
