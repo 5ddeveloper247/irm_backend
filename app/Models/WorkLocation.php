@@ -8,4 +8,8 @@ use Illuminate\Database\Eloquent\Model;
 class WorkLocation extends Model
 {
     use HasFactory;
+    protected $casts = [
+        'lat' => 'float',
+        'lng' => 'float',
+    ];
 }

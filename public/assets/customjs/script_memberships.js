@@ -122,41 +122,41 @@ function makeMembershipsListing(membershipsList){
         // add export buttons
         'dom': 'Bfrtip',
         buttons: [
-            {
-                extend: 'copy',
-                className: 'btn btn-copy',  // Custom class for Copy button
-                text: 'Copy'
-            },
-            {
-                extend: 'csv',
-                className: 'btn btn-csv',  // Custom class for CSV button
-                text: 'CSV'
-            },
+            // {
+            //     extend: 'copy',
+            //     className: 'btn btn-copy',  // Custom class for Copy button
+            //     text: 'Copy'
+            // },
+            // {
+            //     extend: 'csv',
+            //     className: 'btn btn-csv',  // Custom class for CSV button
+            //     text: 'CSV'
+            // },
             {
                 extend: 'excel',
                 className: 'btn btn-excel',  // Custom class for Excel button
                 text: 'Excel'
             },
-            {
-                extend: 'pdf',
-                className: 'btn btn-pdf',  // Custom class for PDF button
-                text: 'PDF'
-            },
-            {
-                extend: 'print',
-                className: 'btn btn-print',  // Custom class for Print button
-                text: 'Print'
-            },
-            {
-                text: 'Refresh',
-                className: 'btn btn-refresh',  // Custom class for Refresh button
-                action: function (e, dt, node, config) {
-                    getMembershipsPageData();  // Refresh data
-                    // resetFilterButton click
-                    $('#resetFilterButton').click();
+            // {
+            //     extend: 'pdf',
+            //     className: 'btn btn-pdf',  // Custom class for PDF button
+            //     text: 'PDF'
+            // },
+            // {
+            //     extend: 'print',
+            //     className: 'btn btn-print',  // Custom class for Print button
+            //     text: 'Print'
+            // },
+            // {
+            //     text: 'Refresh',
+            //     className: 'btn btn-refresh',  // Custom class for Refresh button
+            //     action: function (e, dt, node, config) {
+            //         getMembershipsPageData();  // Refresh data
+            //         // resetFilterButton click
+            //         $('#resetFilterButton').click();
                     
-                }
-            }
+            //     }
+            // }
         ],
     });
 }
