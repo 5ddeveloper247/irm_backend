@@ -131,19 +131,19 @@ function makeJoin_usListing(joinUsList) {
             { extend: "excel", className: "btn btn-excel", text: "Excel" },
             // { extend: "pdf", className: "btn btn-pdf", text: "PDF" },
             // { extend: "print", className: "btn btn-print", text: "Print" },
-            // { 
-            //     text: "Refresh", 
-            //     className: "btn btn-refresh", 
-            //     action: function () { 
-            //         console.log("Refresh button clicked");
-            //         $("#resetFilterButton").click(); 
-            //         getJoinUsPageData(); 
-            //         // resetFilterButton click
+            { 
+                text: "Refresh", 
+                className: "btn btn-refresh", 
+                action: function () { 
+                    console.log("Refresh button clicked");
+                    $("#resetFilterButton").click(); 
+                    getJoinUsPageData(); 
+                    // resetFilterButton click
 
 
                     
-            //     } 
-            // }
+                } 
+            }
         ],
     });
 }

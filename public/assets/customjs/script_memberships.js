@@ -147,16 +147,16 @@ function makeMembershipsListing(membershipsList){
             //     className: 'btn btn-print',  // Custom class for Print button
             //     text: 'Print'
             // },
-            // {
-            //     text: 'Refresh',
-            //     className: 'btn btn-refresh',  // Custom class for Refresh button
-            //     action: function (e, dt, node, config) {
-            //         getMembershipsPageData();  // Refresh data
-            //         // resetFilterButton click
-            //         $('#resetFilterButton').click();
+            {
+                text: 'Refresh',
+                className: 'btn btn-refresh',  // Custom class for Refresh button
+                action: function (e, dt, node, config) {
+                    getMembershipsPageData();  // Refresh data
+                    // resetFilterButton click
+                    $('#resetFilterButton').click();
                     
-            //     }
-            // }
+                }
+            }
         ],
     });
 }
