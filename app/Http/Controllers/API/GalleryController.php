@@ -87,7 +87,7 @@ class GalleryController extends Controller
                 ->first();
                 
             return [
-                'gallery_id' => $galleryType->type_id,
+                'gallery_type_id' => $galleryType->type_id,
                 'gallery_title' => $firstGallery->type ? $firstGallery->type->title : null,
                 'gallery_id' => $firstGallery ? $firstGallery->id : null,
                 'gallery_description' => $firstGallery ? $firstGallery->description : null,
