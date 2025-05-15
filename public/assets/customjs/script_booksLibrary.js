@@ -13,10 +13,7 @@ function makeBookCategoryListing(categoryList) {
                         <td class="text-start text-nowrap">${
                             category.title
                         }</td>
-                        <td class="text-start text-nowrap">${trimText(
-                            category.description,
-                            50
-                        )}</td>
+                        <td class="text-start text-nowrap">${category.description != null ? trimText(category.description, 50) : 'N/A'}</td>
                         <td class="text-start text-nowrap">
                             ${
                                 category.status == "1"
@@ -292,7 +289,7 @@ function makeBooksListing(booksList){
                         <td class="text-start text-nowrap">${book.title}</td>
                         <td class="text-start text-nowrap">${book?.bookcategory?.title || 'N/A'}</td>
                         <td class="text-start text-nowrap">${book.price}</td>
-                        <td class="text-start text-nowrap">${trimText(book.description, 50)}</td>
+                        <td class="text-start text-nowrap">${book.description != null ? trimText(book.description, 50) : 'N/A'}</td>
                         <td class="text-start text-nowrap">${formatDate(book.date)}</td>
                         <td class="text-start text-nowrap">
                             ${book.status == '1' ? 

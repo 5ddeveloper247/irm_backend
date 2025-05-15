@@ -141,7 +141,7 @@ function makeBookOrdersListing(bookOrdersList){
             
             html += `<tr>
                         <td class="text-start text-nowrap">${index+1}</td>
-                        <td class="text-start text-nowrap">${bookOrder.book.title}</td>
+                        <td class="text-start text-nowrap">${bookOrder?.book?.title}</td>
                         <td class="text-start text-nowrap">${bookOrder.amount}</td>
                         <td class="text-start text-nowrap">${bookOrder.json_data.shipping.firstName + " " + bookOrder.json_data.shipping.lastName}</td>
                         <td class="text-start text-nowrap">${bookOrder.json_data.shipping.email}</td>
@@ -154,7 +154,7 @@ function makeBookOrdersListing(bookOrdersList){
                     if(bookOrder.status == 1){
                         htmlPending += `<tr>
                             <td class="text-start text-nowrap">${index+1}</td>
-                            <td class="text-start text-nowrap">${bookOrder.book.title}</td>
+                            <td class="text-start text-nowrap">${bookOrder?.book?.title}</td>
                             <td class="text-start text-nowrap">${bookOrder.amount}</td>
                             <td class="text-start text-nowrap">${bookOrder.json_data.shipping.firstName  + " " + bookOrder.json_data.shipping.lastName}</td>
                             <td class="text-start text-nowrap">${bookOrder.json_data.shipping.email}</td>
@@ -168,7 +168,7 @@ function makeBookOrdersListing(bookOrdersList){
                     if(bookOrder.status == 3){
                         htmlDelivered += `<tr>
                             <td class="text-start text-nowrap">${index+1}</td>
-                            <td class="text-start text-nowrap">${bookOrder.book.title}</td>
+                            <td class="text-start text-nowrap">${bookOrder?.book?.title}</td>
                             <td class="text-start text-nowrap">${bookOrder.amount}</td>
                             <td class="text-start text-nowrap">${bookOrder.json_data.shipping.firstName  + " " + bookOrder.json_data.shipping.lastName}</td>
                             <td class="text-start text-nowrap">${bookOrder.json_data.shipping.email}</td>
@@ -182,7 +182,7 @@ function makeBookOrdersListing(bookOrdersList){
                     if(bookOrder.status == 2){
                         htmlShipped += `<tr>
                             <td class="text-start text-nowrap">${index+1}</td>
-                            <td class="text-start text-nowrap">${bookOrder.book.title}</td>
+                            <td class="text-start text-nowrap">${bookOrder?.book?.title}</td>
                             <td class="text-start text-nowrap">${bookOrder.amount}</td>
                             <td class="text-start text-nowrap">${bookOrder.json_data.shipping.firstName  + " " + bookOrder.json_data.shipping.lastName}</td>
                             <td class="text-start text-nowrap">${bookOrder.json_data.shipping.email}</td>
@@ -196,7 +196,7 @@ function makeBookOrdersListing(bookOrdersList){
                     if(bookOrder.status == 4){
                         htmlCompleted += `<tr>
                             <td class="text-start text-nowrap">${index+1}</td>
-                            <td class="text-start text-nowrap">${bookOrder.book.title}</td>
+                            <td class="text-start text-nowrap">${bookOrder?.book?.title}</td>
                             <td class="text-start text-nowrap">${bookOrder.amount}</td>
                             <td class="text-start text-nowrap">${bookOrder.json_data.shipping.firstName  + " " + bookOrder.json_data.shipping.lastName}</td>
                             <td class="text-start text-nowrap">${bookOrder.json_data.shipping.email}</td>
