@@ -50,7 +50,8 @@ class BookLibraryController extends Controller
     public function getLastestBooks(Request $request)
     {
         // get lastest four books
-        $data['book_list'] = BookLibrary::where('status', 1)->orderBy('id', 'desc')->limit(4)->get();
+        // $data['book_list'] = BookLibrary::where('status',1)->orderBy('id', 'desc')->limit(4)->get();
+        $data['book_list'] = BookLibrary::where('status',1)->orderBy('id', 'desc')->where('book_homepage',1)->get();
         // set base url on image
         foreach ($data['book_list'] as $key => $value) {
             $data['book_list'][$key]->thumbnail = url('/' . $value->thumbnail);

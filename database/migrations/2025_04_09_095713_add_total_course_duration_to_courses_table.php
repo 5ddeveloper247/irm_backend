@@ -11,11 +11,9 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('books_library', function (Blueprint $table) {
+        Schema::table('courses', function (Blueprint $table) {
             //
-            // book_category_id
-            $table->unsignedBigInteger('book_category_id')->default(0)->after('id');
-
+            $table->string('total_course_duration')->nullable()->after('duration_minutes'); // Replace 'column_name' with the name of the last column in the table.
         });
     }
 
@@ -24,9 +22,9 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('books_library', function (Blueprint $table) {
+        Schema::table('courses', function (Blueprint $table) {
             //
-            $table->dropColumn('book_category_id');
+            $table->dropColumn('total_course_duration');
         });
     }
 };

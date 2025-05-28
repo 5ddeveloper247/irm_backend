@@ -13,9 +13,7 @@ return new class extends Migration
     {
         Schema::table('books_library', function (Blueprint $table) {
             //
-            // book_category_id
-            $table->unsignedBigInteger('book_category_id')->default(0)->after('id');
-
+            $table->tinyInteger('book_homepage')->default(0)->after('book_category_id');
         });
     }
 
@@ -26,7 +24,7 @@ return new class extends Migration
     {
         Schema::table('books_library', function (Blueprint $table) {
             //
-            $table->dropColumn('book_category_id');
+            $table->dropColumn('book_homepage');
         });
     }
 };

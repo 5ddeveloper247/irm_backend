@@ -500,6 +500,12 @@ function editBookResponse(response) {
             $("#book_status").val(bookDetail.status);
             // book_category_id
             $("#book_category_id").val(bookDetail?.bookcategory?.id || "");
+            // book_homepage set checked if 1
+            if(bookDetail.book_homepage == 1){
+                $("#book_homepage").prop("checked", true);
+            }else{
+                $("#book_homepage").prop("checked", false);
+            }
 
             if(bookDetail.thumbnail != null){
                 $(".thumbnail_preview").attr('src', bookDetail.thumbnail).show();

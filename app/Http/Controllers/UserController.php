@@ -24,19 +24,19 @@ class UserController extends Controller
         // $data['users_list'] = User::where('role', 3)->latest()->get();
         $query = User::where('role', 3)->latest();
         // name: 
-        if(request()->has('name') && request('name') != ''){
-            $query->where('name', 'like', '%'.request('name').'%');
+        if (request()->has('name') && request('name') != '') {
+            $query->where('name', 'like', '%' . request('name') . '%');
         }
         // username: 
-        if(request()->has('username') && request('username') != ''){
-            $query->where('username', 'like', '%'.request('username').'%');
+        if (request()->has('username') && request('username') != '') {
+            $query->where('username', 'like', '%' . request('username') . '%');
         }
         // email: 
-        if(request()->has('email') && request('email') != ''){
-            $query->where('email', 'like', '%'.request('email').'%');
+        if (request()->has('email') && request('email') != '') {
+            $query->where('email', 'like', '%' . request('email') . '%');
         }
         // created_at
-        if(request()->has('created_at') && request('created_at') != ''){
+        if (request()->has('created_at') && request('created_at') != '') {
             $query->whereDate('created_at', request('created_at'));
         }
         $data['users_list'] = $query->get();
@@ -47,10 +47,10 @@ class UserController extends Controller
     {
         $user['user_detail'] = User::with('menus')->find($request->user_id);
         // set image baseurl
-        if(is_null($user['user_detail']->image)){
+        if (is_null($user['user_detail']->image)) {
             // $user['user_detail']->image = url('/uploads/users/default.png');
-        }else{
-            $user['user_detail']->image = url('/',$user['user_detail']->image);
+        } else {
+            $user['user_detail']->image = url('/', $user['user_detail']->image);
             $user['user_detail']->image = str_replace('%2F', '/', $user['user_detail']->image);
         }
         return response()->json(['status' => 200, 'data' => $user]);
@@ -78,14 +78,14 @@ class UserController extends Controller
                 'email' => 'required|unique:users',
                 'username' => 'required|unique:users',
                 'password' => [
-                'required',
-                'string',
-                'min:8',
-                'max:20',
-                'regex:/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).+$/'
-            ],
-            // c_password
-            'c_password' => 'required|same:password',
+                    'required',
+                    'string',
+                    'min:8',
+                    'max:20',
+                    'regex:/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).+$/'
+                ],
+                // c_password
+                'c_password' => 'required|same:password',
             ], [
                 'password.regex' => 'The password must contain at least one uppercase letter, one lowercase letter, one number, and one special character.',
             ]);
@@ -103,13 +103,13 @@ class UserController extends Controller
         if ($request->hasFile('thumbnail')) {
             $thumbnailFile = $request->file('thumbnail');
             $thumbnailName = 'thumbnail_' . time() . '_' . trim($thumbnailFile->getClientOriginalName());
-            $thumbnailPath = 'uploads/users'; 
+            $thumbnailPath = 'uploads/users';
             $thumbnailName = str_replace('', '_', $thumbnailName);
 
-            
+
             $thumbnailFile->move(public_path($thumbnailPath), $thumbnailName);
-            
-            $user->image = trim($thumbnailPath.'/'.$thumbnailName);
+
+            $user->image = trim($thumbnailPath . '/' . $thumbnailName);
         }
         $user->save();
         // first delete all MenuControl
@@ -140,54 +140,51 @@ class UserController extends Controller
     public function saveAdminProfile(Request $request)
     {
         // validate
-        if($request->old_password != ''){
-            $user = auth()->user();
-            if (!Hash::check($request->old_password, $user->password)) {
-                return response()->json(['status' => 402, 'message' => 'The old password is incorrect.']);
+        $request->validate([
+            'name' => 'required',
+            'email' => 'required|unique:users,email,' . auth()->id(),
+            'username' => 'required|unique:users,username,' . auth()->id(),
+        ]);
+
+        $user = auth()->user();
+
+        if ($request->filled('password') || $request->filled('old_password') || $request->filled('password_confirmation')) {
+            if (!$request->filled('old_password')) {
+                return response()->json(['status' => 402, 'message' => 'The old password is required.']);
             }
-            $validated = $request->validate([
-                'name' => 'required',
-                'email' => 'required',
-                'username' => 'required',
-                'email' => 'required|unique:users,email,' . auth()->user()->id,
-                'username' => 'required|unique:users,username,' . auth()->user()->id,
-                'old_password' => 'required',
+            $request->validate([
                 'password' => [
                     'required',
                     'string',
                     'min:8',
                     'max:20',
                     'regex:/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).+$/',
-                    'confirmed'
+                    // 'confirmed'
                 ],
                 'password_confirmation' => 'same:password',
             ], [
-                'password_confirmation.regex' => 'The new password must contain at least one uppercase letter, one lowercase letter, one number, and one special character.',
+                'password.regex' => 'The new password must contain at least one uppercase letter, one lowercase letter, one number, and one special character.',
             ]);
-        }else{
-            $validated = $request->validate([
-                'name' => 'required',
-                'email' => 'required',
-                'username' => 'required',
-                'email' => 'required|unique:users,email,' . auth()->user()->id,
-                'password' => 'nullable|min:6',
-                'username' => 'required|unique:users,username,' . auth()->user()->id,
-            ]);
+            
+            if (!Hash::check($request->old_password, $user->password)) {
+                return response()->json(['status' => 402, 'message' => 'The old password is incorrect.']);
+            }
+
+            $user->password = bcrypt($request->password);
         }
-        
-        $user = User::find(auth()->user()->id);
+
         $user->name = $request->name;
         $user->email = $request->email;
         $user->username = $request->username;
         // password
-        if($request->password != ''){
-            $user->password= bcrypt($request->password);
-        }
+        // if($request->password != ''){
+        //     $user->password= bcrypt($request->password);
+        // }
         // Save the thumbnail file profile_thumbnail_file
         if ($request->hasFile('thumbnail')) {
             $thumbnailFile = $request->file('thumbnail');
             $thumbnailName = 'thumbnail_' . time() . '_' . $thumbnailFile->getClientOriginalName();
-            $thumbnailPath = 'uploads/users'; 
+            $thumbnailPath = 'uploads/users';
             $thumbnailFile->move(public_path($thumbnailPath), $thumbnailName);
             $user->image = $thumbnailPath . '/' . $thumbnailName;
         }
