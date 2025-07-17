@@ -34,6 +34,7 @@ class MembershipController extends Controller
             // use date 2025-02-12
             $query->whereDate('created_at', $request->date);
         }
+        $query->limit(10000);
         $memberships['memberships_list'] = $query->get();
         // email: ew
         // phone: 332323

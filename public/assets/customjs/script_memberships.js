@@ -93,7 +93,7 @@ function makeMembershipsListing(membershipsList){
                         <td class="text-start text-nowrap">${membership.email}</td>
                         <td class="text-start text-nowrap">${membership.phone}</td>
                         <td class="text-start text-nowrap">${membership.city}</td> 
-                        <td class="text-start text-nowrap">${membership.country.name}</td> 
+                        <td class="text-start text-nowrap">${membership?.country?.name || 'N/A'}</td> 
                         <td class="text-start text-nowrap">${formatDate(membership.created_at)}</td>
                         <td class="text-start text-nowrap">
                             <button type="button" class="theme-btn d-flex align-items-center gap-1 py-2 px-3 rounded-2 text-white" onclick="viewMember(${membership.id})">View</button>
