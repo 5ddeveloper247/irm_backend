@@ -5,18 +5,51 @@
         ul.dropdown-menu-custom {
             transform: translateX(-17px) !important;
         }
+
         /* .collapse.show {
-            background-color: #ecf4ff00 !important;
-        } */
-        
-        .img-prev{
-            width: 70px;height: 70px;object-fit: cover;border-radius: 10px;
+                    background-color: #ecf4ff00 !important;
+                } */
+
+        .img-prev {
+            width: 70px;
+            height: 70px;
+            object-fit: cover;
+            border-radius: 10px;
         }
-        .cancel-icon{
+
+        .cancel-icon {
             font-size: 18px !important;
             color: red;
             /* position: absolute;
-            top: 265px; */
+                    top: 265px; */
+        }
+    </style>
+    <style>
+        .has-tooltip {
+            position: relative;
+            cursor: pointer;
+        }
+
+        .has-tooltip::after {
+            content: attr(data-title);
+            position: absolute;
+            top: 50%;
+            left: 90%;
+            /* position to the right */
+            transform: translateY(-50%);
+            background-color: #333;
+            color: #fff;
+            padding: 6px 10px;
+            border-radius: 4px;
+            white-space: nowrap;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.2s ease-in-out;
+            z-index: 10;
+        }
+
+        .has-tooltip:hover::after {
+            opacity: 1;
         }
     </style>
 @endpush
@@ -65,7 +98,8 @@
 
                             <div class="tab-content" id="myTabContent">
 
-                                <div class="tab-pane fade show active" id="category-tab-pane" role="tabpanel" aria-labelledby="profile-tab" tabindex="0">
+                                <div class="tab-pane fade show active" id="category-tab-pane" role="tabpanel"
+                                    aria-labelledby="profile-tab" tabindex="0">
                                     <div class="schedule">
                                         <div class="card">
 
@@ -75,11 +109,36 @@
                                                     $button = '';
                                                     $filters = [
                                                         // get my page table names
-                                                        ['name' => 'name', 'type' => 'text', 'label' => 'Name', 'placeholder' => 'Search Name'],
-                                                        ['name' => 'email', 'type' => 'text', 'label' => 'Email', 'placeholder' => 'Search Email'],
-                                                        ['name' => 'course_title', 'type' => 'text', 'label' => 'Course Title', 'placeholder' => 'Search Course Title'],
-                                                        ['name' => 'instructor_name', 'type' => 'text', 'label' => 'Instructor Name', 'placeholder' => 'Search Instructor Name'],
-                                                        ['name' => 'level', 'type' => 'text', 'label' => 'Level', 'placeholder' => 'Search Level'],
+                                                        [
+                                                            'name' => 'name',
+                                                            'type' => 'text',
+                                                            'label' => 'Name',
+                                                            'placeholder' => 'Search Name',
+                                                        ],
+                                                        [
+                                                            'name' => 'email',
+                                                            'type' => 'text',
+                                                            'label' => 'Email',
+                                                            'placeholder' => 'Search Email',
+                                                        ],
+                                                        [
+                                                            'name' => 'course_title',
+                                                            'type' => 'text',
+                                                            'label' => 'Course Title',
+                                                            'placeholder' => 'Search Course Title',
+                                                        ],
+                                                        [
+                                                            'name' => 'instructor_name',
+                                                            'type' => 'text',
+                                                            'label' => 'Instructor Name',
+                                                            'placeholder' => 'Search Instructor Name',
+                                                        ],
+                                                        [
+                                                            'name' => 'level',
+                                                            'type' => 'text',
+                                                            'label' => 'Level',
+                                                            'placeholder' => 'Search Level',
+                                                        ],
                                                         ['name' => 'date', 'type' => 'date', 'label' => 'Date'],
                                                         // ['name' => 'username', 'type' => 'text', 'label' => 'User Name', 'placeholder' => 'Search Username'],
                                                         // ['name' => 'email', 'type' => 'text', 'label' => 'Email', 'placeholder' => 'Search Email'],
@@ -103,32 +162,43 @@
                                                 @endphp
                                                 @include('admin.filter.index')
                                                 {{-- include --}}
-                                                
+
                                                 <hr>
-                                                
-                                                <div class="d-flex align-items-center justify-content-between flex-wrap row-gap-2 mb-4">
+
+                                                <div
+                                                    class="d-flex align-items-center justify-content-between flex-wrap row-gap-2 mb-4">
 
                                                     <!-- ____________________________________ List View _______________________________________ -->
 
 
-                                                    <div class="table-responsive list-view-div w-100 mt-3"><!-- overflow-x:clip; -->
+                                                    <div class="table-responsive list-view-div w-100 mt-3">
+                                                        <!-- overflow-x:clip; -->
                                                         <table id="enrollCourses_table" class="table">
 
                                                             <thead style="background-color: #3259901c !important;">
                                                                 <tr>
-                                                                    <th class="text-start text-nowrap" scope="col">Seq No.</th>
-                                                                    <th class="text-start text-nowrap" scope="col">Name</th>
-                                                                    <th class="text-start text-nowrap" scope="col">Email</th>
-                                                                    <th class="text-start text-nowrap" scope="col">Course Title</th>
-                                                                    <th class="text-start text-nowrap" scope="col">Instructor Name</th>
-                                                                    <th class="text-start text-nowrap" scope="col">Level</th>
-                                                                    <th class="text-start text-nowrap" scope="col">Date</th>
+                                                                    <th class="text-start text-nowrap" scope="col">Seq
+                                                                        No.</th>
+                                                                    <th class="text-start text-nowrap" scope="col">
+                                                                        Register By</th>
+                                                                    <th class="text-start text-nowrap" scope="col">Name
+                                                                    </th>
+                                                                    <th class="text-start text-nowrap" scope="col">Email
+                                                                    </th>
+                                                                    <th class="text-start text-nowrap" scope="col">Course
+                                                                        Title</th>
+                                                                    <th class="text-start text-nowrap" scope="col">
+                                                                        Instructor Name</th>
+                                                                    <th class="text-start text-nowrap" scope="col">Level
+                                                                    </th>
+                                                                    <th class="text-start text-nowrap" scope="col">Date
+                                                                    </th>
                                                                     {{-- <th class="text-start text-nowrap" scope="col">Status</th> --}}
                                                                 </tr>
                                                             </thead>
 
                                                             <tbody id="enrollCourses_table_body">
-                                                                
+
                                                             </tbody>
                                                         </table>
                                                     </div>
@@ -147,7 +217,7 @@
     </div>
 @endsection
 @push('js')
-    <script src="{{asset('assets/customjs/script_enrollCourses.js')}}"></script>
+    <script src="{{ asset('assets/customjs/script_enrollCourses.js') }}"></script>
     <!-- <script>
         $('#admin-query').DataTable({
             responsive: true,
@@ -158,7 +228,7 @@
         // Function to get all form values
         document.getElementById('filterButton').addEventListener('click', function(event) {
             event.preventDefault();
-            
+
             document.querySelectorAll('.filterApplicantsInput').forEach(function(input) {
                 if (input.type === 'checkbox') {
                     if (!formValues[input.name]) {
@@ -181,7 +251,7 @@
             // Log the form values (You can replace this with your actual save logic)
             console.log(formValues);
         });
-    
+
         // Function to reset all form values
         document.getElementById('resetFilterButton').addEventListener('click', function(event) {
             event.preventDefault();

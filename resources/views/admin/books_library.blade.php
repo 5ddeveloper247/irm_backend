@@ -510,6 +510,18 @@
                                 style="display:none;width: 70px;height: 70px;object-fit: cover;border-radius: 10px;">
                         </div>
                     </div>
+                    {{-- view on home page  --}}
+                    <div class="form-floating">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" value="1" id="book_homepage" name="book_homepage">
+                            <label class="form-check-label" for="book_homepage">
+                              Show on Homepage
+                            </label>
+                          </div>
+                          
+                    </div>
+                    
+
 
                     <div class="row">
                         <div class="col-4 my-2">

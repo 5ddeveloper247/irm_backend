@@ -41,7 +41,7 @@ class EnrollCourseController extends Controller
     public function getEnrollCoursesPageData()
     {
         // $data['enrollCourse_list'] = EnrollCourse::with('course')->orderBy('id','desc')->get();
-        $query = EnrollCourse::with('course')->orderBy('id', 'desc')->latest();
+        $query = EnrollCourse::with('course', 'user')->orderBy('id', 'desc')->latest();
         // name: 
         if (request()->has('name') && request('name') != '') {
             $query->where('name', 'like', '%' . request('name') . '%');
@@ -82,6 +82,12 @@ class EnrollCourseController extends Controller
             $query->whereDate('created_at', request('date'));
         }
         $data['enrollCourse_list'] = $query->get();
+        // delete enroll course is couse is null
+        // foreach ($data['enrollCourse_list'] as $enrollCourse) {
+        //     if ($enrollCourse->course == null) {
+        //         $enrollCourse->delete();
+        //     }
+        // }
         return response()->json(['status' => 200, 'message' => "", 'data' => $data]);
     }
     // enroll course
@@ -177,11 +183,14 @@ class EnrollCourseController extends Controller
     {
         $myCourses = EnrollCourse::where('user_id', auth()->user()->id)->with('course')->get()->map(function ($enrollCourse) {
             // course image baseurl
-            $enrollCourse->course->image = url('/' . $enrollCourse->course->thumbnail);
-            // cut the description
-            $enrollCourse->course->description = substr($enrollCourse->course->description, 0, 100);
-            // course map and set instructor_name_list with comma separated
-            $enrollCourse->course->instructor_name_list  =  implode(', ', $enrollCourse->course->instructor_name);
+            
+            if ($enrollCourse->course) {
+                $enrollCourse->course->image = url('/' . ($enrollCourse->course->thumbnail ?? ''));
+                // cut the description
+                $enrollCourse->course->description = substr($enrollCourse->course->description ?? '', 0, 100);
+                // course map and set instructor_name_list with comma separated
+                $enrollCourse->course->instructor_name_list = implode(', ', $enrollCourse->course->instructor_name ?? []);
+            }
             return $enrollCourse;
         });
         return response()->json([

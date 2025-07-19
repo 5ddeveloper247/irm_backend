@@ -1032,6 +1032,12 @@ class AdminController extends Controller
         $BookLibrary->price = $request->book_price;
         $BookLibrary->status = $request->book_status;
         $BookLibrary->book_category_id = $request->book_category_id;
+        // book_homepage
+        if($request->book_homepage == '1') {
+            $BookLibrary->book_homepage = 1;
+        } else {
+            $BookLibrary->book_homepage = 0;
+        }
 
         // Save the thumbnail file
         if ($request->hasFile('thumbnail')) {
@@ -1509,6 +1515,8 @@ class AdminController extends Controller
             'course_description' => 'required|string',
             'instructor_name' => 'required|max:255',
             'course_duration' => 'required|numeric|max_digits:5',
+            // total_course_duration
+            'total_course_duration' => 'required|string|max:255',
             'course_total_lectures' => 'required|numeric|max_digits:3',
             'course_level' => 'required',
             'course_language' => 'required',
@@ -1558,6 +1566,7 @@ class AdminController extends Controller
         $Course->description = $request->course_description;
         $Course->instructor_name = $request->instructor_name;
         $Course->duration_minutes = $request->course_duration;
+        $Course->total_course_duration = $request->total_course_duration;
         // course_eligibility
         $Course->eligibility = $request->course_eligibility;
         $Course->total_lectures = $request->course_total_lectures;
@@ -1625,6 +1634,10 @@ class AdminController extends Controller
     public function deleteCourse(Request $request)
     {
         $Course = Course::find($request->course_id);
+        // if course has enrollments then do not delete
+        if ($Course->enrollCourses()->exists()) {
+            return response()->json(['status' => 400, 'message' => "Course has enrollments, cannot delete."]);
+        }
 
         if ($Course) {
 

@@ -402,12 +402,18 @@
                         <input type="text" class="form-control" id="course_instructor" name="course_instructor" placeholder="Course Instructor" maxlength="50">
                         <label class="ms-2" for="course_instructor">Course Instructor</label>
                     </div> --}}
-
+                    {{-- total duration --}}
+                    <div class="form-floating">
+                        <input type="text" class="form-control" id="total_course_duration"
+                            name="total_course_duration" placeholder="Course Total Duration">
+                        <label class="ms-2" for="total_course_duration">Course Total Duration</label>
+                    </div>
                     <div class="form-floating">
                         <input type="number" class="form-control" id="course_duration" name="course_duration"
                             placeholder="Course Duration" maxlength="50">
-                        <label class="ms-2" for="course_duration">Course Duration (Minutes)</label>
+                        <label class="ms-2" for="course_duration">Class Duration (Minutes)</label>
                     </div>
+                    
 
                     <div class="form-floating">
                         <input type="number" class="form-control" id="course_total_lectures"

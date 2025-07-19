@@ -226,8 +226,9 @@ Route::group(['middleware' => ['AdminAuth']], function () {
 // run migration
 Route::get('/run-migration', function () {
     $migrations = [
-        'database/migrations/2025_04_07_050330_create_book_category_table.php',
-        'database/migrations/2025_04_07_050450_add_book_category_id_to_books_library_table.php'
+        // 'database/migrations/2025_04_07_050330_create_book_category_table.php',
+        // 'database/migrations/2025_04_07_050450_add_book_category_id_to_books_library_table.php',
+        'database/migrations/2025_04_09_095713_add_total_course_duration_to_courses_table.php',
     ];
     foreach ($migrations as $migration) {
         Artisan::call('migrate', [
