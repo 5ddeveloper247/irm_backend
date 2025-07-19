@@ -41,7 +41,7 @@ Route::get('/getSpecificCampaign/{id}', [CampaignController::class, 'getSpecific
 Route::post('/stripePayment', [CampaignController::class, 'stripePayment'])->name('stripePayment');
 
 
-// Blogs
+
 // getBlogs
 Route::get('/getBlogs', [BlogController::class, 'getBlogs'])->name('getBlogs');
 // with id params
