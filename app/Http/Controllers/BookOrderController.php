@@ -41,7 +41,7 @@ class BookOrderController extends Controller
     // _getStatusActions
     private function _getStatusActions($status, $id)
     {
-        $actions = [];
+        $actions = '';
         // status 1=pendding, 2=shipped, 3=delivered, 4=completed
         // return next status button
         switch ($status) {
@@ -62,7 +62,7 @@ class BookOrderController extends Controller
     }
     private function _getStatusOneAction($status, $id)
     {
-        $actions = [];
+        $actions = '';
         // status 1=pendding, 2=shipped, 3=delivered, 4=completed
         // return next status button
         switch ($status) {

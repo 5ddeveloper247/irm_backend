@@ -25,6 +25,45 @@ function getPaymentsPageDataResponse(response) {
     } 
 }
 
+function getStatusBadge(status) {
+    const statusLower = status ? status.toLowerCase() : '';
+    
+    switch (statusLower) {
+        case 'succeeded':
+        case 'success':
+        case 'completed':
+        case 'paid':
+            return '<span class="badge bg-success text-white">Success</span>';
+        
+        case 'failed':
+        case 'failure':
+        case 'error':
+        case 'declined':
+            return '<span class="badge bg-danger text-white">Failed</span>';
+        
+        case 'pending':
+        case 'processing':
+        case 'in_progress':
+            return '<span class="badge bg-warning text-dark">Pending</span>';
+        
+        case 'cancelled':
+        case 'canceled':
+        case 'voided':
+            return '<span class="badge bg-secondary text-white">Cancelled</span>';
+        
+        
+        
+        case 'requires_action':
+        case 'requires_confirmation':
+        case 'requires_payment_method':
+            return '<span class="badge bg-primary text-white">Action Required</span>';
+        
+        default:
+            return '<span class="badge bg-light text-dark">Unknown</span>';
+    }
+}
+
+
 function makePaymentsListing(paymentsList){
     
     var html = '';
@@ -53,12 +92,8 @@ function makePaymentsListing(paymentsList){
                         <td class="text-start text-nowrap">${email}</td>
                         <td class="text-start text-nowrap">${formatDate(payment.created_at)}</td>
                         <td class="text-start text-nowrap">
-                            ${payment.status == "succeeded" ? 
-                            '<span class="badge bg-success">Success</span>' 
-                            : 
-                            '<span class="badge bg-danger">Failed</span>'}
-                            
-                        </td>
+        ${getStatusBadge(payment.status)}
+    </td>
                         
                     </tr>`;
         });

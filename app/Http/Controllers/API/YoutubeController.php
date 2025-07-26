@@ -59,6 +59,7 @@ class YoutubeController extends Controller
     {
         // Get latest playlist or use requested one
         $latestPlaylist = Youtube::where('status', 1)->latest()->first();
+        // return response()->json(['latestPlaylist',$latestPlaylist]);
         if (!$latestPlaylist) {
             return response()->json(['message' => 'Playlist not found', 'status' => 404]);
         }
@@ -76,7 +77,14 @@ class YoutubeController extends Controller
                 }
             }
         } else {
-            $playlist = $latestPlaylist;
+            // $playlist = $latestPlaylist;
+            $playlist = new \stdClass();
+            $playlist->created_at = "2025-04-17T09:50:28.000000Z";
+            $playlist->id = 5;
+            $playlist->playlist_id = "PLnWyyZtBFGDVRjIDcrha-IH_dyusWw8Ee";
+            $playlist->playlist_title = "International Annual";
+            $playlist->status = 1;
+            $playlist->updated_at = "2025-04-17T09:51:25.000000Z";
         }
 
         if (!$playlist) {
@@ -234,7 +242,12 @@ class YoutubeController extends Controller
 
 
         $responsePlaylist = new \stdClass();
-        $responsePlaylist->id = !$youtubeChannelLists->isEmpty() ? $youtubeChannelLists->first()->id : null;
+        // $responsePlaylist->id = !$youtubeChannelLists->isEmpty() ? $youtubeChannelLists->first()->id : null;
+        // Find the specific record with the desired ID
+        $specificRecord = $youtubeChannelLists->firstWhere('id', 'PLnWyyZtBFGDVRjIDcrha-IH_dyusWw8Ee');
+
+        // Set the ID from the specific record, or null if not found
+        $responsePlaylist->id = $specificRecord ? $specificRecord->id : null;
         // Copy other needed properties
         $responsePlaylist->playlist_id = $latestPlaylist->playlist_id;
         $responsePlaylist->playlist_title = $latestPlaylist->playlist_title;

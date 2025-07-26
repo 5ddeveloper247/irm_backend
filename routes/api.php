@@ -40,6 +40,7 @@ Route::get('/getSpecificCampaign/{id}', [CampaignController::class, 'getSpecific
 // stipe
 Route::post('/stripePayment', [CampaignController::class, 'stripePayment'])->name('stripePayment');
 
+Route::post('manualPayment', [CampaignController::class, 'manualPayment']);
 
 
 // getBlogs
