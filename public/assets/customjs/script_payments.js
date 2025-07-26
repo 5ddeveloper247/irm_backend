@@ -76,8 +76,8 @@ function makePaymentsListing(paymentsList){
             console.log(paymentData);
             // Extract required values
             // var firstName = paymentData?.donatation_submit?.firstName || 'N/A';
-            var firstName = payment?.data2?.donatation_submit.firstName || 'N/A';
-            var lastName = payment?.data2?.donatation_submit.lastName || 'N/A';
+            var firstName = payment?.non_member != null ? payment?.non_member : payment?.data2?.donatation_submit.firstName || 'N/A';
+            var lastName = payment?.non_member != null ? '' : payment?.data2?.donatation_submit.lastName || 'N/A';
             // var lastName = paymentData?.donatation_submit?.lastName || 'N/A';
             var email = paymentData?.donatation_submit?.email || 'N/A';
 
