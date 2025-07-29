@@ -283,6 +283,13 @@ class CampaignController extends Controller
             'donatation_submit.custom_task_name' => 'nullable|string|max:255',
             'donatation_submit.custom_task_amount' => 'nullable|numeric|min:0',
             'donatation_submit.total_amount' => 'nullable|numeric|min:0',
+            'donatation_submit.firstName' => 'nullable|string|max:255',
+            'donatation_submit.lastName' => 'nullable|string|max:255',
+            'donatation_submit.email' => 'nullable|email|max:255',
+            'donatation_submit.phoneNumber' => 'nullable|string|max:20',
+            'donatation_submit.streetAddress' => 'nullable|string|max:500',
+            'donatation_submit.country' => 'nullable|string|max:100',
+            'donatation_submit.city' => 'nullable|string|max:100',
             'payment_method' => 'required|string|in:jazz_cash,easypaisa,bank_transfer',
             'receipt_file' => 'nullable|file|mimes:jpeg,png,jpg,pdf|max:2048'
         ]);
@@ -417,7 +424,16 @@ class CampaignController extends Controller
                     'payment_method' => $request->input('payment_method'),
                     'receipt_uploaded' => !is_null($receiptPath),
                     'module_code' => $data['donatation_submit']['module_code'],
-                    'custom_task_name' => $data['donatation_submit']['custom_task_name'] ?? 'N/A'
+                    'custom_task_name' => $data['donatation_submit']['custom_task_name'] ?? 'N/A',
+                    'billing_info' => [
+                        'firstName' => $data['donatation_submit']['firstName'],
+                        'lastName' => $data['donatation_submit']['lastName'],
+                        'email' => $data['donatation_submit']['email'],
+                        'phoneNumber' => $data['donatation_submit']['phoneNumber'],
+                        'address' => $data['donatation_submit']['streetAddress'],
+                        'country' => $data['donatation_submit']['country'],
+                        'city' => $data['donatation_submit']['city']
+                    ]
                 ],
                 'success' => true
             ]);
