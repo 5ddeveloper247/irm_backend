@@ -230,6 +230,7 @@ class AdminController extends Controller
             if ($user->role == 1 || $user->role == 3) {
                 return redirect()->intended('/audio_lectures');
             } else {
+                
 
                 return redirect('login')->withErrors([
                     'email' => 'The provided credentials is not valid.',

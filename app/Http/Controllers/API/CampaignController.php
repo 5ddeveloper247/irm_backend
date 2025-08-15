@@ -291,7 +291,7 @@ class CampaignController extends Controller
             'donatation_submit.country' => 'nullable|string|max:100',
             'donatation_submit.city' => 'nullable|string|max:100',
             'payment_method' => 'required|string|in:jazz_cash,easypaisa,bank_transfer',
-            'receipt_file' => 'nullable|file|mimes:jpeg,png,jpg,pdf|max:2048'
+            'receipt_file' => 'nullable|file|mimes:jpeg,png,jpg,pdf'
         ]);
 
         if ($validator->fails()) {
