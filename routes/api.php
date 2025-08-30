@@ -113,6 +113,14 @@ Route::post('/getPlaylist', [YoutubeController::class, 'getPlaylist'])->name('ge
 Route::get('/getPlaylists/{playlistId?}', [YoutubeController::class, 'getPlaylists'])->name('getPlaylists');
 Route::get('/youtube-video/{videoId}', [YoutubeController::class, 'videoDetail']);
 
+// Add this route to your existing routes/api.php file
+Route::get('loadMoreVideos/{playlistId}', [YoutubeController::class, 'loadMoreVideos']);
+
+Route::get('/youtube-live/{channelId?}', [YoutubeController::class, 'getYoutubeLiveStatus']);
+Route::get('/facebook-live/{pageId?}', [YoutubeController::class, 'getFacebookLiveStatus']);
+Route::get('/live-status', [YoutubeController::class, 'getLiveStatus']);
+
+
 // getLocations
 Route::get('/getLocations', [LocationController::class, 'getLocations'])->name('getLocations');
 // saveJoinUs

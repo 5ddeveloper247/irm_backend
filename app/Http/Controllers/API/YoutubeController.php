@@ -5,6 +5,10 @@ namespace App\Http\Controllers\API;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Youtube;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Log;
+
 
 class YoutubeController extends Controller
 {
@@ -13,6 +17,10 @@ class YoutubeController extends Controller
     private $apiKey = 'AIzaSyBk1z-xAVabyzCk4VJOCSDJh_i49MlMpPI';
     // private $playlistId = 'PLgohHfkVYNArdtwrYAw-F0QfHYe1u7IdU&si=cXp8QUBiDwZLOxYV';
     private $playlistId = 'PLnWyyZtBFGDVV3g7EQVjNlouzVZ9eSzcv';
+    // Fallback playlist IDs
+    private $facebookFallbackPlaylist = 'PLnWyyZtBFGDVV3g7EQVjNlouzVZ9eSzcv';
+    private $youtubeFallbackPlaylist = 'PLnWyyZtBFGDWIFkWVarFzluPNeMR3Hgx-&si=VI866qgaXqPmahNr';
+
     // public function getPlaylists(Request $request, $playlistId = null)
     // {
     //     $playlist = null;
@@ -268,8 +276,6 @@ class YoutubeController extends Controller
             // 'test' => $youtubeChannelLists->first()->id,
             'status' => 200
         ]);
-
-        
     }
 
     public function getChannel($channelId)
@@ -356,5 +362,336 @@ class YoutubeController extends Controller
             $url = isset($data['nextPageToken']) ? $url . '&pageToken=' . $data['nextPageToken'] : null;
         } while ($url);
         return $allVideos;
+    }
+
+
+    public function getYoutubeLiveStatus($channelId = null)
+    {
+        try {
+            // Static channel ID for testing - this channel is currently live
+            $channelId = 'UCPwXzYObvIlNUjdRRT82SxA';
+
+            // Log the channel ID being used
+            Log::info('Testing YouTube Live Status with Channel ID: ' . $channelId);
+
+            // Cache the result for 1 minute for testing (shorter cache time)
+            $cacheKey = "youtube_live_status_{$channelId}";
+
+            $result = Cache::remember($cacheKey, 60, function () use ($channelId) {
+                // Check for live videos
+                $searchUrl = "https://www.googleapis.com/youtube/v3/search?part=snippet&channelId={$channelId}&eventType=live&type=video&key={$this->apiKey}&maxResults=5";
+
+                Log::info('YouTube API Request URL: ' . $searchUrl);
+
+                $searchResponse = Http::timeout(30)->get($searchUrl);
+
+                if (!$searchResponse->successful()) {
+                    $errorMsg = 'YouTube API Error: ' . $searchResponse->status() . ' - ' . $searchResponse->body();
+                    Log::error($errorMsg);
+                    
+                    // Return fallback playlist data when API fails
+                    return [
+                        'isLive' => false,
+                        'error' => $errorMsg,
+                        'fallbackPlaylist' => $this->youtubeFallbackPlaylist,
+                        'fallbackEmbedUrl' => "https://www.youtube.com/embed/videoseries?list={$this->youtubeFallbackPlaylist}&autoplay=1",
+                        'message' => 'API unavailable - showing recent videos',
+                        'apiUrl' => $searchUrl
+                    ];
+                }
+
+                $searchData = $searchResponse->json();
+
+                // Log the complete response for debugging
+                Log::info('YouTube Live Search Response', [
+                    'channelId' => $channelId,
+                    'itemsCount' => count($searchData['items'] ?? []),
+                    'data' => $searchData
+                ]);
+
+                if (!empty($searchData['items'])) {
+                    $liveVideo = $searchData['items'][0];
+
+                    Log::info('Found Live Video', [
+                        'videoId' => $liveVideo['id']['videoId'],
+                        'title' => $liveVideo['snippet']['title']
+                    ]);
+
+                    // Get additional video details
+                    $videoResponse = Http::get('https://www.googleapis.com/youtube/v3/videos', [
+                        'part' => 'snippet,liveStreamingDetails,statistics',
+                        'id' => $liveVideo['id']['videoId'],
+                        'key' => $this->apiKey
+                    ]);
+
+                    $videoDetails = $videoResponse->successful() ? $videoResponse->json() : null;
+
+                    if ($videoDetails) {
+                        Log::info('Video Details Retrieved', [
+                            'viewers' => $videoDetails['items'][0]['liveStreamingDetails']['concurrentViewers'] ?? 'N/A'
+                        ]);
+                    }
+
+                    return [
+                        'isLive' => true,
+                        'videoId' => $liveVideo['id']['videoId'],
+                        'title' => $liveVideo['snippet']['title'],
+                        'description' => $liveVideo['snippet']['description'] ?? '',
+                        'channelTitle' => $liveVideo['snippet']['channelTitle'],
+                        'thumbnail' => $liveVideo['snippet']['thumbnails']['high']['url'] ??
+                            ($liveVideo['snippet']['thumbnails']['medium']['url'] ?? ''),
+                        'embedUrl' => "https://www.youtube.com/embed/{$liveVideo['id']['videoId']}?autoplay=1",
+                        'watchUrl' => "https://www.youtube.com/watch?v={$liveVideo['id']['videoId']}",
+                        'publishedAt' => $liveVideo['snippet']['publishedAt'],
+                        'channelId' => $channelId,
+                        'viewerCount' => $videoDetails['items'][0]['liveStreamingDetails']['concurrentViewers'] ?? null,
+                        'debug' => [
+                            'apiUsed' => 'live search',
+                            'totalResults' => $searchData['pageInfo']['totalResults'] ?? 0
+                        ]
+                    ];
+                }
+
+                // Check for upcoming live streams if no live videos found
+                Log::info('No live videos found, checking for upcoming streams');
+
+                $upcomingResponse = Http::get('https://www.googleapis.com/youtube/v3/search', [
+                    'part' => 'snippet',
+                    'channelId' => $channelId,
+                    'eventType' => 'upcoming',
+                    'type' => 'video',
+                    'key' => $this->apiKey,
+                    'maxResults' => 1
+                ]);
+
+                if ($upcomingResponse->successful()) {
+                    $upcomingData = $upcomingResponse->json();
+
+                    Log::info('Upcoming videos check', [
+                        'upcomingCount' => count($upcomingData['items'] ?? [])
+                    ]);
+
+                    if (!empty($upcomingData['items'])) {
+                        $upcomingVideo = $upcomingData['items'][0];
+                        return [
+                            'isLive' => false,
+                            'isUpcoming' => true,
+                            'videoId' => $upcomingVideo['id']['videoId'],
+                            'title' => $upcomingVideo['snippet']['title'],
+                            'description' => $upcomingVideo['snippet']['description'] ?? '',
+                            'channelTitle' => $upcomingVideo['snippet']['channelTitle'],
+                            'thumbnail' => $upcomingVideo['snippet']['thumbnails']['high']['url'] ?? '',
+                            'scheduledStartTime' => $upcomingVideo['snippet']['publishedAt'],
+                            'channelId' => $channelId,
+                            'message' => 'Live stream scheduled',
+                            'fallbackPlaylist' => $this->youtubeFallbackPlaylist,
+                            'fallbackEmbedUrl' => "https://www.youtube.com/embed/videoseries?list={$this->youtubeFallbackPlaylist}&autoplay=1"
+                        ];
+                    }
+                }
+
+                // Return fallback playlist data when no live or upcoming videos
+                return [
+                    'isLive' => false,
+                    'message' => 'Channel is not currently live - showing recent videos',
+                    'channelId' => $channelId,
+                    'fallbackPlaylist' => $this->youtubeFallbackPlaylist,
+                    'fallbackEmbedUrl' => "https://www.youtube.com/embed/videoseries?list={$this->youtubeFallbackPlaylist}&autoplay=1",
+                    'debug' => [
+                        'searchResults' => $searchData['pageInfo']['totalResults'] ?? 0,
+                        'apiKey' => substr($this->apiKey, 0, 10) . '...' // Show first 10 chars for debugging
+                    ]
+                ];
+            });
+
+            return response()->json($result);
+        } catch (\Exception $e) {
+            Log::error('YouTube Live Status Error: ' . $e->getMessage(), [
+                'channelId' => $channelId,
+                'trace' => $e->getTraceAsString()
+            ]);
+
+            return response()->json([
+                'isLive' => false,
+                'error' => 'An error occurred while checking live status: ' . $e->getMessage(),
+                'channelId' => $channelId,
+                'fallbackPlaylist' => $this->youtubeFallbackPlaylist,
+                'fallbackEmbedUrl' => "https://www.youtube.com/embed/videoseries?list={$this->youtubeFallbackPlaylist}&autoplay=1"
+            ]);
+        }
+    }
+
+    public function getFacebookLiveStatus($pageId = null)
+    {
+        try {
+            // STATIC TESTING - Replace with your actual values
+            $staticVideoId = '1550122902813653'; // Your actual video ID
+            $staticPageName = 'News Live'; // Your page name
+
+            // You can also get these from config or database
+            $pageId = $pageId ?? config('services.facebook.page_id', 'irmglobe');
+            $accessToken = config('services.facebook.access_token');
+
+            Log::info('Testing Facebook Live Status with Video ID: ' . $staticVideoId);
+
+            // Cache the result for 1 minute for testing
+            $cacheKey = "facebook_live_status_{$pageId}";
+
+            $result = Cache::remember($cacheKey, 60, function () use ($staticVideoId, $staticPageName, $pageId, $accessToken) {
+                
+                // Try to check actual Facebook live status first
+                if ($accessToken) {
+                    // Get live videos from the Facebook page
+                    $response = Http::get("https://graph.facebook.com/v18.0/{$pageId}/live_videos", [
+                        'fields' => 'id,title,description,status,embed_html,permalink_url,creation_time,live_views',
+                        'access_token' => $accessToken
+                    ]);
+
+                    if ($response->successful()) {
+                        $data = $response->json();
+
+                        // Check if there are any live videos
+                        if (!empty($data['data'])) {
+                            // Find the currently live video
+                            foreach ($data['data'] as $video) {
+                                if ($video['status'] === 'LIVE') {
+                                    Log::info('Found Facebook Live Video', [
+                                        'videoId' => $video['id'],
+                                        'title' => $video['title'] ?? 'Live Video'
+                                    ]);
+
+                                    return [
+                                        'isLive' => true,
+                                        'videoId' => $video['id'],
+                                        'title' => $video['title'] ?? 'Live Video',
+                                        'description' => $video['description'] ?? '',
+                                        'embedHtml' => $video['embed_html'],
+                                        'permalinkUrl' => $video['permalink_url'],
+                                        'liveViews' => $video['live_views'] ?? 0,
+                                        'embedUrl' => "https://www.facebook.com/plugins/video.php?height=314&href=" . urlencode($video['permalink_url']) . "&show_text=false&width=560",
+                                        'pageId' => $pageId
+                                    ];
+                                }
+                            }
+                        }
+                    } else {
+                        Log::error('Facebook API Error', [
+                            'status' => $response->status(),
+                            'body' => $response->body()
+                        ]);
+                    }
+                }
+
+                // If no live video found or API failed, return fallback playlist
+                Log::info('No Facebook live video found, returning fallback playlist');
+                
+                return [
+                    'isLive' => false,
+                    'message' => 'Facebook page is not currently live - showing recent videos',
+                    'pageId' => $pageId,
+                    'fallbackPlaylist' => $this->facebookFallbackPlaylist,
+                    'fallbackEmbedUrl' => "https://www.youtube.com/embed/videoseries?list={$this->facebookFallbackPlaylist}&autoplay=1",
+                    'debug' => [
+                        'source' => 'fallback_playlist',
+                        'timestamp' => now()->toISOString(),
+                        'accessToken' => $accessToken ? 'configured' : 'not_configured'
+                    ]
+                ];
+            });
+
+            return response()->json($result);
+        } catch (\Exception $e) {
+            Log::error('Facebook Live Status Error: ' . $e->getMessage(), [
+                'pageId' => $pageId,
+                'trace' => $e->getTraceAsString()
+            ]);
+
+            return response()->json([
+                'isLive' => false,
+                'error' => 'An error occurred while checking Facebook live status: ' . $e->getMessage(),
+                'pageId' => $pageId,
+                'fallbackPlaylist' => $this->facebookFallbackPlaylist,
+                'fallbackEmbedUrl' => "https://www.youtube.com/embed/videoseries?list={$this->facebookFallbackPlaylist}&autoplay=1",
+                'message' => 'Error occurred - showing recent videos'
+            ]);
+        }
+    }
+
+    /**
+     * Get combined live status for both platforms
+     */
+    public function getLiveStatus()
+    {
+        try {
+            // Get YouTube status
+            $youtubeResponse = $this->getYoutubeLiveStatus();
+            $youtubeData = $youtubeResponse->getData(true);
+
+            // Get Facebook status  
+            $facebookResponse = $this->getFacebookLiveStatus();
+            $facebookData = $facebookResponse->getData(true);
+
+            return response()->json([
+                'youtube' => $youtubeData,
+                'facebook' => $facebookData,
+                'lastUpdated' => now()->toISOString()
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'youtube' => [
+                    'isLive' => false, 
+                    'error' => 'Failed to fetch YouTube status',
+                    'fallbackPlaylist' => $this->youtubeFallbackPlaylist,
+                    'fallbackEmbedUrl' => "https://www.youtube.com/embed/videoseries?list={$this->youtubeFallbackPlaylist}&autoplay=1"
+                ],
+                'facebook' => [
+                    'isLive' => false, 
+                    'error' => 'Failed to fetch Facebook status',
+                    'fallbackPlaylist' => $this->facebookFallbackPlaylist,
+                    'fallbackEmbedUrl' => "https://www.youtube.com/embed/videoseries?list={$this->facebookFallbackPlaylist}&autoplay=1"
+                ],
+                'error' => $e->getMessage(),
+                'lastUpdated' => now()->toISOString()
+            ]);
+        }
+    }
+
+    /**
+     * Get all YouTube channels from database that might have live streams
+     */
+    public function getChannelsWithLiveStatus()
+    {
+        $channels = Youtube::where('status', 1)->get();
+        $channelsWithLiveStatus = [];
+
+        foreach ($channels as $channel) {
+            $channelId = null;
+
+            // Determine if this is a channel ID or needs conversion
+            if (strpos($channel->playlist_id, 'UC') === 0) {
+                $channelId = $channel->playlist_id;
+            } else {
+                // Get channel ID from playlist
+                $playlistDetailsUrl = "https://www.googleapis.com/youtube/v3/playlists?part=snippet&id={$channel->playlist_id}&key={$this->apiKey}";
+                $playlistDetails = $this->fetchData($playlistDetailsUrl);
+                if (isset($playlistDetails['items'][0]['snippet']['channelId'])) {
+                    $channelId = $playlistDetails['items'][0]['snippet']['channelId'];
+                }
+            }
+
+            if ($channelId) {
+                $liveStatus = $this->getYoutubeLiveStatus($channelId)->getData(true);
+                $channelsWithLiveStatus[] = [
+                    'channel' => $channel,
+                    'channelId' => $channelId,
+                    'liveStatus' => $liveStatus
+                ];
+            }
+        }
+
+        return response()->json([
+            'channels' => $channelsWithLiveStatus,
+            'status' => 200
+        ]);
     }
 }
