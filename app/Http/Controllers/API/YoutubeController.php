@@ -369,7 +369,7 @@ class YoutubeController extends Controller
     {
         try {
             // Static channel ID for testing - this channel is currently live
-            $channelId = 'UCPwXzYObvIlNUjdRRT82SxA';
+            $channelId = 'UC0Um3pnZ2WGBEeoA3BX2sKw';
 
             // Log the channel ID being used
             Log::info('Testing YouTube Live Status with Channel ID: ' . $channelId);
@@ -388,7 +388,7 @@ class YoutubeController extends Controller
                 if (!$searchResponse->successful()) {
                     $errorMsg = 'YouTube API Error: ' . $searchResponse->status() . ' - ' . $searchResponse->body();
                     Log::error($errorMsg);
-                    
+
                     // Return fallback playlist data when API fails
                     return [
                         'isLive' => false,
@@ -538,7 +538,7 @@ class YoutubeController extends Controller
             $cacheKey = "facebook_live_status_{$pageId}";
 
             $result = Cache::remember($cacheKey, 60, function () use ($staticVideoId, $staticPageName, $pageId, $accessToken) {
-                
+
                 // Try to check actual Facebook live status first
                 if ($accessToken) {
                     // Get live videos from the Facebook page
@@ -584,7 +584,7 @@ class YoutubeController extends Controller
 
                 // If no live video found or API failed, return fallback playlist
                 Log::info('No Facebook live video found, returning fallback playlist');
-                
+
                 return [
                     'isLive' => false,
                     'message' => 'Facebook page is not currently live - showing recent videos',
@@ -639,13 +639,13 @@ class YoutubeController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'youtube' => [
-                    'isLive' => false, 
+                    'isLive' => false,
                     'error' => 'Failed to fetch YouTube status',
                     'fallbackPlaylist' => $this->youtubeFallbackPlaylist,
                     'fallbackEmbedUrl' => "https://www.youtube.com/embed/videoseries?list={$this->youtubeFallbackPlaylist}&autoplay=1"
                 ],
                 'facebook' => [
-                    'isLive' => false, 
+                    'isLive' => false,
                     'error' => 'Failed to fetch Facebook status',
                     'fallbackPlaylist' => $this->facebookFallbackPlaylist,
                     'fallbackEmbedUrl' => "https://www.youtube.com/embed/videoseries?list={$this->facebookFallbackPlaylist}&autoplay=1"
@@ -693,5 +693,204 @@ class YoutubeController extends Controller
             'channels' => $channelsWithLiveStatus,
             'status' => 200
         ]);
+    }
+
+
+
+
+    // Add these methods to your existing YoutubeController class
+
+    /**
+     * Get audio source based on live status and fallback logic
+     */
+    public function getAudioSource()
+    {
+        try {
+            Log::info('Getting audio source based on live status');
+
+            // Get current live status for both platforms
+            $youtubeResponse = $this->getYoutubeLiveStatus();
+            $youtubeData = $youtubeResponse->getData(true);
+
+            $facebookResponse = $this->getFacebookLiveStatus();
+            $facebookData = $facebookResponse->getData(true);
+
+            // Priority 1: YouTube Live Audio
+            if ($youtubeData['isLive'] ?? false) {
+                Log::info('Using YouTube live audio', ['videoId' => $youtubeData['videoId']]);
+
+                return response()->json([
+                    'source' => 'youtube_live',
+                    'type' => 'live',
+                    'videoId' => $youtubeData['videoId'],
+                    'title' => $youtubeData['title'],
+                    'audioUrl' => $this->getYouTubeAudioUrl($youtubeData['videoId']),
+                    'embedUrl' => $youtubeData['embedUrl'],
+                    'isLive' => true,
+                    'platform' => 'youtube'
+                ]);
+            }
+
+            // Priority 2: Facebook Live Audio (if YouTube not live)
+            if ($facebookData['isLive'] ?? false) {
+                Log::info('Using Facebook live audio', ['videoId' => $facebookData['videoId']]);
+
+                return response()->json([
+                    'source' => 'facebook_live',
+                    'type' => 'live',
+                    'videoId' => $facebookData['videoId'],
+                    'title' => $facebookData['title'],
+                    'audioUrl' => null, // Facebook live audio extraction is complex
+                    'embedUrl' => $facebookData['embedUrl'],
+                    'isLive' => true,
+                    'platform' => 'facebook',
+                    'note' => 'Facebook live audio requires special handling'
+                ]);
+            }
+
+            // Priority 3: Fallback to random playlist video
+            Log::info('No live streams found, using random playlist video');
+
+            $randomVideo = $this->getRandomPlaylistVideo();
+
+            return response()->json([
+                'source' => 'playlist_random',
+                'type' => 'recorded',
+                'videoId' => $randomVideo['videoId'],
+                'title' => $randomVideo['title'],
+                'audioUrl' => $this->getYouTubeAudioUrl($randomVideo['videoId']),
+                'embedUrl' => "https://www.youtube.com/embed/{$randomVideo['videoId']}?autoplay=1",
+                'isLive' => false,
+                'platform' => 'youtube',
+                'playlistId' => $randomVideo['playlistId']
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Audio Source Error: ' . $e->getMessage());
+
+            return response()->json([
+                'source' => 'error',
+                'error' => 'Failed to get audio source: ' . $e->getMessage(),
+                'isLive' => false
+            ], 500);
+        }
+    }
+
+    /**
+     * Get a random video from the specified playlist
+     */
+    private function getRandomPlaylistVideo()
+    {
+        // Use your fallback playlist ID
+        $playlistId = $this->youtubeFallbackPlaylist;
+
+        Log::info('Getting random video from playlist', ['playlistId' => $playlistId]);
+
+        // Get playlist videos
+        $playlistItemsUrl = "https://www.googleapis.com/youtube/v3/playlistItems?part=snippet&maxResults=50&playlistId={$playlistId}&key={$this->apiKey}";
+        $videos = $this->fetchAllVideos($playlistItemsUrl);
+
+        if (empty($videos)) {
+            throw new \Exception('No videos found in fallback playlist');
+        }
+
+        // Filter out unavailable videos and get random one
+        $availableVideos = array_filter($videos, function ($video) {
+            return isset($video['snippet']['resourceId']['videoId']) &&
+                $video['snippet']['title'] !== 'Private video' &&
+                $video['snippet']['title'] !== 'Deleted video';
+        });
+
+        if (empty($availableVideos)) {
+            throw new \Exception('No available videos in playlist');
+        }
+
+        $randomVideo = $availableVideos[array_rand($availableVideos)];
+
+        return [
+            'videoId' => $randomVideo['snippet']['resourceId']['videoId'],
+            'title' => $randomVideo['snippet']['title'],
+            'playlistId' => $playlistId,
+            'thumbnail' => $randomVideo['snippet']['thumbnails']['high']['url'] ??
+                $randomVideo['snippet']['thumbnails']['default']['url'] ?? '',
+            'publishedAt' => $randomVideo['snippet']['publishedAt']
+        ];
+    }
+
+    /**
+     * Generate YouTube audio stream URL
+     * Note: This is a simplified approach. For production, you might need more sophisticated audio extraction
+     */
+    private function getYouTubeAudioUrl($videoId)
+    {
+        // Return embed URL with audio-focused parameters
+        // For actual audio extraction, you'd need additional tools/services
+        return "https://www.youtube.com/embed/{$videoId}?autoplay=1&enablejsapi=1&origin=" . config('app.url');
+    }
+
+    /**
+     * Get current audio status (what's currently playing)
+     */
+    public function getCurrentAudioStatus()
+    {
+        $audioSource = $this->getAudioSource();
+        $sourceData = $audioSource->getData(true);
+
+        return response()->json([
+            'currentAudio' => $sourceData,
+            'timestamp' => now()->toISOString(),
+            'nextCheck' => now()->addMinutes(2)->toISOString()
+        ]);
+    }
+
+    /**
+     * Get audio playlist for continuous playback
+     */
+    public function getAudioPlaylist()
+    {
+        try {
+            $playlistId = $this->youtubeFallbackPlaylist;
+
+            // Get all videos from the playlist
+            $playlistItemsUrl = "https://www.googleapis.com/youtube/v3/playlistItems?part=snippet&maxResults=50&playlistId={$playlistId}&key={$this->apiKey}";
+            $videos = $this->fetchAllVideos($playlistItemsUrl);
+
+            // Format for audio player
+            $audioPlaylist = [];
+            foreach ($videos as $video) {
+                if (
+                    isset($video['snippet']['resourceId']['videoId']) &&
+                    $video['snippet']['title'] !== 'Private video' &&
+                    $video['snippet']['title'] !== 'Deleted video'
+                ) {
+
+                    $videoId = $video['snippet']['resourceId']['videoId'];
+                    $audioPlaylist[] = [
+                        'id' => $videoId,
+                        'title' => $video['snippet']['title'],
+                        'audioUrl' => $this->getYouTubeAudioUrl($videoId),
+                        'thumbnail' => $video['snippet']['thumbnails']['default']['url'] ?? '',
+                        'duration' => null, // Would need additional API call to get duration
+                        'publishedAt' => $video['snippet']['publishedAt']
+                    ];
+                }
+            }
+
+            // Shuffle for random playback
+            shuffle($audioPlaylist);
+
+            return response()->json([
+                'playlist' => $audioPlaylist,
+                'totalTracks' => count($audioPlaylist),
+                'playlistId' => $playlistId,
+                'status' => 'success'
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Audio Playlist Error: ' . $e->getMessage());
+
+            return response()->json([
+                'playlist' => [],
+                'error' => 'Failed to load audio playlist: ' . $e->getMessage()
+            ], 500);
+        }
     }
 }

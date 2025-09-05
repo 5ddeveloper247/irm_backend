@@ -121,6 +121,12 @@ Route::get('/facebook-live/{pageId?}', [YoutubeController::class, 'getFacebookLi
 Route::get('/live-status', [YoutubeController::class, 'getLiveStatus']);
 
 
+Route::get('audio-source', [YoutubeController::class, 'getAudioSource']);
+Route::get('audio-status', [YoutubeController::class, 'getCurrentAudioStatus']);
+Route::get('audio-playlist', [YoutubeController::class, 'getAudioPlaylist']);
+
+
+
 // getLocations
 Route::get('/getLocations', [LocationController::class, 'getLocations'])->name('getLocations');
 // saveJoinUs
