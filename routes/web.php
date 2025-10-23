@@ -70,6 +70,8 @@ Route::group(['middleware' => ['AdminAuth']], function () {
         Route::get('/viewContact', [WebContactController::class, 'viewContact'])->name('viewContact');
         // memberships
         Route::get('/memberships', [MembershipController::class, 'memberships'])->name('memberships');
+
+       
         // youtube
         Route::get('/youtube', [YoutubeController::class, 'youtube'])->name('youtube');
         // worklocations
@@ -102,6 +104,8 @@ Route::group(['middleware' => ['AdminAuth']], function () {
     // getAllEnrollCourse
     Route::post('/getEnrollCoursesPageData', [EnrollCourseController::class, 'getEnrollCoursesPageData'])->name('getEnrollCoursesPageData');
 
+    // save membership
+     Route::post('/saveMembership', [MembershipController::class, 'saveMembership']);
 
     // Contact
 

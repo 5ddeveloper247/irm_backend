@@ -27,6 +27,7 @@ use App\Models\NewsEvent;
 use App\Models\NewsEventAttachment;
 use App\Models\Payment;
 use App\Models\BookCategory;
+use App\Models\MenuControl;
 
 
 
@@ -219,31 +220,71 @@ class AdminController extends Controller
         return view('forgetpassword');
     }
 
-    public function loginSubmit(Request $request)
-    {
-        $credentials = $request->only('email', 'password');
+    // public function loginSubmit(Request $request)
+    // {
+    //     $credentials = $request->only('email', 'password');
 
-        // Attempt to authenticate the user
-        if (Auth::attempt($credentials)) {
-            // Authentication passed
-            $user = Auth::user();
-            if ($user->role == 1 || $user->role == 3) {
-                return redirect()->intended('/audio_lectures');
-            } else {
+    //     // Attempt to authenticate the user
+    //     if (Auth::attempt($credentials)) {
+    //         // Authentication passed
+    //         $user = Auth::user();
+    //         if ($user->role == 1 || $user->role == 3) {
+    //             return redirect()->intended('/audio_lectures');
+    //         } else {
                 
 
-                return redirect('login')->withErrors([
-                    'email' => 'The provided credentials is not valid.',
-                ]);
-            }
-        }
-        // Authentication failed, redirect back to the login page with error message
-        return redirect('login')->withErrors([
-            'email' => 'The provided credentials do not match our records.',
-        ]);
+    //             return redirect('login')->withErrors([
+    //                 'email' => 'The provided credentials is not valid.',
+    //             ]);
+    //         }
+    //     }
+    //     // Authentication failed, redirect back to the login page with error message
+    //     return redirect('login')->withErrors([
+    //         'email' => 'The provided credentials do not match our records.',
+    //     ]);
 
-        return redirect('dashboard');
+    //     return redirect('dashboard');
+    // }
+
+
+    public function loginSubmit(Request $request)
+{
+    $credentials = $request->only('email', 'password');
+
+    // Attempt to authenticate the user
+    if (Auth::attempt($credentials)) {
+        // Authentication passed
+        $user = Auth::user();
+        
+        if ($user->role == 1) {
+            // Super Admin - redirect to audio lectures
+            return redirect()->intended('/audio_lectures');
+        } elseif ($user->role == 3) {
+            // Sub-Admin - redirect to their first accessible menu
+            $firstMenuControl = MenuControl::where('user_id', $user->id)
+                ->with('menu')
+                ->orderBy('menu_id', 'asc')
+                ->first();
+            
+            if ($firstMenuControl && $firstMenuControl->menu) {
+                $route = $firstMenuControl->menu->route;
+                return redirect()->route($route);
+            }
+            
+            // Fallback to dashboard if no menus assigned
+            return redirect()->route('dashboard');
+        } else {
+            return redirect('login')->withErrors([
+                'email' => 'The provided credentials is not valid.',
+            ]);
+        }
     }
+    
+    // Authentication failed, redirect back to the login page with error message
+    return redirect('login')->withErrors([
+        'email' => 'The provided credentials do not match our records.',
+    ]);
+}
 
     public function logout(Request $request)
     {

@@ -8,4 +8,18 @@ use Illuminate\Database\Eloquent\Model;
 class Menu extends Model
 {
     use HasFactory;
+
+    protected $fillable = [
+        'name',
+        'route',
+        'image',
+        'enable',
+        'created_at',
+        'updated_at'
+    ];
+
+    public function menuControls()
+    {
+        return $this->hasMany(MenuControl::class);
+    }
 }

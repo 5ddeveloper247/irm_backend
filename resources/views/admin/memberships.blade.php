@@ -75,6 +75,13 @@
                                                 {{-- filter --}}
                                                 {{-- include --}}
                                                 @php 
+
+                                                 $button = '<a href="javascript:void(0);"
+                                                                class="theme-btn d-flex align-items-center gap-1 py-2 px-3 rounded-2 text-white"
+                                                                onclick="addNewMembership();">
+                                                                <i class="fa-solid fa-plus"></i>
+                                                                Add New Membership
+                                                            </a>';
                                                 $filters = [
                                                     // get my page table names
                                                     ['name' => 'name', 'type' => 'text', 'label' => 'Name', 'placeholder' => 'Search Name'],
@@ -153,13 +160,75 @@
             </div>
         </div>
     </div>
-    <div style="max-width:33rem;" class="offcanvas offcanvas-end" tabindex="-1"  id="member_view_canvas" aria-labelledby="offcanvas_add_label">
+
+
+    <!-- Offcanvas Add/Edit Membership -->
+    <div style="max-width:33rem;" class="offcanvas offcanvas-end add-new-project-offcanvas" tabindex="-1"
+        id="addMembership_canvas" aria-labelledby="offcanvas_add_label">
         <div class="offcanvas-header">
-            <h5 id="offcanvas_add_label">Details</h5>
+            <h5 id="offcanvas_add_label">Membership Details</h5>
+            <button type="button" class="btn-close closeCanvas" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+        </div>
+        <div style="padding: 6%;" class="offcanvas-body">
+            <form id="membership_form">
+                <input type="hidden" id="membership_id" name="membership_id" value="">
+
+                <div class="row g-3">
+                    <div class="form-floating">
+                        <input type="text" class="form-control" id="username" name="username" 
+                               placeholder="Name" maxlength="100">
+                        <label class="ms-2" for="username">Name <span class="text-danger">*</span></label>
+                    </div>
+
+                    <div class="form-floating">
+                        <input type="email" class="form-control" id="email" name="email" 
+                               placeholder="Email" maxlength="100">
+                        <label class="ms-2" for="email">Email <span class="text-danger">*</span></label>
+                    </div>
+
+                    <div class="form-floating">
+                        <input type="text" class="form-control" id="phone" name="phone" 
+                               placeholder="Phone" maxlength="20">
+                        <label class="ms-2" for="phone">Phone <span class="text-danger">*</span></label>
+                    </div>
+
+                    <div class="form-floating">
+                        <select class="form-control" id="country_id" name="country_id">
+                            <option value="">Select Country</option>
+                            @foreach($countries as $country)
+                                <option value="{{ $country->id }}">{{ $country->name }}</option>
+                            @endforeach
+                        </select>
+                        <label class="ms-2" for="country_id">Country <span class="text-danger">*</span></label>
+                    </div>
+
+                    <div class="form-floating">
+                        <input type="text" class="form-control" id="city" name="city" 
+                               placeholder="City" maxlength="100">
+                        <label class="ms-2" for="city">City <span class="text-danger">*</span></label>
+                    </div>
+
+                    
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="d-flex justify-content-end mt-3">
+                    <button type="button" class="btn btn-secondary me-2 closeCanvas">Cancel</button>
+                    <button type="button" class="btn btn-purple" onclick="saveMembership();" 
+                            id="saveMembership_btn">Save</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Offcanvas View Member -->
+    <div style="max-width:33rem;" class="offcanvas offcanvas-end" tabindex="-1" id="member_view_canvas" aria-labelledby="offcanvas_view_label">
+        <div class="offcanvas-header">
+            <h5 id="offcanvas_view_label">Details</h5>
             <button type="button" class="btn-close closeCanvas" data-bs-dismiss="offcanvas" aria-label="Close"></button>
         </div>
         <div style="padding: 6%;" class="offcanvas-body" id="view_member_data">
-            
+            {{-- Details will be loaded here --}}
         </div>
     </div>
 

@@ -8,8 +8,17 @@ use Illuminate\Database\Eloquent\Model;
 class Membership extends Model
 {
     use HasFactory;
-    // country
-    public function country(){
+
+    protected $fillable = [
+        'username',
+        'email',
+        'phone',
+        'country_id',
+        'city',
+    ];
+
+    public function country()
+    {
         return $this->belongsTo(Country::class);
     }
 }
