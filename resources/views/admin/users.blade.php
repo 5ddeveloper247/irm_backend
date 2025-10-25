@@ -269,10 +269,9 @@
                                 @if ($menu->route != 'sub-admins')
                                     <div class="col-6">
                                         <input class="" id="menu_{{ $menu->id }}" type="checkbox"
-                                            name="menus[]" value="{{ $menu->id }}"
-                                            @if ($menu->route == 'dashboard') checked disabled @endif>
+                                            name="menus[]" value="{{ $menu->id }}" >{{-- @if ($menu->route == 'dashboard') checked disabled @endif --}}
                                         @if ($menu->route == 'dashboard')
-                                            <input type="hidden" name="menus[]" value="{{ $menu->id }}">
+                                            <!-- <input type="hidden" name="menus[]" value="{{ $menu->id }}"> -->
                                         @endif
                                         <label class="" for="menu_{{ $menu->id }}">{{ $menu->name }}</label>
                                     </div>
