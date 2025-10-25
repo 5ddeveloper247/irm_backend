@@ -85,7 +85,7 @@ function makeMembershipsListing(membershipsList){
                         <td class="text-start text-nowrap">
                         <div class="d-flex gap-2">
                             <button type="button" class="theme-btn d-flex align-items-center gap-1 py-2 px-3 rounded-2 text-white" onclick="viewMember(${membership.id})">View</button>
-                            <button type="button" class="theme-btn d-flex align-items-center gap-1 py-2 px-3 rounded-2 text-white" onclick="editMembership(${membership.id})">Edit</button>
+                            
                         </div>
                             </td>
                     </tr>`;
