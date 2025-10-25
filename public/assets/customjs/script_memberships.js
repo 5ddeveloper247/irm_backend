@@ -97,36 +97,65 @@ function makeMembershipsListing(membershipsList){
     $("#memberships_table_body").html(html);
     
     // Initialize DataTables
-    $('#memberships_table').DataTable({
-        "paging": true,
-        "lengthChange": true,
-        "searching": true,
-        "ordering": true,
-        "info": true,
-        "autoWidth": false,
-        "responsive": true,
-        "scrollX": true,
-        "language": {
-            search: "_INPUT_",
-            searchPlaceholder: "Search",
-        },
-        'dom': 'Bfrtip',
-        buttons: [
-            {
-                extend: 'excel',
-                className: 'btn btn-excel',
-                text: 'Excel'
+    if(userRole == 1){
+        $('#memberships_table').DataTable({
+            "paging": true,
+            "lengthChange": true,
+            "searching": true,
+            "ordering": true,
+            "info": true,
+            "autoWidth": false,
+            "responsive": true,
+            "scrollX": true,
+            "language": {
+                search: "_INPUT_",
+                searchPlaceholder: "Search",
             },
-            {
-                text: 'Refresh',
-                className: 'btn btn-refresh',
-                action: function (e, dt, node, config) {
-                    getMembershipsPageData();
-                    $('#resetFilterButton').click();
+            'dom': 'Bfrtip',
+            buttons: [
+                {
+                    extend: 'excel',
+                    className: 'btn btn-excel',
+                    text: 'Excel'
+                },
+                {
+                    text: 'Refresh',
+                    className: 'btn btn-refresh',
+                    action: function (e, dt, node, config) {
+                        getMembershipsPageData();
+                        $('#resetFilterButton').click();
+                    }
                 }
-            }
-        ],
-    });
+            ],
+        });
+    }else{
+        $('#memberships_table').DataTable({
+            "paging": true,
+            "lengthChange": true,
+            "searching": true,
+            "ordering": true,
+            "info": true,
+            "autoWidth": false,
+            "responsive": true,
+            "scrollX": true,
+            "language": {
+                search: "_INPUT_",
+                searchPlaceholder: "Search",
+            },
+            'dom': 'Bfrtip',
+            buttons: [
+                {
+                    text: 'Refresh',
+                    className: 'btn btn-refresh',
+                    action: function (e, dt, node, config) {
+                        getMembershipsPageData();
+                        $('#resetFilterButton').click();
+                    }
+                }
+            ],
+        });
+    }
+
 }
 
 $(document).ready(function () {

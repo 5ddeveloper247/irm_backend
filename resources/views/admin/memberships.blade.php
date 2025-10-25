@@ -234,6 +234,9 @@
 
 @endsection
 @push('js')
+    <script>
+        var userRole = {{ auth()->user()->role }};
+    </script>
     <script src="{{asset('assets/customjs/script_memberships.js')}}"></script>
     <script>
         const formValues = {};
