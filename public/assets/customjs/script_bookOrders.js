@@ -462,51 +462,130 @@ function bookOrderConfirmedResponse(response) {
     } 
 }
 // viewBookOrder
+// Updated viewBookOrder function
 function viewBookOrder(id){
     let type = 'POST';
     let url = '/viewBookOrder';
-    let message = '';
-    let form = '';
     let data = new FormData();
     data.append('id', id);
-    // PASSING DATA TO FUNCTION
+    
     SendAjaxRequestToServer(type, url, data, '', viewBookOrderResponse, '', '');
 }
-// show data in model
-// bookOrderDetails_modal
+
+// Updated response handler with modal
 function viewBookOrderResponse(response) {
-    bookOrderOpenDetailsPage = true;
-    $("#bookOrders-page").slideUp();
-    // myTab
-    $('#myTab').slideUp();
-    resetBookOrderDetails();
-    // console.log(response);
-    // SHOWING MESSAGE ACCORDING TO RESPONSE
-    if (response.status == 200  || response.status == '200') {
-        var book = response.data;
-        console.log(book, book.book.title);
-        // var book = data.book_order;
-        // var book = bookOrder.book;
-        // show data in model
-        // $("#bookOrderDetails_modal").modal('show');
-        $('#order-detials-page').slideDown();
-        $("#bookName").text(book.book.title);
-        $("#date").text(formatDate(book.book.date));
-        $("#price").text(book.book.price);
-        $("#paymentMethod").text(book.json_data.paymentMethodId);
-        $("#name").text(book.json_data.shipping.firstName + book.json_data.shipping.lastName);
+    if (response.status == 200 || response.status == '200') {
+        var bookOrder = response.data;
         
-        $("#email").text(book.json_data.shipping.email);
-        $("#paymentStatus").text(book.payment.status);
-        $("#phone").text(book.json_data.shipping.phoneNumber);
-        $("#paymentDate").text(formatDate(book.payment.created_at));
-        $("#address").text(book.json_data.shipping.streetAddress);
-        $("#paymentAmount").text(book.payment.amount);
-        $("#status").html(book.statusNameWithBadge);
-        $("#action").html(book.action);
-        console.log('book.statusNameWithBadge',book.statusNameWithBadge);
+        // Populate modal with book order details
+        $('#view_order_id').text(bookOrder.id);
+        $('#view_book_name').text(bookOrder.book.title);
+        $('#view_book_price').text('PKR ' + bookOrder.book.price);
+        $('#view_order_status').html(bookOrder.statusNameWithBadge);
+        $('#view_order_date').text(formatDate(bookOrder.created_at));
+        $('#view_order_payment_method').text(bookOrder.payment_method);
+        
+        // Customer info
+        if(bookOrder.json_data && bookOrder.json_data.shipping) {
+            var shipping = bookOrder.json_data.shipping;
+            $('#view_order_customer_name').text(
+                (shipping.firstName || '') + ' ' + (shipping.lastName || '')
+            );
+            $('#view_order_customer_email').text(shipping.email || 'N/A');
+            $('#view_order_customer_phone').text(shipping.phoneNumber || 'N/A');
+            $('#view_order_customer_address').text(
+                (shipping.streetAddress || '') + ', ' + 
+                (shipping.city || '') + ', ' + 
+                (shipping.country || '')
+            );
+        }
+        
+        // Payment info
+        if(bookOrder.payment) {
+            $('#view_order_payment_status').html(getPaymentStatusBadge(bookOrder.payment.status));
+            $('#view_order_payment_amount').text('PKR ' + bookOrder.payment.amount);
+            $('#view_order_payment_date').text(formatDate(bookOrder.payment.created_at));
+            
+            // Receipt section (if available)
+            if(bookOrder.payment.receipt_path) {
+                $('#order_receipt_section').show();
+                $('#order_receipt_name').text(bookOrder.payment.receipt_name || 'Receipt');
+                
+                var receiptUrl = bookOrder.payment.receipt_url;
+                $('#download_order_receipt_btn').attr('href', receiptUrl);
+                $('#download_order_receipt_btn').attr('download', bookOrder.payment.receipt_name);
+                
+                var isImage = bookOrder.payment.is_image;
+                $('#view_order_receipt_btn').attr('onclick', `openOrderReceipt('${receiptUrl}', ${isImage})`);
+                
+                if(isImage) {
+                    $('#order_receipt_preview').html(`
+                        <img src="${receiptUrl}" 
+                             class="img-fluid rounded cursor-pointer" 
+                             style="max-height: 200px; cursor: pointer;"
+                             onclick="openOrderReceipt('${receiptUrl}', true)" />
+                    `);
+                } else if(bookOrder.payment.is_pdf) {
+                    $('#order_receipt_preview').html(`
+                        <div class="text-center p-3 bg-light rounded">
+                            <i class="fas fa-file-pdf fa-3x text-danger mb-2"></i>
+                            <p class="mb-0">PDF Document</p>
+                        </div>
+                    `);
+                }
+            } else {
+                $('#order_receipt_section').hide();
+            }
+        }
+        
+        // Action buttons in footer
+        $('#view_order_action_section').html(bookOrder.action);
+        
+        // Show modal
+        $('#view_bookorder_modal').modal('show');
     }
-    // console.log(bookOrder);
+}
+
+// Helper function for payment status badge
+function getPaymentStatusBadge(status) {
+    const statusLower = status ? status.toLowerCase() : '';
+    
+    switch (statusLower) {
+        case 'succeeded':
+        case 'success':
+        case 'completed':
+        case 'paid':
+            return '<span class="badge bg-success text-white">Success</span>';
+        
+        case 'failed':
+        case 'failure':
+        case 'error':
+        case 'declined':
+            return '<span class="badge bg-danger text-white">Failed</span>';
+        
+        case 'pending':
+        case 'processing':
+        case 'in_progress':
+            return '<span class="badge bg-warning text-dark">Pending</span>';
+        
+        case 'cancelled':
+        case 'canceled':
+        case 'voided':
+            return '<span class="badge bg-secondary text-white">Cancelled</span>';
+        
+        default:
+            return '<span class="badge bg-light text-dark">' + status + '</span>';
+    }
+}
+
+// Open receipt in new tab or modal
+function openOrderReceipt(url, isImage) {
+    if(isImage) {
+        $('#order_receipt_image_modal_img').attr('src', url);
+        $('#order_receipt_image_modal').modal('show');
+    } else {
+        window.open(url, '_blank');
+    }
 }
 function closeOrderDetailsPage(){
     bookOrderOpenDetailsPage = false;

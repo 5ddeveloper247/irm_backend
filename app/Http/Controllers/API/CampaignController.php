@@ -288,6 +288,7 @@ class CampaignController extends Controller
             'donatation_submit.email' => 'nullable|email|max:255',
             'donatation_submit.phoneNumber' => 'nullable|string|max:20',
             'donatation_submit.streetAddress' => 'nullable|string|max:500',
+            'donatation_submit.category' => 'nullable|string|max:255',
             'donatation_submit.country' => 'nullable|string|max:100',
             'donatation_submit.city' => 'nullable|string|max:100',
             'payment_method' => 'required|string|in:jazz_cash,easypaisa,bank_transfer',
@@ -320,6 +321,9 @@ class CampaignController extends Controller
             $data['currency'] = 'pkr'; // Add currency if not present
 
             // Set default values for missing personal information fields
+            if (!isset($data['donatation_submit']['category']) || empty($data['donatation_submit']['category'])) {
+            $data['donatation_submit']['category'] = $data['donatation_submit']['custom_task_name'] ?? 'N/A';
+        }
             if (!isset($data['donatation_submit']['firstName']) || empty($data['donatation_submit']['firstName'])) {
                 $data['donatation_submit']['firstName'] = 'N/A';
             }
@@ -425,6 +429,7 @@ class CampaignController extends Controller
                     'receipt_uploaded' => !is_null($receiptPath),
                     'module_code' => $data['donatation_submit']['module_code'],
                     'custom_task_name' => $data['donatation_submit']['custom_task_name'] ?? 'N/A',
+                    'category' => $data['donatation_submit']['category'] ?? 'N/A',
                     'billing_info' => [
                         'firstName' => $data['donatation_submit']['firstName'],
                         'lastName' => $data['donatation_submit']['lastName'],

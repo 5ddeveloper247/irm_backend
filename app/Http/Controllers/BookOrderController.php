@@ -139,30 +139,26 @@ class BookOrderController extends Controller
         if ($request->has('name') && $request->name != '') {
             $query->whereHas('payment', function ($q) use ($request) {
                 $name = $request->name;
-        
+
                 $q->where(function ($query) use ($name) {
-                    $query->where('data', 'LIKE', '%"firstName":"%'.$name.'%"%')
-                          ->orWhere('data', 'LIKE', '%"lastName":"%'.$name.'%"%');
+                    $query->where('data', 'LIKE', '%"firstName":"%' . $name . '%"%')
+                        ->orWhere('data', 'LIKE', '%"lastName":"%' . $name . '%"%');
                     $nameParts = explode(' ', $name);
                     if (count($nameParts) > 1) {
                         $query->orWhere('data', 'LIKE', '%"firstName":"%' . $nameParts[0] . '%"%"lastName":"%' . $nameParts[1] . '%"%');
                     }
                 });
-                
-              
             });
         }
-        
-        
+
+
 
         // also email contains on json data like name filter
         if ($request->has('email') && $request->email != '') {
             $query->whereHas('payment', function ($q) use ($request) {
                 $email = $request->email;
-                
-                $q->where('data', 'LIKE', '%"email":"'.$email.'"%');
 
-
+                $q->where('data', 'LIKE', '%"email":"' . $email . '"%');
             });
         }
 
@@ -291,17 +287,45 @@ class BookOrderController extends Controller
         return response()->json(['status' => 200, 'message' => "Status updated successfully", 'data' => $bookOrder]);
     }
     // view book order
+    // Updated viewBookOrder method in BookOrderController
     public function viewBookOrder(Request $request)
     {
-        // get book order by id
+        // Get book order by id
         $bookOrder = BookOrder::with('book', 'payment')->find($request->id);
-        // json data convert to array
+
+        // Json data convert to array
         $bookOrder->json_data = json_decode($bookOrder->data);
-        // set status name
+
+        // Set status name
         $bookOrder->statusName = $this->_status($bookOrder->status);
-        // set action button
+        $bookOrder->payment_method = $this->_formatPaymentMethod($bookOrder->payment->payment_method ?? 'N/A');
+
+        // Set action button
         $bookOrder->action = $this->_getStatusOneAction($bookOrder->status, $bookOrder->id);
         $bookOrder->statusNameWithBadge = $this->_statusNameWithBadge($bookOrder->status);
+
+        // Add receipt information if available
+        if ($bookOrder->payment && $bookOrder->payment->receipt_path) {
+            $bookOrder->payment->receipt_url = url('storage/' . $bookOrder->payment->receipt_path);
+            $bookOrder->payment->receipt_name = basename($bookOrder->payment->receipt_path);
+
+            // Check if it's an image or PDF
+            $extension = strtolower(pathinfo($bookOrder->payment->receipt_path, PATHINFO_EXTENSION));
+            $bookOrder->payment->is_image = in_array($extension, ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp']);
+            $bookOrder->payment->is_pdf = $extension === 'pdf';
+        }
+
         return response()->json(['status' => 200, 'message' => "", 'data' => $bookOrder]);
+    }
+
+    private function _formatPaymentMethod($method)
+    {
+        if (!$method || $method === 'N/A') {
+            return 'N/A';
+        }
+
+        // Format payment method names
+        $formatted = str_replace('_', ' ', $method);
+        return ucwords($formatted);
     }
 }

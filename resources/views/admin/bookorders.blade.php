@@ -7,8 +7,8 @@
         }
 
         /* .collapse.show {
-                    background-color: #ecf4ff00 !important;
-                } */
+                        background-color: #ecf4ff00 !important;
+                    } */
 
         .img-prev {
             width: 70px;
@@ -21,7 +21,7 @@
             font-size: 18px !important;
             color: red;
             /* position: absolute;
-                    top: 265px; */
+                        top: 265px; */
         }
 
         .details-container {
@@ -82,76 +82,124 @@
                 </div>
             </div>
 
-            <div id="order-detials-page" style="display: none">
-                <div class="details-container">
-                    <h2 class="details-header">Book Order Details</h2>
-                    {{-- close button --}}
-                    <button type="button" style="position: relative;top: -50px;float: right;" class="btn-close"
-                        aria-label="Close" onclick="closeOrderDetailsPage()"></button>
-                    {{-- close button --}}
-                    <div style="clear: both;"></div>
-                    <div class="detail-item">
-                        <span class="detail-label">Book Name:</span>
-                        <span class="detail-value" id="bookName">The Great Gatsby</span>
-                    </div>
+            <!-- View Book Order Modal -->
+            <div class="modal fade" id="view_bookorder_modal" tabindex="-1" aria-hidden="true">
+                <div class="modal-dialog modal-lg modal-dialog-scrollable">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">
+                                <i class="fas fa-eye me-2"></i>Book Order Details
+                            </h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <strong>Order ID:</strong>
+                                    <p id="view_order_id"></p>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <strong>Book Name:</strong>
+                                    <p id="view_book_name"></p>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <strong>Price:</strong>
+                                    <p id="view_book_price"></p>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <strong>Order Status:</strong>
+                                    <p id="view_order_status"></p>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <strong>Order Date:</strong>
+                                    <p id="view_order_date"></p>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <strong>Payment Method:</strong>
+                                    <p id="view_order_payment_method"></p>
+                                </div>
+                            </div>
 
-                    <div class="detail-item">
-                        <span class="detail-label">Price:</span>
-                        <span class="detail-value" id="price">$15.99</span>
-                    </div>
+                            <hr>
+                            <h6 class="mb-3">Customer Information</h6>
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <strong>Name:</strong>
+                                    <p id="view_order_customer_name"></p>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <strong>Email:</strong>
+                                    <p id="view_order_customer_email"></p>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <strong>Phone:</strong>
+                                    <p id="view_order_customer_phone"></p>
+                                </div>
+                                <div class="col-md-12 mb-3">
+                                    <strong>Address:</strong>
+                                    <p id="view_order_customer_address"></p>
+                                </div>
+                            </div>
 
-                    <div class="detail-item">
-                        <span class="detail-label">Name:</span>
-                        <span class="detail-value" id="name">John Doe</span>
-                    </div>
+                            <hr>
+                            <h6 class="mb-3">Payment Information</h6>
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <strong>Payment Status:</strong>
+                                    <p id="view_order_payment_status"></p>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <strong>Payment Amount:</strong>
+                                    <p id="view_order_payment_amount"></p>
+                                </div>
+                                <div class="col-md-12 mb-3">
+                                    <strong>Payment Date:</strong>
+                                    <p id="view_order_payment_date"></p>
+                                </div>
+                            </div>
 
-                    <div class="detail-item">
-                        <span class="detail-label">Email:</span>
-                        <span class="detail-value" id="email">johndoe@example.com</span>
+                            <div id="order_receipt_section" style="display: none;">
+                                <hr>
+                                <h6 class="mb-3">Payment Receipt</h6>
+                                <div class="row">
+                                    <div class="col-12 mb-3">
+                                        <strong>File Name:</strong>
+                                        <p id="order_receipt_name"></p>
+                                    </div>
+                                    <div class="col-12 mb-3" id="order_receipt_preview"></div>
+                                    <div class="col-12">
+                                        <a href="#" id="download_order_receipt_btn" class="btn btn-primary me-2"
+                                            download>
+                                            <i class="fas fa-download me-2"></i>Download
+                                        </a>
+                                        <button type="button" id="view_order_receipt_btn" class="btn btn-info"
+                                            onclick="">
+                                            <i class="fas fa-external-link-alt me-2"></i>Open in New Tab
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <div id="view_order_action_section" class="me-auto"></div>
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        </div>
                     </div>
+                </div>
+            </div>
 
-                    <div class="detail-item">
-                        <span class="detail-label">Phone:</span>
-                        <span class="detail-value" id="phone">+1234567890</span>
-                    </div>
-
-                    <div class="detail-item">
-                        <span class="detail-label">Address:</span>
-                        <span class="detail-value" id="address">123 Main Street, Cityville</span>
-                    </div>
-
-                    <div class="detail-item">
-                        <span class="detail-label">Date:</span>
-                        <span class="detail-value" id="date">2024-12-31</span>
-                    </div>
-
-                    <div class="detail-item">
-                        <span class="detail-label">Payment Method:</span>
-                        <span class="detail-value" id="paymentMethod">Credit Card</span>
-                    </div>
-
-                    <div class="detail-item">
-                        <span class="detail-label">Book Status:</span>
-                        <span class="detail-value" id="status">Completed</span>
-                    </div>
-
-                    <div class="detail-item">
-                        <span class="detail-label">Payment Status:</span>
-                        <span class="detail-value" id="paymentStatus">Paid</span>
-                    </div>
-
-                    <div class="detail-item">
-                        <span class="detail-label">Payment Date:</span>
-                        <span class="detail-value" id="paymentDate">2024-12-30</span>
-                    </div>
-
-                    <div class="detail-item">
-                        <span class="detail-label">Payment Amount:</span>
-                        <span class="detail-value" id="paymentAmount">$15.99</span>
-                    </div>
-                    <div class="detail-item">
-                        <span class="detail-label">Change Status:</span>
-                        <span class="detail-value" id="action"></span>
+            <!-- Receipt Image Modal -->
+            <div class="modal fade" id="order_receipt_image_modal" tabindex="-1" aria-hidden="true">
+                <div class="modal-dialog modal-xl modal-dialog-centered">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">Receipt Image</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                        </div>
+                        <div class="modal-body text-center">
+                            <img id="order_receipt_image_modal_img" src="" class="img-fluid"
+                                style="max-height: 80vh;" />
+                        </div>
                     </div>
                 </div>
             </div>
@@ -159,8 +207,8 @@
             <ul style="width:78rem;"class="nav nav-tabs" id="myTab" role="tablist">
                 <li class="nav-item" role="presentation">
                     <button class="nav-link active" id="profile-tab" data-bs-toggle="tab"
-                        data-bs-target="#category-tab-pane" type="button" role="tab" aria-controls="profile-tab-pane"
-                        aria-selected="false">
+                        data-bs-target="#category-tab-pane" type="button" role="tab"
+                        aria-controls="profile-tab-pane" aria-selected="false">
                         All</button>
                 </li>
                 {{-- Pendding --}}
@@ -446,7 +494,7 @@
                                         <div class="card">
 
                                             <div class="card-body">
-                                                
+
                                                 {{-- include --}}
                                                 @php
                                                     $button = '';
@@ -792,15 +840,30 @@
                                                     $filters = [
                                                         // get my page table payment
                                                         // title
-                                                        ['name' => 'title', 'type' => 'text', 'label' => 'Title', 'placeholder' => 'Search Title'],
+                                                        [
+                                                            'name' => 'title',
+                                                            'type' => 'text',
+                                                            'label' => 'Title',
+                                                            'placeholder' => 'Search Title',
+                                                        ],
                                                         // amount
-                                                        ['name' => 'amount', 'type' => 'text', 'label' => 'Amount', 'placeholder' => 'Search Amount'],
+                                                        [
+                                                            'name' => 'amount',
+                                                            'type' => 'text',
+                                                            'label' => 'Amount',
+                                                            'placeholder' => 'Search Amount',
+                                                        ],
                                                         // Payment Indent
-                                                        ['name' => 'payment_indent', 'type' => 'text', 'label' => 'Payment Indent', 'placeholder' => 'Search Payment Indent'],
+                                                        [
+                                                            'name' => 'payment_indent',
+                                                            'type' => 'text',
+                                                            'label' => 'Payment Indent',
+                                                            'placeholder' => 'Search Payment Indent',
+                                                        ],
                                                         // Date
                                                         ['name' => 'date', 'type' => 'date', 'label' => 'Date'],
 
-                                                        // 
+                                                        //
                                                         // ['name' => 'email', 'type' => 'text', 'label' => 'Email', 'placeholder' => 'Search Email'],
                                                         // // Select options
                                                         // ['name' => 'role', 'type' => 'select', 'label' => 'Role', 'options' => [

@@ -97,11 +97,7 @@ function makeEventsListing(eventsList){
         },
         dom: "Bfrtip",
         buttons: [
-            // { extend: "copy", className: "btn btn-copy", text: "Copy" },
-            // { extend: "csv", className: "btn btn-csv", text: "CSV" },
             { extend: "excel", className: "btn btn-excel", text: "Excel" },
-            // { extend: "pdf", className: "btn btn-pdf", text: "PDF" },
-            // { extend: "print", className: "btn btn-print", text: "Print" },
             { 
                 text: "Refresh", 
                 className: "btn btn-refresh", 
@@ -109,10 +105,6 @@ function makeEventsListing(eventsList){
                     console.log("Refresh button clicked");
                     $("#resetFilterButton").click(); 
                     getNewsEventsPageData();
-                    // resetFilterButton click
-
-
-                    
                 } 
             }
         ],
@@ -131,52 +123,90 @@ $(document).on('click', '.closeCanvas', function (e) {
 });
 
 function resetEventForm(){
-
     let form = $('#newsEvent_form');
-	form.trigger("reset");
+    form.trigger("reset");
 
     selectedFiles = [];
     $("#image_file, #event_id").val('');
     $("#file_container, #file_container_uploaded").html('');
     editorInstance.description.setData('');
-    $("#recurring_type_div, #repeat_on_div").hide();
-    $("#repeat_on").val(JSON.parse('[]')).trigger('change');
+    // Hide all recurring fields
+    $("#recurring_type_div, #repeat_on_div, #monthly_week_div, #monthly_repeat_on_div, #yearly_week_div, #yearly_repeat_on_div").hide();
+    // Reset all recurring field values
+    $("#repeat_on, #monthly_week, #monthly_repeat_on, #yearly_week, #yearly_repeat_on").val(JSON.parse('[]')).trigger('change');
 }
 
 $(document).on('change', '#event_type', function (e) {
-	var eventType = $(this).val();
+    var eventType = $(this).val();
 
     if(eventType != ''){
         if(eventType == 'Recurring'){
             $("#recurring_type_div").val('').show();
         }else{
-            $("#recurring_type, #repeat_on").val('').trigger('change');
-            $("#recurring_type_div, #repeat_on_div").hide();
+            $("#recurring_type, #repeat_on, #monthly_week, #monthly_repeat_on, #yearly_week, #yearly_repeat_on").val('').trigger('change');
+            $("#recurring_type_div, #repeat_on_div, #monthly_week_div, #monthly_repeat_on_div, #yearly_week_div, #yearly_repeat_on_div").hide();
         }
     }else{
-        $("#recurring_type, #repeat_on").val('').trigger('change');
-        $("#recurring_type_div, #repeat_on_div").hide();
+        $("#recurring_type, #repeat_on, #monthly_week, #monthly_repeat_on, #yearly_week, #yearly_repeat_on").val('').trigger('change');
+        $("#recurring_type_div, #repeat_on_div, #monthly_week_div, #monthly_repeat_on_div, #yearly_week_div, #yearly_repeat_on_div").hide();
     }
 });
 
+// Handle Recurring Type changes
 $(document).on('change', '#recurring_type', function (e) {
-	var recurringType = $(this).val();
+    var recurringType = $(this).val();
+
+    // Hide ALL sub-options first
+    $("#repeat_on, #monthly_week, #monthly_repeat_on, #yearly_week, #yearly_repeat_on").val('').trigger('change');
+    $("#repeat_on_div, #monthly_week_div, #monthly_repeat_on_div, #yearly_week_div, #yearly_repeat_on_div").hide();
 
     if(recurringType != ''){
-        if(recurringType == 'Weekly'){
-            $("#repeat_on").val('').trigger('change');
+        if(recurringType == 'Weekly' || recurringType == 'Bi-Weekly'){
+            // For Weekly/Bi-Weekly: Show repeat_on only
             $("#repeat_on_div").show();
-        }else{
-            $("#repeat_on").val('').trigger('change');
-            $("#repeat_on_div").hide();
+        } 
+        else if(recurringType == 'Monthly'){
+            // For Monthly: Show week and repeat_on
+            $("#monthly_week_div, #monthly_repeat_on_div").show();
+        } 
+        else if(recurringType == 'Yearly'){
+            // For Yearly: Show week and repeat_on
+            $("#yearly_week_div, #yearly_repeat_on_div").show();
         }
-    }else{
-        $("#repeat_on").val('').trigger('change');
-        $("#repeat_on_div").hide();
     }
 });
 
+// Handle Monthly subtype changes
+$(document).on('change', '#monthly_subtype', function (e) {
+    var monthlySubtype = $(this).val();
 
+    // Hide monthly repeat on
+    $("#monthly_repeat_on").val('').trigger('change');
+    $("#monthly_repeat_on_div").hide();
+
+    if(monthlySubtype != ''){
+        if(monthlySubtype == 'Weekly' || monthlySubtype == 'Bi-Weekly'){
+            // Show repeat days for monthly weekly/bi-weekly
+            $("#monthly_repeat_on_div").show();
+        }
+    }
+});
+
+// Handle Yearly subtype changes
+$(document).on('change', '#yearly_subtype', function (e) {
+    var yearlySubtype = $(this).val();
+
+    // Hide yearly repeat on
+    $("#yearly_repeat_on").val('').trigger('change');
+    $("#yearly_repeat_on_div").hide();
+
+    if(yearlySubtype != ''){
+        if(yearlySubtype == 'Weekly' || yearlySubtype == 'Bi-Weekly'){
+            // Show repeat days for yearly weekly/bi-weekly
+            $("#yearly_repeat_on_div").show();
+        }
+    }
+});
 
 var selectedFiles = [];
 
@@ -296,7 +326,6 @@ function editGalleryResponse(response) {
     if (response.status == 200  || response.status == '200') {
 
         var data = response.data;
-
         var eventDetail = data.event_detail;
         
         if(eventDetail != null){
@@ -307,25 +336,33 @@ function editGalleryResponse(response) {
             $("#event_date").val(eventDetail.event_date);
             $("#start_date").val(eventDetail.start_date);
             $("#end_date").val(eventDetail.end_date);
-            $("#event_time").val(eventDetail.event_time);
+            $("#namaz_name").val(eventDetail.namaz_name);
             $("#event_type").val(eventDetail.type);
 
             if(eventDetail.type == 'Recurring'){
                 $("#recurring_type_div").show();
                 $("#recurring_type").val(eventDetail.recurring_type);
+                
+                // Handle Weekly/Bi-Weekly
+                if(eventDetail.recurring_type == 'Weekly' || eventDetail.recurring_type == 'Bi-Weekly'){
+                    $("#repeat_on_div").show();
+                    $("#repeat_on").val(JSON.parse(eventDetail.repeat_on || '[]')).trigger('change');
+                }
+                // Handle Monthly
+                else if(eventDetail.recurring_type == 'Monthly'){
+                    $("#monthly_week_div, #monthly_repeat_on_div").show();
+                    $("#monthly_week").val(eventDetail.monthly_week);
+                    $("#monthly_repeat_on").val(JSON.parse(eventDetail.repeat_on || '[]')).trigger('change');
+                }
+                // Handle Yearly
+                else if(eventDetail.recurring_type == 'Yearly'){
+                    $("#yearly_week_div, #yearly_repeat_on_div").show();
+                    $("#yearly_week").val(eventDetail.yearly_week);
+                    $("#yearly_repeat_on").val(JSON.parse(eventDetail.repeat_on || '[]')).trigger('change');
+                }
             }else{
-                $("#recurring_type_div").hide();
-                $("#recurring_type").val('');
+                $("#recurring_type_div, #repeat_on_div, #monthly_week_div, #monthly_repeat_on_div, #yearly_week_div, #yearly_repeat_on_div").hide();
             }
-            
-            if(eventDetail.recurring_type == 'Weekly'){
-                $("#repeat_on_div").show();
-                $("#repeat_on").val(JSON.parse(eventDetail.repeat_on)).trigger('change');
-            }else{
-                $("#repeat_on_div").hide();
-                $("#repeat_on").val(JSON.parse('[]')).trigger('change');
-            }
-            
             
             $("#location").val(eventDetail.location);
             $("#status").val(eventDetail.status);
@@ -418,30 +455,28 @@ function deleteEventConfirmedResponse(response) {
     } 
 }
 
-
-
 function displaySelectedFiles() {
-const $imageContainer = $('#file_container');
-$imageContainer.empty()
-if (selectedFiles.length < 8) {
-    $imageContainer.empty() // Clear previous images
-    selectedFiles.forEach((file, index) => {
-        const reader = new FileReader()
-        reader.onload = function (e) {
-            const $imageDiv = $('<div>').addClass('col-3 my-3')
-            const $image = $('<img>').attr('src', e.target.result).addClass('img-prev')
-            $imageDiv.append($image)
-            const $cancelButton = $('<span>').html('&times;').addClass('cancel-icon')
-            $cancelButton.on('click', function () {
-                selectedFiles.splice(index, 1)
-                displaySelectedFiles()
-            })
-            $imageDiv.append($cancelButton)
-            $imageContainer.append($imageDiv)
-        }
-    reader.readAsDataURL(file)
-    })
-}
+    const $imageContainer = $('#file_container');
+    $imageContainer.empty()
+    if (selectedFiles.length < 8) {
+        $imageContainer.empty() // Clear previous images
+        selectedFiles.forEach((file, index) => {
+            const reader = new FileReader()
+            reader.onload = function (e) {
+                const $imageDiv = $('<div>').addClass('col-3 my-3')
+                const $image = $('<img>').attr('src', e.target.result).addClass('img-prev')
+                $imageDiv.append($image)
+                const $cancelButton = $('<span>').html('&times;').addClass('cancel-icon')
+                $cancelButton.on('click', function () {
+                    selectedFiles.splice(index, 1)
+                    displaySelectedFiles()
+                })
+                $imageDiv.append($cancelButton)
+                $imageContainer.append($imageDiv)
+            }
+        reader.readAsDataURL(file)
+        })
+    }
 }
 
 $(document).on('change', 'input, textarea, select', function (e) {

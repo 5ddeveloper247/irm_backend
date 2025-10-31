@@ -47,7 +47,7 @@ Route::post('/verifyForgetPassword', [AdminController::class, 'verifyForgetPassw
 Route::get('/test1', [AdminController::class, 'testApi'])->name('testApi');
 
 Route::group(['middleware' => ['AdminAuth']], function () {
-   
+
     Route::group(['middleware' => ['CheckSubAdminAccess']], function () {
         // add third group middleware sections
         /************** PAGE ROUTES ******************/
@@ -62,6 +62,9 @@ Route::group(['middleware' => ['AdminAuth']], function () {
         Route::get('/irm_settings', [AdminController::class, 'settings'])->name('irm_settings');
         // payments
         Route::get('/payments', [PaymentController::class, 'payments'])->name('payments');
+        Route::get('/getPaymentDetails/{id}', [PaymentController::class, 'getPaymentDetails']);
+        Route::post('/approvePayment/{id}', [PaymentController::class, 'approvePayment']);
+        Route::post('/rejectPayment/{id}', [PaymentController::class, 'rejectPayment']);
         // bookorders
         Route::get('/bookorders', [BookOrderController::class, 'bookorders'])->name('bookorders');
         // enrollCourses
@@ -71,7 +74,7 @@ Route::group(['middleware' => ['AdminAuth']], function () {
         // memberships
         Route::get('/memberships', [MembershipController::class, 'memberships'])->name('memberships');
 
-       
+
         // youtube
         Route::get('/youtube', [YoutubeController::class, 'youtube'])->name('youtube');
         // worklocations
@@ -105,7 +108,7 @@ Route::group(['middleware' => ['AdminAuth']], function () {
     Route::post('/getEnrollCoursesPageData', [EnrollCourseController::class, 'getEnrollCoursesPageData'])->name('getEnrollCoursesPageData');
 
     // save membership
-     Route::post('/saveMembership', [MembershipController::class, 'saveMembership']);
+    Route::post('/saveMembership', [MembershipController::class, 'saveMembership']);
 
     // Contact
 

@@ -1,26 +1,18 @@
 function getPaymentsPageData(formValues = {}){
-
     let type = 'POST';
     let url = '/getPaymentsPageData';
-    let message = '';
-    let form = '';
     let data = new FormData();
-    // PASSING DATA TO FUNCTION
+    
     for (const [key, value] of Object.entries(formValues)) {
         data.append(key, value);
     }
+    
     SendAjaxRequestToServer(type, url, data, '', getPaymentsPageDataResponse, '', '');
 }
 
 function getPaymentsPageDataResponse(response) {
-
-    // SHOWING MESSAGE ACCORDING TO RESPONSE
-    if (response.status == 200  || response.status == '200') {
-        // console.log(response.data.payment_list);
-        var data = response.data;
-
-        var paymentsList = data.payment_list;
-        // console.log(paymentsList);
+    if (response.status == 200 || response.status == '200') {
+        var paymentsList = response.data.payment_list;
         makePaymentsListing(paymentsList);
     } 
 }
@@ -51,8 +43,6 @@ function getStatusBadge(status) {
         case 'voided':
             return '<span class="badge bg-secondary text-white">Cancelled</span>';
         
-        
-        
         case 'requires_action':
         case 'requires_confirmation':
         case 'requires_payment_method':
@@ -63,27 +53,22 @@ function getStatusBadge(status) {
     }
 }
 
-
 function makePaymentsListing(paymentsList){
-    
     var html = '';
+    
     if ($.fn.DataTable.isDataTable('#payments_table')) {
         $('#payments_table').DataTable().destroy();
     }
+    
     if (paymentsList.length > 0) {
         $.each(paymentsList, function (index, payment) {
             var paymentData = JSON.parse(payment.data);
-            console.log(paymentData);
-            // Extract required values
-            // var firstName = paymentData?.donatation_submit?.firstName || 'N/A';
-            var firstName = payment?.non_member != null ? payment?.non_member : payment?.data2?.donatation_submit.firstName || 'N/A';
-            var lastName = payment?.non_member != null ? '' : payment?.data2?.donatation_submit.lastName || 'N/A';
-            // var lastName = paymentData?.donatation_submit?.lastName || 'N/A';
+            var firstName = payment?.non_member != null ? payment?.non_member : payment?.data2?.donatation_submit?.firstName || 'N/A';
+            var lastName = payment?.non_member != null ? '' : payment?.data2?.donatation_submit?.lastName || 'N/A';
             var email = paymentData?.donatation_submit?.email || 'N/A';
 
             html += `<tr>
                         <td class="text-start text-nowrap">${index+1}</td>
-                        
                         <td class="text-start text-nowrap">${payment.module_title || 'N/A'}</td>
                         <td class="text-start text-nowrap">${payment.module_code}</td>
                         <td class="text-start text-nowrap">${payment.amount}</td>
@@ -91,18 +76,18 @@ function makePaymentsListing(paymentsList){
                         <td class="text-start text-nowrap">${firstName} ${lastName}</td>
                         <td class="text-start text-nowrap">${email}</td>
                         <td class="text-start text-nowrap">${formatDate(payment.created_at)}</td>
-                        <td class="text-start text-nowrap">
-        ${getStatusBadge(payment.status)}
-    </td>
-                        
+                        <td class="text-start text-nowrap">${getStatusBadge(payment.status)}</td>
+                        <td class="text-start text-nowrap">${payment.action_buttons}</td>
                     </tr>`;
         });
     }
+    
     $("#payments_table_body").html(html);
-    // datatables
+    
     if ($.fn.DataTable.isDataTable('#payments_table')) {
         $('#payments_table').DataTable().destroy();
     }
+    
     $("#payments_table").DataTable({
         paging: true,
         lengthChange: true,
@@ -117,74 +102,179 @@ function makePaymentsListing(paymentsList){
         },
         dom: "Bfrtip",
         buttons: [
-            // { extend: "copy", className: "btn btn-copy", text: "Copy" },
-            // { extend: "csv", className: "btn btn-csv", text: "CSV" },
             { extend: "excel", className: "btn btn-excel", text: "Excel" },
-            // { extend: "pdf", className: "btn btn-pdf", text: "PDF" },
-            // { extend: "print", className: "btn btn-print", text: "Print" },
             { 
                 text: "Refresh", 
                 className: "btn btn-refresh", 
                 action: function () { 
-                    console.log("Refresh button clicked");
                     $("#resetFilterButton").click(); 
-                    getPaymentsPageData(); 
-                    // resetFilterButton click
-
-
-                    
+                    getPaymentsPageData();
                 } 
             }
         ],
     });
+}
 
-    // Prevent duplicate header filters in responsive mode
-    $('.filter-row').clone().appendTo('#payments_table thead').hide();
-    // datatables end
+// View payment details
+function viewPayment(id) {
+    let type = 'GET';
+    let url = '/getPaymentDetails/' + id;
+    let data = new FormData();
+    
+    SendAjaxRequestToServer(type, url, data, '', viewPaymentResponse, '', '');
+}
+
+function viewPaymentResponse(response) {
+    if (response.status == 200) {
+        var payment = response.data;
+        
+        // Populate modal with payment details
+        $('#view_payment_id').text(payment.id);
+        $('#view_payment_amount').text('PKR ' + payment.amount);
+        $('#view_payment_status').html(getStatusBadge(payment.status));
+        $('#view_payment_intent').text(payment.payment_intent);
+        $('#view_payment_method').text(payment.payment_method);
+        $('#view_module_code').text(payment.module_code);
+        $('#view_category').text(payment.data?.donatation_submit?.category || 'N/A');
+        $('#view_module_title').text(payment.module_title);
+        $('#view_payment_date').text(payment.created_at);
+        
+        // Billing info
+        if(payment.data && payment.data.donatation_submit) {
+            var billing = payment.data.donatation_submit;
+            $('#view_customer_name').text((billing.firstName || '') + ' ' + (billing.lastName || ''));
+            $('#view_customer_email').text(billing.email || 'N/A');
+            $('#view_customer_phone').text(billing.phoneNumber || 'N/A');
+            $('#view_customer_address').text(
+                (billing.streetAddress || '') + ', ' + 
+                (billing.city || '') + ', ' + 
+                (billing.country || '')
+            );
+        }
+        
+        // Receipt section
+        if(payment.receipt_url) {
+            $('#receipt_section').show();
+            $('#receipt_name').text(payment.receipt_name);
+            
+            // Download button
+            $('#download_receipt_btn').attr('href', payment.receipt_url);
+            $('#download_receipt_btn').attr('download', payment.receipt_name);
+            
+            // View button
+            $('#view_receipt_btn').attr('onclick', `openReceipt('${payment.receipt_url}', ${payment.is_image})`);
+            
+            // Preview
+            if(payment.is_image) {
+                $('#receipt_preview').html(`
+                    <img src="${payment.receipt_url}" 
+                         class="img-fluid rounded cursor-pointer" 
+                         style="max-height: 200px; cursor: pointer;"
+                         onclick="openReceipt('${payment.receipt_url}', true)" />
+                `);
+            } else if(payment.is_pdf) {
+                $('#receipt_preview').html(`
+                    <div class="text-center p-3 bg-light rounded">
+                        <i class="fas fa-file-pdf fa-3x text-danger mb-2"></i>
+                        <p class="mb-0">PDF Document</p>
+                    </div>
+                `);
+            }
+        } else {
+            $('#receipt_section').hide();
+        }
+        
+        // Show modal
+        $('#view_payment_modal').modal('show');
+    }
+}
+
+// Open receipt in new tab or modal
+function openReceipt(url, isImage) {
+    if(isImage) {
+        // Open image in modal
+        $('#receipt_image_modal_img').attr('src', url);
+        $('#receipt_image_modal').modal('show');
+    } else {
+        // Open PDF in new tab
+        window.open(url, '_blank');
+    }
+}
+
+// Approve payment
+function approvePayment(id) {
+    if(confirm('Are you sure you want to approve this payment?')) {
+        let type = 'POST';
+        let url = '/approvePayment/' + id;
+        let data = new FormData();
+        
+        SendAjaxRequestToServer(type, url, data, '', approvePaymentResponse, '', '');
+    }
+}
+
+function approvePaymentResponse(response) {
+    if (response.status == 200) {
+        toastr.success(response.message, 'Success');
+        getPaymentsPageData();
+    } else {
+        toastr.error(response.message, 'Error');
+    }
+}
+
+// Reject payment
+function rejectPayment(id) {
+    if(confirm('Are you sure you want to reject this payment?')) {
+        let type = 'POST';
+        let url = '/rejectPayment/' + id;
+        let data = new FormData();
+        
+        SendAjaxRequestToServer(type, url, data, '', rejectPaymentResponse, '', '');
+    }
+}
+
+function rejectPaymentResponse(response) {
+    if (response.status == 200) {
+        toastr.success(response.message, 'Success');
+        getPaymentsPageData();
+    } else {
+        toastr.error(response.message, 'Error');
+    }
 }
 
 $(document).ready(function () {
-
     getPaymentsPageData();
-});
-
-$(document).ready(function () {
-    $('#search_filter').on('keyup', function () {
-        $(".no_result_row").remove(); // Remove 'No result found' row
-        var value = $(this).val().toLowerCase(); // Get the input value
     
-        // Iterate through each row
+    $('#search_filter').on('keyup', function () {
+        $(".no_result_row").remove();
+        var value = $(this).val().toLowerCase();
+    
         $("#payments_table_body tr").each(function () {
             var row = $(this);
             var hasMatch = false;
     
-            // Iterate through each cell in the row
             row.find("td").each(function () {
                 var cell = $(this);
                 if (cell.text().toLowerCase().indexOf(value) > -1) {
-                    cell.addClass("table-highlight"); // Highlight matching cell
-                    hasMatch = true; // Mark the row as having a match
+                    cell.addClass("table-highlight");
+                    hasMatch = true;
                 } else {
-                    cell.removeClass("table-highlight"); // Remove table-highlight from non-matching cells
+                    cell.removeClass("table-highlight");
                 }
             });
     
-            // Toggle the visibility of the row based on whether it has a match
             row.toggle(hasMatch);
         });
     
-        // Display 'No result found' if no rows are visible
         if ($("#payments_table_body tr:visible").length === 0) {
             var no_result_row = `
                 <tr class="no_result_row">
-                    <td class="text-start text-danger text-center" colspan="8">No result found</td>
+                    <td class="text-start text-danger text-center" colspan="10">No result found</td>
                 </tr>`;
             $("#payments_table_body").append(no_result_row);
         }
-        // remove table-highlight class from all td when input is empty
+        
         if($(this).val()== ''){
             $(".no_result_row").remove();
-            // remove table-highlight class from all td
             $("#payments_table_body tr td").removeClass("table-highlight");
         }
     });

@@ -1,5 +1,4 @@
 function getEnrollCoursesPageData(formValues = {}){
-
     let type = 'POST';
     let url = '/getEnrollCoursesPageData';
     let message = '';
@@ -11,14 +10,7 @@ function getEnrollCoursesPageData(formValues = {}){
     }
     SendAjaxRequestToServer(type, url, data, '', getEnrollCoursesPageDataResponse, '', '');
 }
-// $(document).ready(function () {
-//     $('#search_filter').on('keyup', function () {
-//         var value = $(this).val().toLowerCase();
-//         $("#enrollCourses_table_body tr").filter(function () {
-//             $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
-//         });
-//     });
-// });
+
 $(document).ready(function () {
     $('#search_filter').on('keyup', function () {
         $(".no_result_row").remove();
@@ -30,8 +22,8 @@ $(document).ready(function () {
         // when data not match then show no result found
         if ($("#enrollCourses_table_body tr:visible").length == 0) {
             var no_result_row = `<tr class="no_result_row">
-                                    <td class="text-start text-danger text-center" colspan="8">No result found</td>
-                                    </tr>`;
+                                    <td class="text-center text-danger" colspan="8">No result found</td>
+                                </tr>`;
             $("#enrollCourses_table_body").append(no_result_row);
         } else {
             // remove no result found row
@@ -39,15 +31,12 @@ $(document).ready(function () {
         }
     });
 });
-function getEnrollCoursesPageDataResponse(response) {
 
+function getEnrollCoursesPageDataResponse(response) {
     // SHOWING MESSAGE ACCORDING TO RESPONSE
     if (response.status == 200  || response.status == '200') {
-        // console.log(response.data.enrollCourse_list);
         var data = response.data;
-
         var enrollCoursesList = data.enrollCourse_list;
-        // console.log(enrollCoursesList);
         makeEnrollCoursesListing(enrollCoursesList);
     } 
 }
@@ -59,23 +48,38 @@ function makeEnrollCoursesListing(enrollCoursesList){
     if ($.fn.DataTable.isDataTable('#enrollCourses_table')) {
         $('#enrollCourses_table').DataTable().destroy();
     }
+    
     if (enrollCoursesList.length > 0) {
         $.each(enrollCoursesList, function (index, enrollCourse) {
+            // Safely get values with fallbacks
+            var registerBy = enrollCourse.name || 'N/A';
+            var studentName = enrollCourse.name || 'N/A';
+            var email = enrollCourse.email || 'N/A';
+            var courseTitle = enrollCourse?.course?.title || 'N/A';
+            var instructorName = enrollCourse?.course?.instructor_name || 'N/A';
+            var level = enrollCourse?.course?.level || 'N/A';
+            var date = enrollCourse.created_at ? formatDate(enrollCourse.created_at) : 'N/A';
             
             html += `<tr>
-                        <td class="text-start text-nowrap">${index+1}</td>
-                        <td class="text-start text-nowrap">${enrollCourse.name}</td>
-                        <td class="text-start text-nowrap">${enrollCourse.email}</td>
-                        <td class="text-start text-nowrap">${enrollCourse?.course?.title}</td>
-                        <td class="text-start text-nowrap">${enrollCourse?.course?.instructor_name}</td> 
-                        <td class="text-start text-nowrap">${enrollCourse?.course?.level}</td> 
-                        <td class="text-start text-nowrap">${formatDate(enrollCourse.created_at)}</td>
-                        
-                        
+                        <td class="text-start text-nowrap">${index + 1}</td>
+                        <td class="text-start text-nowrap">${registerBy}</td>
+                        <td class="text-start text-nowrap">${studentName}</td>
+                        <td class="text-start text-nowrap">${email}</td>
+                        <td class="text-start text-nowrap">${courseTitle}</td>
+                        <td class="text-start text-nowrap">${instructorName}</td>
+                        <td class="text-start text-nowrap">${level}</td>
+                        <td class="text-start text-nowrap">${date}</td>
                     </tr>`;
         });
+    } else {
+        html = `<tr>
+                    <td class="text-center" colspan="8">No data available</td>
+                </tr>`;
     }
+    
     $("#enrollCourses_table_body").html(html);
+    
+    // Initialize DataTable with proper configuration
     $("#enrollCourses_table").DataTable({
         paging: true,
         lengthChange: true,
@@ -84,17 +88,23 @@ function makeEnrollCoursesListing(enrollCoursesList){
         autoWidth: false,
         responsive: true,
         scrollX: true,
+        order: [[0, 'asc']], // Sort by Seq No by default
         language: {
             search: "_INPUT_",
             searchPlaceholder: "Search",
+            emptyTable: "No data available in table",
+            zeroRecords: "No matching records found"
         },
         dom: "Bfrtip",
         buttons: [
-            // { extend: "copy", className: "btn btn-copy", text: "Copy" },
-            // { extend: "csv", className: "btn btn-csv", text: "CSV" },
-            { extend: "excel", className: "btn btn-excel", text: "Excel" },
-            // { extend: "pdf", className: "btn btn-pdf", text: "PDF" },
-            // { extend: "print", className: "btn btn-print", text: "Print" },
+            { 
+                extend: "excel", 
+                className: "btn btn-excel", 
+                text: "Excel",
+                exportOptions: {
+                    columns: ':visible'
+                }
+            },
             { 
                 text: "Refresh", 
                 className: "btn btn-refresh", 
@@ -102,25 +112,17 @@ function makeEnrollCoursesListing(enrollCoursesList){
                     console.log("Refresh button clicked");
                     $("#resetFilterButton").click(); 
                     getEnrollCoursesPageData(); 
-                    // resetFilterButton click
-
-
-                    
                 } 
             }
         ],
+        columnDefs: [
+            { targets: [0], orderable: true },  // Seq No
+            { targets: [1, 2, 3, 4, 5, 6, 7], orderable: true }  // All other columns
+        ]
     });
-    // setTimeout(function () {
-    //     $('#enrollCourses_table').DataTable({
-    //         // add serch pan in table
-    //         "searching": true,
-    //         // pagination
-    //         "paging": true,
-    //     });
-    // }, 1000);
 }
 
 $(document).ready(function () {
-    // datatables
+    // Initialize on page load
     getEnrollCoursesPageData();
 });

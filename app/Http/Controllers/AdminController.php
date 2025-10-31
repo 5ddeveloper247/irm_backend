@@ -231,7 +231,7 @@ class AdminController extends Controller
     //         if ($user->role == 1 || $user->role == 3) {
     //             return redirect()->intended('/audio_lectures');
     //         } else {
-                
+
 
     //             return redirect('login')->withErrors([
     //                 'email' => 'The provided credentials is not valid.',
@@ -248,43 +248,43 @@ class AdminController extends Controller
 
 
     public function loginSubmit(Request $request)
-{
-    $credentials = $request->only('email', 'password');
+    {
+        $credentials = $request->only('email', 'password');
 
-    // Attempt to authenticate the user
-    if (Auth::attempt($credentials)) {
-        // Authentication passed
-        $user = Auth::user();
-        
-        if ($user->role == 1) {
-            // Super Admin - redirect to audio lectures
-            return redirect()->intended('/audio_lectures');
-        } elseif ($user->role == 3) {
-            // Sub-Admin - redirect to their first accessible menu
-            $firstMenuControl = MenuControl::where('user_id', $user->id)
-                ->with('menu')
-                ->orderBy('menu_id', 'asc')
-                ->first();
-            
-            if ($firstMenuControl && $firstMenuControl->menu) {
-                $route = $firstMenuControl->menu->route;
-                return redirect()->route($route);
+        // Attempt to authenticate the user
+        if (Auth::attempt($credentials)) {
+            // Authentication passed
+            $user = Auth::user();
+
+            if ($user->role == 1) {
+                // Super Admin - redirect to audio lectures
+                return redirect()->intended('/audio_lectures');
+            } elseif ($user->role == 3) {
+                // Sub-Admin - redirect to their first accessible menu
+                $firstMenuControl = MenuControl::where('user_id', $user->id)
+                    ->with('menu')
+                    ->orderBy('menu_id', 'asc')
+                    ->first();
+
+                if ($firstMenuControl && $firstMenuControl->menu) {
+                    $route = $firstMenuControl->menu->route;
+                    return redirect()->route($route);
+                }
+
+                // Fallback to dashboard if no menus assigned
+                return redirect()->route('dashboard');
+            } else {
+                return redirect('login')->withErrors([
+                    'email' => 'The provided credentials is not valid.',
+                ]);
             }
-            
-            // Fallback to dashboard if no menus assigned
-            return redirect()->route('dashboard');
-        } else {
-            return redirect('login')->withErrors([
-                'email' => 'The provided credentials is not valid.',
-            ]);
         }
+
+        // Authentication failed, redirect back to the login page with error message
+        return redirect('login')->withErrors([
+            'email' => 'The provided credentials do not match our records.',
+        ]);
     }
-    
-    // Authentication failed, redirect back to the login page with error message
-    return redirect('login')->withErrors([
-        'email' => 'The provided credentials do not match our records.',
-    ]);
-}
 
     public function logout(Request $request)
     {
@@ -583,7 +583,6 @@ class AdminController extends Controller
                     ]);
                 }
             }
-
         } else {
             $BookCategory = new BookCategory;
         }
@@ -1075,7 +1074,7 @@ class AdminController extends Controller
         $BookLibrary->status = $request->book_status;
         $BookLibrary->book_category_id = $request->book_category_id;
         // book_homepage
-        if($request->book_homepage == '1') {
+        if ($request->book_homepage == '1') {
             $BookLibrary->book_homepage = 1;
         } else {
             $BookLibrary->book_homepage = 0;
@@ -1572,7 +1571,7 @@ class AdminController extends Controller
                 'videos.*.url' => [
                     'required',
                     'string',
-                   'regex:/^(https?\:\/\/)?(www\.)?(youtube\.com\/(watch\?v\=[\w\-]+(\&[a-zA-Z0-9\=\-]+)*|live\/[\w\-]+|playlist\?list\=[\w\-]+(\&[a-zA-Z0-9\=\-\_\+]+)*))|youtu\.be\/[\w\-]+$/'
+                    'regex:/^(https?\:\/\/)?(www\.)?(youtube\.com\/(watch\?v\=[\w\-]+(\&[a-zA-Z0-9\=\-]+)*|live\/[\w\-]+|playlist\?list\=[\w\-]+(\&[a-zA-Z0-9\=\-\_\+]+)*))|youtu\.be\/[\w\-]+$/'
 
                 ]
             ], [
@@ -1744,15 +1743,17 @@ class AdminController extends Controller
             'description' => 'required|string',
             'start_date' => 'required|date|after_or_equal:today',
             'end_date' => 'required|date|after_or_equal:start_date',
-            // add validation on event date between start and end date
             'event_date' => 'required|date|after_or_equal:start_date|before_or_equal:end_date',
-            'event_time' => 'required',
+            'namaz_name' => 'required',  // ADDED
             'event_type' => 'required',
             'recurring_type' => 'required_if:event_type,Recurring',
-            'repeat_on' => 'required_if:recurring_type,Weekly|array',
+            'repeat_on' => 'required_if:recurring_type,Weekly,Bi-Weekly,Monthly,Yearly|array',
+            'monthly_week' => 'required_if:recurring_type,Monthly',  // ADDED
+            'yearly_week' => 'required_if:recurring_type,Yearly',    // ADDED
             'location' => 'required',
             'status' => 'required',
         ]);
+
         if ($request->event_id == '') {
             $validatedData = $request->validate([
                 'images' => 'required|array',
@@ -1772,13 +1773,31 @@ class AdminController extends Controller
         $NewsEvent->event_date = $request->event_date;
         $NewsEvent->start_date = $request->start_date;
         $NewsEvent->end_date = $request->end_date;
-        $NewsEvent->event_time = $request->event_time;
+        $NewsEvent->namaz_name = $request->namaz_name;  // ADDED
         $NewsEvent->type = $request->event_type;
         $NewsEvent->recurring_type = $request->recurring_type;
-        if ($request->repeat_on != '') {
-            $NewsEvent->repeat_on = json_encode($request->repeat_on, true);
+
+        // Handle repeat_on
+        if ($request->repeat_on != '' && is_array($request->repeat_on)) {
+            $NewsEvent->repeat_on = json_encode($request->repeat_on);
         } else {
             $NewsEvent->repeat_on = '[]';
+        }
+
+        // ADDED: Handle monthly_week
+        if ($request->recurring_type == 'Monthly') {
+            $NewsEvent->monthly_week = $request->monthly_week;
+            $NewsEvent->yearly_week = null;  // Clear yearly_week if monthly is selected
+        }
+        // ADDED: Handle yearly_week
+        elseif ($request->recurring_type == 'Yearly') {
+            $NewsEvent->yearly_week = $request->yearly_week;
+            $NewsEvent->monthly_week = null;  // Clear monthly_week if yearly is selected
+        }
+        // Clear both if other recurring types
+        else {
+            $NewsEvent->monthly_week = null;
+            $NewsEvent->yearly_week = null;
         }
 
         $NewsEvent->location = $request->location;
