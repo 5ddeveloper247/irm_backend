@@ -255,3 +255,14 @@ Route::get('/run-migration', function () {
 //     $response = app('App\Http\Controllers\WhatsAppController')->sendMessage($to, $body);
 //     return $response;
 // });
+
+
+
+Route::get('/make-storage-link', function () {
+    try {
+        Artisan::call('storage:link');
+        return '✅ Storage link created successfully!';
+    } catch (\Exception $e) {
+        return '❌ Error: ' . $e->getMessage();
+    }
+});
