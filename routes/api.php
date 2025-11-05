@@ -150,3 +150,10 @@ Route::middleware('auth:register')->group(function () {
     // updateCourseViewIndex
     Route::post('updateCourseViewIndex', [EnrollCourseController::class, 'updateCourseViewIndex']);
 });
+
+
+Route::prefix('facebook')->group(function () {
+    Route::get('/generate-token', [YoutubeController::class, 'generateFacebookLongLivedToken'])->name('facebook.generate-token');
+    Route::get('/token-status', [YoutubeController::class, 'getFacebookTokenStatus'])->name('facebook.token-status');
+    Route::get('/live-status', [YoutubeController::class, 'getFacebookLiveStatus']);
+});

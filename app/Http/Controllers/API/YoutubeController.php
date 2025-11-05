@@ -8,6 +8,8 @@ use App\Models\Youtube;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\DB;
+
 
 
 class YoutubeController extends Controller
@@ -521,69 +523,264 @@ class YoutubeController extends Controller
         }
     }
 
+    public function generateFacebookLongLivedToken(Request $request)
+    {
+        try {
+            $shortLivedToken = $request->input('short_lived_token');
+            
+            if (!$shortLivedToken) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Short-lived token is required',
+                    'instructions' => [
+                        '1. Go to https://developers.facebook.com/tools/explorer/',
+                        '2. Select your app',
+                        '3. Add permissions: pages_read_engagement, pages_show_list',
+                        '4. Generate Access Token',
+                        '5. Send that token to this endpoint'
+                    ]
+                ], 400);
+            }
+
+            $appId = config('services.facebook.app_id');
+            $appSecret = config('services.facebook.app_secret');
+
+            if (!$appId || !$appSecret) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Facebook App ID and App Secret must be configured in config/services.php',
+                    'hint' => 'Add facebook.app_id and facebook.app_secret to your config'
+                ], 500);
+            }
+
+            // Exchange short-lived token for long-lived token
+            $response = Http::get('https://graph.facebook.com/v18.0/oauth/access_token', [
+                'grant_type' => 'fb_exchange_token',
+                'client_id' => $appId,
+                'client_secret' => $appSecret,
+                'fb_exchange_token' => $shortLivedToken
+            ]);
+
+            if (!$response->successful()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Failed to generate long-lived token',
+                    'error' => $response->json()
+                ], 400);
+            }
+
+            $data = $response->json();
+            $longLivedToken = $data['access_token'];
+            $expiresIn = $data['expires_in'] ?? 5184000; // 60 days default
+
+            // Get token info to verify
+            $tokenInfo = Http::get('https://graph.facebook.com/debug_token', [
+                'input_token' => $longLivedToken,
+                'access_token' => $longLivedToken
+            ])->json();
+
+            // Store in database (you'll need to create this table)
+            DB::table('facebook_tokens')->updateOrInsert(
+                ['id' => 1],
+                [
+                    'access_token' => $longLivedToken,
+                    'expires_in' => $expiresIn,
+                    'expires_at' => now()->addSeconds($expiresIn),
+                    'token_type' => 'long_lived',
+                    'created_at' => now(),
+                    'updated_at' => now()
+                ]
+            );
+
+            Log::info('Facebook long-lived token generated and stored', [
+                'expires_in_days' => $expiresIn / 86400,
+                'expires_at' => now()->addSeconds($expiresIn)->toDateTimeString()
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Long-lived token generated successfully',
+                'token' => $longLivedToken,
+                'expires_in_seconds' => $expiresIn,
+                'expires_in_days' => round($expiresIn / 86400),
+                'expires_at' => now()->addSeconds($expiresIn)->toDateTimeString(),
+                'token_info' => $tokenInfo['data'] ?? null,
+                'note' => 'Token has been stored in database and will be used automatically'
+            ]);
+
+        } catch (\Exception $e) {
+            Log::error('Facebook Token Generation Error: ' . $e->getMessage());
+            
+            return response()->json([
+                'success' => false,
+                'message' => 'An error occurred',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Get current Facebook token status
+     */
+    public function getFacebookTokenStatus()
+    {
+        try {
+            $tokenData = DB::table('facebook_tokens')->where('id', 1)->first();
+
+            if (!$tokenData) {
+                return response()->json([
+                    'has_token' => false,
+                    'message' => 'No token found. Please generate a long-lived token first.',
+                    'generate_url' => route('facebook.generate-token') // Update with your route
+                ]);
+            }
+
+            $isExpired = now()->greaterThan($tokenData->expires_at);
+            $daysUntilExpiry = now()->diffInDays($tokenData->expires_at, false);
+
+            // Check if token is still valid with Facebook
+            $debugResponse = Http::get('https://graph.facebook.com/debug_token', [
+                'input_token' => $tokenData->access_token,
+                'access_token' => $tokenData->access_token
+            ]);
+
+            $tokenValid = $debugResponse->successful() && 
+                          ($debugResponse->json()['data']['is_valid'] ?? false);
+
+            return response()->json([
+                'has_token' => true,
+                'is_valid' => $tokenValid && !$isExpired,
+                'is_expired' => $isExpired,
+                'expires_at' => $tokenData->expires_at,
+                'days_until_expiry' => round($daysUntilExpiry),
+                'created_at' => $tokenData->created_at,
+                'needs_refresh' => $isExpired || $daysUntilExpiry < 7,
+                'token_info' => $debugResponse->json()['data'] ?? null
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'has_token' => false,
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Get stored Facebook access token
+     */
+    private function getFacebookAccessToken()
+    {
+        try {
+            $tokenData = DB::table('facebook_tokens')->where('id', 1)->first();
+
+            if (!$tokenData) {
+                Log::warning('No Facebook token found in database');
+                return null;
+            }
+
+            // Check if token is expired
+            if (now()->greaterThan($tokenData->expires_at)) {
+                Log::warning('Facebook token has expired', [
+                    'expired_at' => $tokenData->expires_at
+                ]);
+                return null;
+            }
+
+            // Token is about to expire in 7 days - log warning
+            if (now()->addDays(7)->greaterThan($tokenData->expires_at)) {
+                Log::warning('Facebook token will expire soon', [
+                    'expires_at' => $tokenData->expires_at,
+                    'days_left' => now()->diffInDays($tokenData->expires_at)
+                ]);
+            }
+
+            return $tokenData->access_token;
+
+        } catch (\Exception $e) {
+            Log::error('Error retrieving Facebook token: ' . $e->getMessage());
+            return null;
+        }
+    }
+
+    /**
+     * Updated Facebook Live Status with stored token
+     */
     public function getFacebookLiveStatus($pageId = null)
     {
         try {
-            // STATIC TESTING - Replace with your actual values
-            $staticVideoId = '1550122902813653'; // Your actual video ID
-            $staticPageName = 'News Live'; // Your page name
-
-            // You can also get these from config or database
             $pageId = $pageId ?? config('services.facebook.page_id', 'irmglobe');
-            $accessToken = config('services.facebook.access_token');
+            
+            // Get stored long-lived token
+            $accessToken = $this->getFacebookAccessToken();
 
-            Log::info('Testing Facebook Live Status with Video ID: ' . $staticVideoId);
+            if (!$accessToken) {
+                Log::warning('No valid Facebook access token available');
+                
+                return response()->json([
+                    'isLive' => false,
+                    'message' => 'Facebook access token not configured or expired',
+                    'fallbackPlaylist' => $this->facebookFallbackPlaylist,
+                    'fallbackEmbedUrl' => "https://www.youtube.com/embed/videoseries?list={$this->facebookFallbackPlaylist}&autoplay=1",
+                    'action_required' => 'Generate a new long-lived token',
+                    'token_status_url' => route('facebook.token-status') // Update with your route
+                ]);
+            }
 
-            // Cache the result for 1 minute for testing
+            Log::info('Checking Facebook Live Status', ['pageId' => $pageId]);
+
             $cacheKey = "facebook_live_status_{$pageId}";
 
-            $result = Cache::remember($cacheKey, 60, function () use ($staticVideoId, $staticPageName, $pageId, $accessToken) {
+            $result = Cache::remember($cacheKey, 60, function () use ($pageId, $accessToken) {
+                
+                // Get live videos from the Facebook page
+                $response = Http::timeout(30)->get("https://graph.facebook.com/v18.0/{$pageId}/live_videos", [
+                    'fields' => 'id,title,description,status,embed_html,permalink_url,creation_time,live_views',
+                    'access_token' => $accessToken
+                ]);
 
-                // Try to check actual Facebook live status first
-                if ($accessToken) {
-                    // Get live videos from the Facebook page
-                    $response = Http::get("https://graph.facebook.com/v18.0/{$pageId}/live_videos", [
-                        'fields' => 'id,title,description,status,embed_html,permalink_url,creation_time,live_views',
-                        'access_token' => $accessToken
+                if (!$response->successful()) {
+                    Log::error('Facebook API Error', [
+                        'status' => $response->status(),
+                        'body' => $response->body()
                     ]);
 
-                    if ($response->successful()) {
-                        $data = $response->json();
+                    return [
+                        'isLive' => false,
+                        'error' => 'Facebook API request failed',
+                        'fallbackPlaylist' => $this->facebookFallbackPlaylist,
+                        'fallbackEmbedUrl' => "https://www.youtube.com/embed/videoseries?list={$this->facebookFallbackPlaylist}&autoplay=1"
+                    ];
+                }
 
-                        // Check if there are any live videos
-                        if (!empty($data['data'])) {
-                            // Find the currently live video
-                            foreach ($data['data'] as $video) {
-                                if ($video['status'] === 'LIVE') {
-                                    Log::info('Found Facebook Live Video', [
-                                        'videoId' => $video['id'],
-                                        'title' => $video['title'] ?? 'Live Video'
-                                    ]);
+                $data = $response->json();
 
-                                    return [
-                                        'isLive' => true,
-                                        'videoId' => $video['id'],
-                                        'title' => $video['title'] ?? 'Live Video',
-                                        'description' => $video['description'] ?? '',
-                                        'embedHtml' => $video['embed_html'],
-                                        'permalinkUrl' => $video['permalink_url'],
-                                        'liveViews' => $video['live_views'] ?? 0,
-                                        'embedUrl' => "https://www.facebook.com/plugins/video.php?height=314&href=" . urlencode($video['permalink_url']) . "&show_text=false&width=560",
-                                        'pageId' => $pageId
-                                    ];
-                                }
-                            }
+                // Check if there are any live videos
+                if (!empty($data['data'])) {
+                    foreach ($data['data'] as $video) {
+                        if ($video['status'] === 'LIVE') {
+                            Log::info('Found Facebook Live Video', [
+                                'videoId' => $video['id'],
+                                'title' => $video['title'] ?? 'Live Video'
+                            ]);
+
+                            return [
+                                'isLive' => true,
+                                'videoId' => $video['id'],
+                                'title' => $video['title'] ?? 'Live Video',
+                                'description' => $video['description'] ?? '',
+                                'embedHtml' => $video['embed_html'],
+                                'permalinkUrl' => $video['permalink_url'],
+                                'liveViews' => $video['live_views'] ?? 0,
+                                'embedUrl' => "https://www.facebook.com/plugins/video.php?height=314&href=" . urlencode($video['permalink_url']) . "&show_text=false&width=560",
+                                'pageId' => $pageId,
+                                'creationTime' => $video['creation_time'] ?? null
+                            ];
                         }
-                    } else {
-                        Log::error('Facebook API Error', [
-                            'status' => $response->status(),
-                            'body' => $response->body()
-                        ]);
                     }
                 }
 
-                // If no live video found or API failed, return fallback playlist
-                Log::info('No Facebook live video found, returning fallback playlist');
+                Log::info('No Facebook live video found, returning fallback');
 
                 return [
                     'isLive' => false,
@@ -594,12 +791,13 @@ class YoutubeController extends Controller
                     'debug' => [
                         'source' => 'fallback_playlist',
                         'timestamp' => now()->toISOString(),
-                        'accessToken' => $accessToken ? 'configured' : 'not_configured'
+                        'checked_videos' => count($data['data'] ?? [])
                     ]
                 ];
             });
 
             return response()->json($result);
+
         } catch (\Exception $e) {
             Log::error('Facebook Live Status Error: ' . $e->getMessage(), [
                 'pageId' => $pageId,
@@ -608,12 +806,10 @@ class YoutubeController extends Controller
 
             return response()->json([
                 'isLive' => false,
-                'error' => 'An error occurred while checking Facebook live status: ' . $e->getMessage(),
-                'pageId' => $pageId,
+                'error' => 'An error occurred: ' . $e->getMessage(),
                 'fallbackPlaylist' => $this->facebookFallbackPlaylist,
-                'fallbackEmbedUrl' => "https://www.youtube.com/embed/videoseries?list={$this->facebookFallbackPlaylist}&autoplay=1",
-                'message' => 'Error occurred - showing recent videos'
-            ]);
+                'fallbackEmbedUrl' => "https://www.youtube.com/embed/videoseries?list={$this->facebookFallbackPlaylist}&autoplay=1"
+            ], 500);
         }
     }
 
