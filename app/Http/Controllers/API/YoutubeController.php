@@ -371,7 +371,7 @@ class YoutubeController extends Controller
     {
         try {
             // Static channel ID for testing - this channel is currently live
-            $channelId = 'UC0Um3pnZ2WGBEeoA3BX2sKw';
+            $channelId = 'UCPwXzYObvIlNUjdRRT82SxA';
 
             // Log the channel ID being used
             Log::info('Testing YouTube Live Status with Channel ID: ' . $channelId);
