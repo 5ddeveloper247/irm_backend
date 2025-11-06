@@ -128,6 +128,7 @@ function resetEventForm(){
 
     selectedFiles = [];
     $("#image_file, #event_id").val('');
+    $("#owner_name, #organization_no, #country, #city").val('');
     $("#file_container, #file_container_uploaded").html('');
     editorInstance.description.setData('');
     // Hide all recurring fields
@@ -337,6 +338,10 @@ function editGalleryResponse(response) {
             $("#start_date").val(eventDetail.start_date);
             $("#end_date").val(eventDetail.end_date);
             $("#namaz_name").val(eventDetail.namaz_name);
+            $("#owner_name").val(eventDetail.owner_name || '');
+            $("#organization_no").val(eventDetail.organization_no || '');
+            $("#country").val(eventDetail.country || '');
+            $("#city").val(eventDetail.city || '');
             $("#event_type").val(eventDetail.type);
 
             if(eventDetail.type == 'Recurring'){

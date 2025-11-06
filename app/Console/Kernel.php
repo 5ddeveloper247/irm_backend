@@ -12,7 +12,11 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule): void
     {
-        // $schedule->command('inspire')->hourly();
+        $schedule->command('facebook:refresh-token')
+            ->dailyAt('02:00')
+            ->timezone('Asia/Karachi')
+            ->emailOutputOnFailure(config('mail.admin_email'))
+            ->appendOutputTo(storage_path('logs/facebook_token_refresh.log'));
     }
 
     /**

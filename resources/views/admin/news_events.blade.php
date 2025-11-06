@@ -7,8 +7,8 @@
         }
 
         /* .collapse.show {
-                    background-color: #ecf4ff00 !important;
-                } */
+                        background-color: #ecf4ff00 !important;
+                    } */
 
         .img-prev {
             width: 70px;
@@ -68,10 +68,10 @@
                         Events</button>
                 </li>
                 <!-- <li class="nav-item fs-3" role="presentation">
-                            <button class="nav-link" id="listing-tab" data-bs-toggle="tab"
-                                data-bs-target="#listing-tab-pane" type="button" role="tab" aria-controls="listing-tab-pane"
-                                aria-selected="true">Gallery List</button>
-                        </li> -->
+                                <button class="nav-link" id="listing-tab" data-bs-toggle="tab"
+                                    data-bs-target="#listing-tab-pane" type="button" role="tab" aria-controls="listing-tab-pane"
+                                    aria-selected="true">Gallery List</button>
+                            </li> -->
 
             </ul>
 
@@ -327,6 +327,34 @@
                             <option value="Jumma">Jumma</option>
                         </select>
                         <label class="ms-2" for="namaz_name">Namaz Name*</label>
+                    </div>
+
+                    <!-- Owner Name -->
+                    <div class="col-6 form-floating">
+                        <input type="text" class="form-control" id="owner_name" name="owner_name"
+                            placeholder="Owner Name" maxlength="100">
+                        <label class="ms-2" for="owner_name">Owner Name*</label>
+                    </div>
+
+                    <!-- Organization No -->
+                    <div class="col-6 form-floating">
+                        <input type="text" class="form-control" id="organization_no" name="organization_no"
+                            placeholder="Organization No" maxlength="50">
+                        <label class="ms-2" for="organization_no">Organization No*</label>
+                    </div>
+
+                    <!-- Country -->
+                    <div class="col-6 form-floating">
+                        <input type="text" class="form-control" id="country" name="country" placeholder="Country"
+                            maxlength="100">
+                        <label class="ms-2" for="country">Country*</label>
+                    </div>
+
+                    <!-- City -->
+                    <div class="col-6 form-floating">
+                        <input type="text" class="form-control" id="city" name="city" placeholder="City"
+                            maxlength="100">
+                        <label class="ms-2" for="city">City*</label>
                     </div>
 
                     <!-- Event Type -->

@@ -1745,6 +1745,10 @@ class AdminController extends Controller
             'end_date' => 'required|date|after_or_equal:start_date',
             'event_date' => 'required|date|after_or_equal:start_date|before_or_equal:end_date',
             'namaz_name' => 'required',  // ADDED
+            'owner_name' => 'required|string|max:100',
+            'organization_no' => 'required|string|max:50',
+            'country' => 'required|string|max:100',
+            'city' => 'required|string|max:100',
             'event_type' => 'required',
             'recurring_type' => 'required_if:event_type,Recurring',
             'repeat_on' => 'required_if:recurring_type,Weekly,Bi-Weekly,Monthly,Yearly|array',
@@ -1774,6 +1778,10 @@ class AdminController extends Controller
         $NewsEvent->start_date = $request->start_date;
         $NewsEvent->end_date = $request->end_date;
         $NewsEvent->namaz_name = $request->namaz_name;  // ADDED
+        $NewsEvent->owner_name = $request->owner_name;
+        $NewsEvent->organization_no = $request->organization_no;
+        $NewsEvent->country = $request->country;
+        $NewsEvent->city = $request->city;
         $NewsEvent->type = $request->event_type;
         $NewsEvent->recurring_type = $request->recurring_type;
 

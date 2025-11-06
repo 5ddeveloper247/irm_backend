@@ -296,6 +296,9 @@ class NewsEventController extends Controller
         });
         // get first attachment if exist
         $data['news_event']->image = $data['news_event']->attachments->first()->path;
+        $data['news_event']->new_event_date = $data['news_event']->event_date
+        ? date('Y-m-d', strtotime($data['news_event']->event_date))
+        : null;
         return response()->json(['status' => 200, 'data' => $data]);
     }
 }
