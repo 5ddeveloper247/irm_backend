@@ -7,8 +7,8 @@
         }
 
         /* .collapse.show {
-                        background-color: #ecf4ff00 !important;
-                    } */
+                            background-color: #ecf4ff00 !important;
+                        } */
 
         .img-prev {
             width: 70px;
@@ -68,10 +68,10 @@
                         Events</button>
                 </li>
                 <!-- <li class="nav-item fs-3" role="presentation">
-                                <button class="nav-link" id="listing-tab" data-bs-toggle="tab"
-                                    data-bs-target="#listing-tab-pane" type="button" role="tab" aria-controls="listing-tab-pane"
-                                    aria-selected="true">Gallery List</button>
-                            </li> -->
+                                    <button class="nav-link" id="listing-tab" data-bs-toggle="tab"
+                                        data-bs-target="#listing-tab-pane" type="button" role="tab" aria-controls="listing-tab-pane"
+                                        aria-selected="true">Gallery List</button>
+                                </li> -->
 
             </ul>
 
@@ -313,7 +313,7 @@
                     <div class="col-6 form-floating">
                         <input type="date" class="form-control" id="event_date" name="event_date"
                             placeholder="Event Date">
-                        <label class="ms-2" for="event_date">Event Date*</label>
+                        <label class="ms-2" for="event_date">Event Date <small class="text-muted">(Auto-calculated)</small></label>
                     </div>
 
                     <div class="col-6 form-floating">
@@ -331,9 +331,9 @@
 
                     <!-- Owner Name -->
                     <div class="col-6 form-floating">
-                        <input type="text" class="form-control" id="owner_name" name="owner_name"
+                        <input type="text" class="form-control" id="organizer_name" name="organizer_name"
                             placeholder="Owner Name" maxlength="100">
-                        <label class="ms-2" for="owner_name">Owner Name*</label>
+                        <label class="ms-2" for="organizer_name">Organizer Name*</label>
                     </div>
 
                     <!-- Organization No -->

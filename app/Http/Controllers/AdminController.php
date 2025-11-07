@@ -1743,17 +1743,17 @@ class AdminController extends Controller
             'description' => 'required|string',
             'start_date' => 'required|date|after_or_equal:today',
             'end_date' => 'required|date|after_or_equal:start_date',
-            'event_date' => 'required|date|after_or_equal:start_date|before_or_equal:end_date',
-            'namaz_name' => 'required',  // ADDED
-            'owner_name' => 'required|string|max:100',
+            'event_date' => 'nullable|date|after_or_equal:start_date|before_or_equal:end_date',  // CHANGED to nullable
+            'namaz_name' => 'required',
+            'organizer_name' => 'required|string|max:100',
             'organization_no' => 'required|string|max:50',
             'country' => 'required|string|max:100',
             'city' => 'required|string|max:100',
             'event_type' => 'required',
             'recurring_type' => 'required_if:event_type,Recurring',
             'repeat_on' => 'required_if:recurring_type,Weekly,Bi-Weekly,Monthly,Yearly|array',
-            'monthly_week' => 'required_if:recurring_type,Monthly',  // ADDED
-            'yearly_week' => 'required_if:recurring_type,Yearly',    // ADDED
+            'monthly_week' => 'required_if:recurring_type,Monthly',
+            'yearly_week' => 'required_if:recurring_type,Yearly',
             'location' => 'required',
             'status' => 'required',
         ]);
@@ -1774,11 +1774,19 @@ class AdminController extends Controller
 
         $NewsEvent->title = $request->title;
         $NewsEvent->description = $request->description;
-        $NewsEvent->event_date = $request->event_date;
+
+        // AUTO-CALCULATE EVENT DATE if not provided and it's recurring
+        if (!$request->event_date && $request->event_type == 'Recurring') {
+            $NewsEvent->event_date = $this->calculateInitialEventDate($request);
+        } else {
+            // Use provided event_date or fallback to start_date
+            $NewsEvent->event_date = $request->event_date ?: $request->start_date;
+        }
+
         $NewsEvent->start_date = $request->start_date;
         $NewsEvent->end_date = $request->end_date;
-        $NewsEvent->namaz_name = $request->namaz_name;  // ADDED
-        $NewsEvent->owner_name = $request->owner_name;
+        $NewsEvent->namaz_name = $request->namaz_name;
+        $NewsEvent->organizer_name = $request->organizer_name;
         $NewsEvent->organization_no = $request->organization_no;
         $NewsEvent->country = $request->country;
         $NewsEvent->city = $request->city;
@@ -1792,12 +1800,12 @@ class AdminController extends Controller
             $NewsEvent->repeat_on = '[]';
         }
 
-        // ADDED: Handle monthly_week
+        // Handle monthly_week
         if ($request->recurring_type == 'Monthly') {
             $NewsEvent->monthly_week = $request->monthly_week;
             $NewsEvent->yearly_week = null;  // Clear yearly_week if monthly is selected
         }
-        // ADDED: Handle yearly_week
+        // Handle yearly_week
         elseif ($request->recurring_type == 'Yearly') {
             $NewsEvent->yearly_week = $request->yearly_week;
             $NewsEvent->monthly_week = null;  // Clear monthly_week if yearly is selected
@@ -1834,6 +1842,121 @@ class AdminController extends Controller
         } else {
             return response()->json(['status' => 200, 'message' => "Event Saved Successfully."]);
         }
+    }
+
+    // NEW METHOD: Calculate initial event date for recurring events
+    private function calculateInitialEventDate($request)
+    {
+        $startDate = $request->start_date;
+
+        switch ($request->recurring_type) {
+            case 'Daily':
+                // For daily, use start_date as event_date
+                return $startDate;
+
+            case 'Weekly':
+            case 'Bi-Weekly':
+                $repeatOn = is_array($request->repeat_on) ? $request->repeat_on : json_decode($request->repeat_on, true);
+                if (!empty($repeatOn)) {
+                    $firstDay = $repeatOn[0];
+                    // Find the next occurrence of this day from start_date
+                    $targetDate = strtotime('next ' . $firstDay, strtotime($startDate));
+                    // If the start_date itself is the target day, use it
+                    if (date('D', strtotime($startDate)) == $firstDay) {
+                        return $startDate;
+                    }
+                    return date('Y-m-d', $targetDate);
+                }
+                return $startDate;
+
+            case 'Monthly':
+                $repeatOn = is_array($request->repeat_on) ? $request->repeat_on : json_decode($request->repeat_on, true);
+                if (!empty($repeatOn) && $request->monthly_week) {
+                    return $this->calculateMonthlyDateFromStart($startDate, $request->monthly_week, $repeatOn[0]);
+                }
+                return $startDate;
+
+            case 'Yearly':
+                $repeatOn = is_array($request->repeat_on) ? $request->repeat_on : json_decode($request->repeat_on, true);
+                if (!empty($repeatOn) && $request->yearly_week) {
+                    return $this->calculateYearlyDateFromStart($startDate, $request->yearly_week, $repeatOn[0]);
+                }
+                return $startDate;
+
+            default:
+                return $startDate;
+        }
+    }
+
+    // NEW HELPER METHOD: Calculate monthly date from start date
+    private function calculateMonthlyDateFromStart($startDate, $weekNumber, $dayName)
+    {
+        $daysMap = ['Sun' => 0, 'Mon' => 1, 'Tue' => 2, 'Wed' => 3, 'Thu' => 4, 'Fri' => 5, 'Sat' => 6];
+
+        $start = strtotime($startDate);
+        $year = date('Y', $start);
+        $month = date('m', $start);
+        $targetDayNum = $daysMap[$dayName] ?? 1;
+
+        if ($weekNumber == 'last') {
+            // Get last occurrence of the day in the month
+            $lastDayOfMonth = date('t', $start);
+            for ($day = $lastDayOfMonth; $day >= 1; $day--) {
+                $testDate = strtotime("$year-$month-$day");
+                if (date('w', $testDate) == $targetDayNum) {
+                    $resultDate = date('Y-m-d', $testDate);
+                    // If this date is before start_date, move to next month
+                    if ($resultDate < $startDate) {
+                        $nextMonth = date('Y-m', strtotime('+1 month', $start));
+                        return $this->calculateMonthlyDateFromStart($nextMonth . '-01', $weekNumber, $dayName);
+                    }
+                    return $resultDate;
+                }
+            }
+        } else {
+            // Get nth occurrence of the day in the month
+            $count = 0;
+            $week = (int)$weekNumber;
+
+            for ($day = 1; $day <= 31; $day++) {
+                $testDate = strtotime("$year-$month-$day");
+                if (date('m', $testDate) != $month) break;
+
+                if (date('w', $testDate) == $targetDayNum) {
+                    $count++;
+                    if ($count == $week) {
+                        $resultDate = date('Y-m-d', $testDate);
+                        // If this date is before start_date, move to next month
+                        if ($resultDate < $startDate) {
+                            $nextMonth = date('Y-m', strtotime('+1 month', $start));
+                            return $this->calculateMonthlyDateFromStart($nextMonth . '-01', $weekNumber, $dayName);
+                        }
+                        return $resultDate;
+                    }
+                }
+            }
+        }
+
+        return $startDate; // Fallback
+    }
+
+    // NEW HELPER METHOD: Calculate yearly date from start date
+    private function calculateYearlyDateFromStart($startDate, $weekNumber, $dayName)
+    {
+        $start = strtotime($startDate);
+        $year = date('Y', $start);
+        $month = date('m', $start);
+
+        // Calculate for the current month and year
+        $calculatedDate = $this->calculateMonthlyDateFromStart($year . '-' . $month . '-01', $weekNumber, $dayName);
+
+        // If the calculated date is before start_date, move to next year
+        if ($calculatedDate < $startDate) {
+            $nextYear = $year + 1;
+            return $this->calculateMonthlyDateFromStart($nextYear . '-' . $month . '-01', $weekNumber, $dayName);
+        }
+
+        return $calculatedDate;
     }
 
     public function getSpecificEvent(Request $request)
@@ -1873,5 +1996,7 @@ class AdminController extends Controller
             return response()->json(['status' => 400, 'message' => "Event not found."]);
         }
     }
+
+
     /* ******************** News & Events Page Code End Here ********************* */
 }

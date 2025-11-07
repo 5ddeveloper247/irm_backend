@@ -128,9 +128,14 @@ function resetEventForm(){
 
     selectedFiles = [];
     $("#image_file, #event_id").val('');
-    $("#owner_name, #organization_no, #country, #city").val('');
+    $("#organizer_name, #organization_no, #country, #city").val('');
     $("#file_container, #file_container_uploaded").html('');
     editorInstance.description.setData('');
+    
+    // Reset event_date field styling
+    $('#event_date').attr('readonly', false);
+    $('#event_date').css('background-color', '');
+    
     // Hide all recurring fields
     $("#recurring_type_div, #repeat_on_div, #monthly_week_div, #monthly_repeat_on_div, #yearly_week_div, #yearly_repeat_on_div").hide();
     // Reset all recurring field values
@@ -144,10 +149,15 @@ $(document).on('change', '#event_type', function (e) {
         if(eventType == 'Recurring'){
             $("#recurring_type_div").val('').show();
         }else{
+            // For Non-Recurring, allow manual date entry
+            $('#event_date').attr('readonly', false);
+            $('#event_date').css('background-color', '');
             $("#recurring_type, #repeat_on, #monthly_week, #monthly_repeat_on, #yearly_week, #yearly_repeat_on").val('').trigger('change');
             $("#recurring_type_div, #repeat_on_div, #monthly_week_div, #monthly_repeat_on_div, #yearly_week_div, #yearly_repeat_on_div").hide();
         }
     }else{
+        $('#event_date').attr('readonly', false);
+        $('#event_date').css('background-color', '');
         $("#recurring_type, #repeat_on, #monthly_week, #monthly_repeat_on, #yearly_week, #yearly_repeat_on").val('').trigger('change');
         $("#recurring_type_div, #repeat_on_div, #monthly_week_div, #monthly_repeat_on_div, #yearly_week_div, #yearly_repeat_on_div").hide();
     }
@@ -338,7 +348,7 @@ function editGalleryResponse(response) {
             $("#start_date").val(eventDetail.start_date);
             $("#end_date").val(eventDetail.end_date);
             $("#namaz_name").val(eventDetail.namaz_name);
-            $("#owner_name").val(eventDetail.owner_name || '');
+            $("#organizer_name").val(eventDetail.organizer_name || '');
             $("#organization_no").val(eventDetail.organization_no || '');
             $("#country").val(eventDetail.country || '');
             $("#city").val(eventDetail.city || '');
@@ -540,3 +550,161 @@ $(document).on('click', '#close_confirm', function (e) {
     $("#deleteConfirm_btn").attr('onclick', '');
 	$("#delete_confirm_modal").modal('hide');
 });
+
+
+
+// Add this function to calculate event_date automatically
+function calculateEventDate() {
+    const startDate = $('#start_date').val();
+    const endDate = $('#end_date').val();
+    const eventType = $('#event_type').val();
+    const recurringType = $('#recurring_type').val();
+    
+    // If not recurring or missing required fields, clear event_date
+    if (!startDate || !endDate || eventType !== 'Recurring' || !recurringType) {
+        $('#event_date').val('');
+        return;
+    }
+    
+    let calculatedDate = null;
+    
+    try {
+        switch(recurringType) {
+            case 'Daily':
+                // For daily, use start_date as event_date
+                calculatedDate = startDate;
+                break;
+                
+            case 'Weekly':
+            case 'Bi-Weekly':
+                const repeatDays = $('#repeat_on').val() || [];
+                if (repeatDays.length > 0) {
+                    calculatedDate = getNextDayOfWeek(startDate, repeatDays[0]);
+                }
+                break;
+                
+            case 'Monthly':
+                const monthlyWeek = $('#monthly_week').val();
+                const monthlyDays = $('#monthly_repeat_on').val() || [];
+                if (monthlyWeek && monthlyDays.length > 0) {
+                    calculatedDate = calculateMonthlyDate(startDate, monthlyWeek, monthlyDays[0]);
+                }
+                break;
+                
+            case 'Yearly':
+                const yearlyWeek = $('#yearly_week').val();
+                const yearlyDays = $('#yearly_repeat_on').val() || [];
+                if (yearlyWeek && yearlyDays.length > 0) {
+                    calculatedDate = calculateYearlyDate(startDate, yearlyWeek, yearlyDays[0]);
+                }
+                break;
+        }
+        
+        // Set the calculated date
+        if (calculatedDate) {
+            $('#event_date').val(calculatedDate);
+            // Make readonly to show it's auto-calculated
+            $('#event_date').attr('readonly', true);
+            $('#event_date').css('background-color', '#e9ecef');
+        }
+    } catch(error) {
+        console.error('Error calculating event date:', error);
+        $('#event_date').val('');
+    }
+}
+
+// Helper function to get next occurrence of a specific day
+function getNextDayOfWeek(startDate, dayName) {
+    const daysMap = {
+        'Sun': 0, 'Mon': 1, 'Tue': 2, 'Wed': 3, 
+        'Thu': 4, 'Fri': 5, 'Sat': 6
+    };
+    
+    const start = new Date(startDate);
+    const targetDay = daysMap[dayName];
+    const currentDay = start.getDay();
+    
+    let daysToAdd = targetDay - currentDay;
+    if (daysToAdd < 0) {
+        daysToAdd += 7;
+    }
+    
+    const resultDate = new Date(start);
+    resultDate.setDate(start.getDate() + daysToAdd);
+    
+    return formatDate(resultDate);
+}
+
+// Helper function to calculate monthly date
+function calculateMonthlyDate(startDate, weekNumber, dayName) {
+    const daysMap = {
+        'Sun': 0, 'Mon': 1, 'Tue': 2, 'Wed': 3, 
+        'Thu': 4, 'Fri': 5, 'Sat': 6
+    };
+    
+    const start = new Date(startDate);
+    const year = start.getFullYear();
+    const month = start.getMonth();
+    const targetDay = daysMap[dayName];
+    
+    if (weekNumber === 'last') {
+        // Get last occurrence of the day in the month
+        const lastDayOfMonth = new Date(year, month + 1, 0);
+        const lastDate = lastDayOfMonth.getDate();
+        
+        for (let day = lastDate; day >= 1; day--) {
+            const testDate = new Date(year, month, day);
+            if (testDate.getDay() === targetDay) {
+                return formatDate(testDate);
+            }
+        }
+    } else {
+        // Get nth occurrence of the day in the month
+        let count = 0;
+        const week = parseInt(weekNumber);
+        
+        for (let day = 1; day <= 31; day++) {
+            const testDate = new Date(year, month, day);
+            if (testDate.getMonth() !== month) break;
+            
+            if (testDate.getDay() === targetDay) {
+                count++;
+                if (count === week) {
+                    return formatDate(testDate);
+                }
+            }
+        }
+    }
+    
+    return startDate; // Fallback
+}
+
+// Helper function to calculate yearly date
+function calculateYearlyDate(startDate, weekNumber, dayName) {
+    const start = new Date(startDate);
+    const year = start.getFullYear();
+    const month = start.getMonth(); // Keep the same month as start_date
+    
+    // Use the same logic as monthly, but for the current year
+    return calculateMonthlyDate(year + '-' + String(month + 1).padStart(2, '0') + '-01', weekNumber, dayName);
+}
+
+// Helper function to format date as YYYY-MM-DD
+function formatDate(date) {
+    const d = new Date(date);
+    const year = d.getFullYear();
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+}
+
+// Attach event listeners to trigger auto-calculation
+$(document).on('change', '#start_date, #end_date, #event_type, #recurring_type, #repeat_on, #monthly_week, #monthly_repeat_on, #yearly_week, #yearly_repeat_on', function() {
+    calculateEventDate();
+});
+
+// For Select2 fields
+$('#repeat_on, #monthly_repeat_on, #yearly_repeat_on').on('select2:select select2:unselect', function() {
+    calculateEventDate();
+});
+

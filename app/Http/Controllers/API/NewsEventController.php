@@ -8,7 +8,7 @@ use App\Models\NewsEvent;
 
 class NewsEventController extends Controller
 {
-    
+
     public function getNewsEvents(Request $request)
     {
         $data['news_events'] = NewsEvent::with('attachments')
@@ -19,7 +19,7 @@ class NewsEventController extends Controller
             ->get();
 
         foreach ($data['news_events'] as $key => $news_event) {
-            
+
             $data['news_events'][$key]->description = strip_tags($news_event->description);
             $data['news_events'][$key]->description = substr($data['news_events'][$key]->description, 0, 100);
             $data['news_events'][$key]->date = date('d', strtotime($news_event->event_date));
@@ -80,26 +80,54 @@ class NewsEventController extends Controller
                         $data['news_events'][$key]->year = date('Y', strtotime($next_day));
                         $data['news_events'][$key]->new_event_date = date('Y-m-d', strtotime($next_day));
                     }
-                } elseif ($news_event->recurring_type == "Monthly") {
-                    $next_date = $this->calculateMonthlyRecurrence($news_event);
+                } // REPLACE the Monthly recurring section in getNewsEvents method (around line 81-95)
 
-                    $data['news_events'][$key]->date = date('d', strtotime($next_date));
-                    $data['news_events'][$key]->month = date('M', strtotime($next_date));
-                    $data['news_events'][$key]->year = date('Y', strtotime($next_date));
-                    $data['news_events'][$key]->new_event_date = date('Y-m-d', strtotime($next_date));
+                elseif ($news_event->recurring_type == "Monthly") {
+                    $current_date = date('Y-m-d');
+                    $event_date = date('Y-m-d', strtotime($news_event->event_date));
 
-                    if (strtotime($next_date) > strtotime($news_event->end_date)) {
+                    // If the original event_date hasn't passed yet, use it
+                    if (strtotime($current_date) <= strtotime($event_date)) {
+                        $data['news_events'][$key]->date = date('d', strtotime($news_event->event_date));
+                        $data['news_events'][$key]->month = date('M', strtotime($news_event->event_date));
+                        $data['news_events'][$key]->year = date('Y', strtotime($news_event->event_date));
+                        $data['news_events'][$key]->new_event_date = date('Y-m-d', strtotime($news_event->event_date));
+                    } else {
+                        // Original event_date has passed, calculate next month's occurrence
+                        $next_date = $this->calculateMonthlyRecurrence($news_event);
+
+                        $data['news_events'][$key]->date = date('d', strtotime($next_date));
+                        $data['news_events'][$key]->month = date('M', strtotime($next_date));
+                        $data['news_events'][$key]->year = date('Y', strtotime($next_date));
+                        $data['news_events'][$key]->new_event_date = date('Y-m-d', strtotime($next_date));
+                    }
+
+                    // Check if calculated date exceeds end_date
+                    if (strtotime($data['news_events'][$key]->new_event_date) > strtotime($news_event->end_date)) {
                         unset($data['news_events'][$key]);
                     }
                 } elseif ($news_event->recurring_type == "Yearly") {
-                    $next_date = $this->calculateYearlyRecurrence($news_event);
+                    $current_date = date('Y-m-d');
+                    $event_date = date('Y-m-d', strtotime($news_event->event_date));
 
-                    $data['news_events'][$key]->date = date('d', strtotime($next_date));
-                    $data['news_events'][$key]->month = date('M', strtotime($next_date));
-                    $data['news_events'][$key]->year = date('Y', strtotime($next_date));
-                    $data['news_events'][$key]->new_event_date = date('Y-m-d', strtotime($next_date));
+                    // If the original event_date hasn't passed yet, use it
+                    if (strtotime($current_date) <= strtotime($event_date)) {
+                        $data['news_events'][$key]->date = date('d', strtotime($news_event->event_date));
+                        $data['news_events'][$key]->month = date('M', strtotime($news_event->event_date));
+                        $data['news_events'][$key]->year = date('Y', strtotime($news_event->event_date));
+                        $data['news_events'][$key]->new_event_date = date('Y-m-d', strtotime($news_event->event_date));
+                    } else {
+                        // Original event_date has passed, calculate next year's occurrence
+                        $next_date = $this->calculateYearlyRecurrence($news_event);
 
-                    if (strtotime($next_date) > strtotime($news_event->end_date)) {
+                        $data['news_events'][$key]->date = date('d', strtotime($next_date));
+                        $data['news_events'][$key]->month = date('M', strtotime($next_date));
+                        $data['news_events'][$key]->year = date('Y', strtotime($next_date));
+                        $data['news_events'][$key]->new_event_date = date('Y-m-d', strtotime($next_date));
+                    }
+
+                    // Check if calculated date exceeds end_date
+                    if (strtotime($data['news_events'][$key]->new_event_date) > strtotime($news_event->end_date)) {
                         unset($data['news_events'][$key]);
                     }
                 }
@@ -115,13 +143,13 @@ class NewsEventController extends Controller
             }
         }
 
-        
-        $events = $data['news_events']->values()->toArray(); 
+
+        $events = $data['news_events']->values()->toArray();
         usort($events, function ($a, $b) {
             return strtotime($a['new_event_date']) - strtotime($b['new_event_date']);
         });
 
-        
+
         $response = [
             'news_events' => $events,
             'first_news_events' => !empty($events) ? $events[0] : null
@@ -297,8 +325,8 @@ class NewsEventController extends Controller
         // get first attachment if exist
         $data['news_event']->image = $data['news_event']->attachments->first()->path;
         $data['news_event']->new_event_date = $data['news_event']->event_date
-        ? date('Y-m-d', strtotime($data['news_event']->event_date))
-        : null;
+            ? date('Y-m-d', strtotime($data['news_event']->event_date))
+            : null;
         return response()->json(['status' => 200, 'data' => $data]);
     }
 }
