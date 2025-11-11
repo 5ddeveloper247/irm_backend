@@ -1,49 +1,60 @@
-function getNewsEventsPageData(formValues = {}){
-
-    let type = 'POST';
-    let url = '/getNewsEventsPageData';
-    let message = '';
-    let form = '';
+function getNewsEventsPageData(formValues = {}) {
+    let type = "POST";
+    let url = "/getNewsEventsPageData";
+    let message = "";
+    let form = "";
     let data = new FormData();
     // PASSING DATA TO FUNCTION
     for (const [key, value] of Object.entries(formValues)) {
         data.append(key, value);
     }
-    SendAjaxRequestToServer(type, url, data, '', getNewsEventsPageDataResponse, '', '');
+    SendAjaxRequestToServer(
+        type,
+        url,
+        data,
+        "",
+        getNewsEventsPageDataResponse,
+        "",
+        ""
+    );
 }
 
 function getNewsEventsPageDataResponse(response) {
-
     // SHOWING MESSAGE ACCORDING TO RESPONSE
-    if (response.status == 200  || response.status == '200') {
-
+    if (response.status == 200 || response.status == "200") {
         var data = response.data;
 
         var eventsList = data.events_list;
 
         makeEventsListing(eventsList);
-    } 
+    }
 }
 
-function makeEventsListing(eventsList){
-   
-    var html = '';
-    $("#listing_table_body").html('');
+function makeEventsListing(eventsList) {
+    var html = "";
+    $("#listing_table_body").html("");
     if (eventsList.length > 0) {
         $.each(eventsList, function (index, value) {
-            
             html += `<tr>
-                        <td class="text-start text-nowrap">${index+1}</td>
+                        <td class="text-start text-nowrap">${index + 1}</td>
                         <td class="text-start text-nowrap">${value.title}</td>
                         <td class="text-start text-nowrap">${value.type}</td>
-                        <td class="text-start text-nowrap">${formatDate(value.start_date)}</td>
-                        <td class="text-start text-nowrap">${formatDate(value.end_date)}</td>
+                        <td class="text-start text-nowrap">${formatDate(
+                            value.start_date
+                        )}</td>
+                        <td class="text-start text-nowrap">${formatDate(
+                            value.end_date
+                        )}</td>
+                        <td class="text-start text-nowrap">${formatDate(
+                            value.event_date
+                        )}</td>
                         <td class="text-start text-nowrap">
-                        ${ value.expiry_status == 'Expired'? '<span class="badge bg-danger">Expired</span>':
-                            value.status == '1' ? 
-                            '<span class="badge bg-success">Active</span>' 
-                            : 
-                            '<span class="badge bg-danger">In-Active</span>'
+                        ${
+                            value.expiry_status == "Expired"
+                                ? '<span class="badge bg-danger">Expired</span>'
+                                : value.status == "1"
+                                ? '<span class="badge bg-success">Active</span>'
+                                : '<span class="badge bg-danger">In-Active</span>'
                         }
                         </td>
                         <td class="text-start text-nowrap">
@@ -54,14 +65,18 @@ function makeEventsListing(eventsList){
                                     </svg>
                                 </button>
                                 <ul class="dropdown-menu dropdown-menu-custom">
-                                    <a class="dropdown-item" href="javascript:;" onclick="editEvent(${value.id})">
+                                    <a class="dropdown-item" href="javascript:;" onclick="editEvent(${
+                                        value.id
+                                    })">
                                         <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 16 16">
                                             <path fill="currentColor" d="M15.49 7.3h-1.16v6.35H1.67V3.28H8V2H1.67A1.21 1.21 0 0 0 .5 3.28v10.37a1.21 1.21 0 0 0 1.17 1.25h12.66a1.21 1.21 0 0 0 1.17-1.25z" />
                                             <path fill="currentColor" d="M10.56 2.87L6.22 7.22l-.44.44l-.08.08l-1.52 3.16a1.08 1.08 0 0 0 1.45 1.45l3.14-1.53l.53-.53l.43-.43l4.34-4.36l.45-.44l.25-.25a2.18 2.18 0 0 0 0-3.08a2.17 2.17 0 0 0-1.53-.63a2.2 2.2 0 0 0-1.54.63l-.7.69l-.45.44zM5.51 11l1.18-2.43l1.25 1.26zm2-3.36l3.9-3.91l1.3 1.31L8.85 9zm5.68-5.31a.9.9 0 0 1 .65.27a.93.93 0 0 1 0 1.31l-.25.24l-1.3-1.3l.25-.25a.88.88 0 0 1 .69-.25z" />
                                         </svg>
                                         Edit
                                     </a>
-                                    <a class="dropdown-item" href="javascript:;" onclick="deleteEventConfirm(${value.id})">
+                                    <a class="dropdown-item" href="javascript:;" onclick="deleteEventConfirm(${
+                                        value.id
+                                    })">
                                         <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24">
                                             <g fill="none">
                                                 <path fill="currentColor" d="M20 5a1 1 0 1 1 0 2h-1l-.933 13.071A2 2 0 0 1 16.069 22H7.93a2 2 0 0 1-1.995-1.858l-.933-13.07L5 7H4a1 1 0 0 1 0-2zm-3.003 2H7.003l.928 13h8.138zM14 2a1 1 0 1 1 0 2h-4a1 1 0 0 1 0-2z"></path>
@@ -75,7 +90,7 @@ function makeEventsListing(eventsList){
                     </tr>`;
         });
     }
-    
+
     // listing_table
     // destroy datatable if already created
     if ($.fn.DataTable.isDataTable("#listing_table")) {
@@ -98,89 +113,119 @@ function makeEventsListing(eventsList){
         dom: "Bfrtip",
         buttons: [
             { extend: "excel", className: "btn btn-excel", text: "Excel" },
-            { 
-                text: "Refresh", 
-                className: "btn btn-refresh", 
-                action: function () { 
+            {
+                text: "Refresh",
+                className: "btn btn-refresh",
+                action: function () {
                     console.log("Refresh button clicked");
-                    $("#resetFilterButton").click(); 
+                    $("#resetFilterButton").click();
                     getNewsEventsPageData();
-                } 
-            }
+                },
+            },
         ],
     });
 }
 
-function addNewEvent(){
+function addNewEvent() {
     resetEventForm();
-    $('#addNewsEvents_canvas').addClass('show');
+    $("#addNewsEvents_canvas").addClass("show");
 }
 
-$(document).on('click', '.closeCanvas', function (e) {
-	
-	resetEventForm();
-    $('#addNewsEvents_canvas').removeClass('show');
+$(document).on("click", ".closeCanvas", function (e) {
+    resetEventForm();
+    $("#addNewsEvents_canvas").removeClass("show");
 });
 
-function resetEventForm(){
-    let form = $('#newsEvent_form');
+function resetEventForm() {
+    let form = $("#newsEvent_form");
     form.trigger("reset");
 
     selectedFiles = [];
-    $("#image_file, #event_id").val('');
-    $("#organizer_name, #organization_no, #country, #city").val('');
-    $("#file_container, #file_container_uploaded").html('');
-    editorInstance.description.setData('');
-    
+    $("#image_file, #event_id").val("");
+    $("#organizer_name, #organization_no, #country, #city").val("");
+    $("#file_container, #file_container_uploaded").html("");
+    editorInstance.description.setData("");
+
+    // Hide upload info section
+    $("#update_info_section").hide();
+    $("#updated_by_name, #updated_at_date").text('-');
+    $("#updated_by_id, #updated_at_time").text('-');
+
+    // Re-enable start_date for new events
+    $("#start_date").attr("readonly", false);
+    $("#start_date").css("background-color", "");
+
     // Reset event_date field styling
-    $('#event_date').attr('readonly', false);
-    $('#event_date').css('background-color', '');
-    
+    $("#event_date").attr("readonly", false);
+    $("#event_date").css("background-color", "");
+
     // Hide all recurring fields
-    $("#recurring_type_div, #repeat_on_div, #monthly_week_div, #monthly_repeat_on_div, #yearly_week_div, #yearly_repeat_on_div").hide();
+    $(
+        "#recurring_type_div, #repeat_on_div, #monthly_week_div, #monthly_repeat_on_div, #yearly_week_div, #yearly_repeat_on_div"
+    ).hide();
     // Reset all recurring field values
-    $("#repeat_on, #monthly_week, #monthly_repeat_on, #yearly_week, #yearly_repeat_on").val(JSON.parse('[]')).trigger('change');
+    $(
+        "#repeat_on, #monthly_week, #monthly_repeat_on, #yearly_week, #yearly_repeat_on"
+    )
+        .val(JSON.parse("[]"))
+        .trigger("change");
 }
 
-$(document).on('change', '#event_type', function (e) {
+$(document).on("change", "#event_type", function (e) {
     var eventType = $(this).val();
 
-    if(eventType != ''){
-        if(eventType == 'Recurring'){
-            $("#recurring_type_div").val('').show();
-        }else{
+    if (eventType != "") {
+        if (eventType == "Recurring") {
+            $("#recurring_type_div").val("").show();
+        } else {
             // For Non-Recurring, allow manual date entry
-            $('#event_date').attr('readonly', false);
-            $('#event_date').css('background-color', '');
-            $("#recurring_type, #repeat_on, #monthly_week, #monthly_repeat_on, #yearly_week, #yearly_repeat_on").val('').trigger('change');
-            $("#recurring_type_div, #repeat_on_div, #monthly_week_div, #monthly_repeat_on_div, #yearly_week_div, #yearly_repeat_on_div").hide();
+            $("#event_date").attr("readonly", false);
+            $("#event_date").css("background-color", "");
+            $(
+                "#recurring_type, #repeat_on, #monthly_week, #monthly_repeat_on, #yearly_week, #yearly_repeat_on"
+            )
+                .val("")
+                .trigger("change");
+            $(
+                "#recurring_type_div, #repeat_on_div, #monthly_week_div, #monthly_repeat_on_div, #yearly_week_div, #yearly_repeat_on_div"
+            ).hide();
         }
-    }else{
-        $('#event_date').attr('readonly', false);
-        $('#event_date').css('background-color', '');
-        $("#recurring_type, #repeat_on, #monthly_week, #monthly_repeat_on, #yearly_week, #yearly_repeat_on").val('').trigger('change');
-        $("#recurring_type_div, #repeat_on_div, #monthly_week_div, #monthly_repeat_on_div, #yearly_week_div, #yearly_repeat_on_div").hide();
+    } else {
+        $("#event_date").attr("readonly", false);
+        $("#event_date").css("background-color", "");
+        $(
+            "#recurring_type, #repeat_on, #monthly_week, #monthly_repeat_on, #yearly_week, #yearly_repeat_on"
+        )
+            .val("")
+            .trigger("change");
+        $(
+            "#recurring_type_div, #repeat_on_div, #monthly_week_div, #monthly_repeat_on_div, #yearly_week_div, #yearly_repeat_on_div"
+        ).hide();
     }
 });
 
 // Handle Recurring Type changes
-$(document).on('change', '#recurring_type', function (e) {
+$(document).on("change", "#recurring_type", function (e) {
     var recurringType = $(this).val();
 
     // Hide ALL sub-options first
-    $("#repeat_on, #monthly_week, #monthly_repeat_on, #yearly_week, #yearly_repeat_on").val('').trigger('change');
-    $("#repeat_on_div, #monthly_week_div, #monthly_repeat_on_div, #yearly_week_div, #yearly_repeat_on_div").hide();
+    $(
+        "#repeat_on, #monthly_week, #monthly_repeat_on, #yearly_week, #yearly_repeat_on"
+    )
+        .val("")
+        .trigger("change");
+    $(
+        "#repeat_on_div, #monthly_week_div, #monthly_repeat_on_div, #yearly_week_div, #yearly_repeat_on_div"
+    ).hide();
 
-    if(recurringType != ''){
-        if(recurringType == 'Weekly' || recurringType == 'Bi-Weekly'){
+    if (recurringType != "") {
+        if (recurringType == "Weekly" || recurringType == "Bi-Weekly") {
             // For Weekly/Bi-Weekly: Show repeat_on only
             $("#repeat_on_div").show();
-        } 
-        else if(recurringType == 'Monthly'){
+        } else if (recurringType == "Monthly") {
             // For Monthly: Show week and repeat_on
             $("#monthly_week_div, #monthly_repeat_on_div").show();
-        } 
-        else if(recurringType == 'Yearly'){
+        } else if (recurringType == "Yearly") {
             // For Yearly: Show week and repeat_on
             $("#yearly_week_div, #yearly_repeat_on_div").show();
         }
@@ -188,15 +233,15 @@ $(document).on('change', '#recurring_type', function (e) {
 });
 
 // Handle Monthly subtype changes
-$(document).on('change', '#monthly_subtype', function (e) {
+$(document).on("change", "#monthly_subtype", function (e) {
     var monthlySubtype = $(this).val();
 
     // Hide monthly repeat on
-    $("#monthly_repeat_on").val('').trigger('change');
+    $("#monthly_repeat_on").val("").trigger("change");
     $("#monthly_repeat_on_div").hide();
 
-    if(monthlySubtype != ''){
-        if(monthlySubtype == 'Weekly' || monthlySubtype == 'Bi-Weekly'){
+    if (monthlySubtype != "") {
+        if (monthlySubtype == "Weekly" || monthlySubtype == "Bi-Weekly") {
             // Show repeat days for monthly weekly/bi-weekly
             $("#monthly_repeat_on_div").show();
         }
@@ -204,15 +249,15 @@ $(document).on('change', '#monthly_subtype', function (e) {
 });
 
 // Handle Yearly subtype changes
-$(document).on('change', '#yearly_subtype', function (e) {
+$(document).on("change", "#yearly_subtype", function (e) {
     var yearlySubtype = $(this).val();
 
     // Hide yearly repeat on
-    $("#yearly_repeat_on").val('').trigger('change');
+    $("#yearly_repeat_on").val("").trigger("change");
     $("#yearly_repeat_on_div").hide();
 
-    if(yearlySubtype != ''){
-        if(yearlySubtype == 'Weekly' || yearlySubtype == 'Bi-Weekly'){
+    if (yearlySubtype != "") {
+        if (yearlySubtype == "Weekly" || yearlySubtype == "Bi-Weekly") {
             // Show repeat days for yearly weekly/bi-weekly
             $("#yearly_repeat_on_div").show();
         }
@@ -221,22 +266,22 @@ $(document).on('change', '#yearly_subtype', function (e) {
 
 var selectedFiles = [];
 
-$(document).on('click', '#addImage_btn', function (e) {
-	$("#image_file").click();
+$(document).on("click", "#addImage_btn", function (e) {
+    $("#image_file").click();
 });
 
-$('#image_file').on('change', function (event) {
+$("#image_file").on("change", function (event) {
     // reset the selectedFiles array
     selectedFiles = [];
     // reset the file container
-    $('#file_container_uploaded').empty();
+    $("#file_container_uploaded").empty();
     const files = event.target.files; // New files
 
     // Check if a file is already selected
     if (selectedFiles.length > 0) {
-        toastr.error('You can upload only one image file.');
+        toastr.error("You can upload only one image file.");
         // Clear the file input value to allow re-uploading the same file later
-        $('#image_file').val('');
+        $("#image_file").val("");
         return;
     }
 
@@ -245,63 +290,67 @@ $('#image_file').on('change', function (event) {
     const fileType = file.type;
 
     // Check if the file is an image of the allowed types
-    if (!fileType.match('image/jpeg') && !fileType.match('image/png') && 
-        !fileType.match('image/jpg') && !fileType.match('image/gif') && 
-        !fileType.match('image/svg+xml')) {
-        toastr.error('Only JPEG, JPG, PNG, GIF, and SVG image files are allowed.');
+    if (
+        !fileType.match("image/jpeg") &&
+        !fileType.match("image/png") &&
+        !fileType.match("image/jpg") &&
+        !fileType.match("image/gif") &&
+        !fileType.match("image/svg+xml")
+    ) {
+        toastr.error(
+            "Only JPEG, JPG, PNG, GIF, and SVG image files are allowed."
+        );
     } else {
         // Add the valid image file to the selectedFiles array
         selectedFiles.push(file);
         // Display selected file
         displaySelectedFiles();
     }
-    
+
     // Clear the file input value to allow re-uploading the same file later
-    $('#image_file').val('');
+    $("#image_file").val("");
 });
 
-
-function saveEvent(){
-
-    let type = 'POST';
-    let url = '/saveEvent';
-    let message = '';
-    let form = $('#newsEvent_form');
+function saveEvent() {
+    let type = "POST";
+    let url = "/saveEvent";
+    let message = "";
+    let form = $("#newsEvent_form");
     let data = new FormData(form[0]);
 
     if (selectedFiles.length > 0) {
-        
         for (let i = 0; i < selectedFiles.length; i++) {
-            
-            data.append('images[]', selectedFiles[i]);
+            data.append("images[]", selectedFiles[i]);
         }
     } else {
-        data.append('images', '');
+        data.append("images", "");
     }
-   
+
     // PASSING DATA TO FUNCTION
-    $('input, select').removeClass('is-invalid');
-    SendAjaxRequestToServer(type, url, data, '', saveEventResponse, '', '#saveEvent_btn');
+    $("input, select").removeClass("is-invalid");
+    SendAjaxRequestToServer(
+        type,
+        url,
+        data,
+        "",
+        saveEventResponse,
+        "",
+        "#saveEvent_btn"
+    );
 }
 
 function saveEventResponse(response) {
-
     // SHOWING MESSAGE ACCORDING TO RESPONSE
-    if (response.status == 200 || response.status == '200') {
-
+    if (response.status == 200 || response.status == "200") {
         resetEventForm();
         getNewsEventsPageData();
-        $('#addNewsEvents_canvas').removeClass('show');
-        toastr.success(response.message, '', {
-            timeOut: 3000
+        $("#addNewsEvents_canvas").removeClass("show");
+        toastr.success(response.message, "", {
+            timeOut: 3000,
         });
-
     } else {
-
         if (response.status == 402) {
-
             error = response.message;
-
         } else {
             error = response.responseJSON.message;
             var is_invalid = response.responseJSON.errors;
@@ -310,25 +359,24 @@ function saveEventResponse(response) {
                 // Assuming 'key' corresponds to the form field name
                 var inputField = $('[name="' + key + '"]');
                 // Add the 'is-invalid' class to the input field's parent or any desired container
-                inputField.closest('.form-control').addClass('is-invalid');
+                inputField.closest(".form-control").addClass("is-invalid");
             });
         }
-        toastr.error(error, '', {
-            timeOut: 3000
+        toastr.error(error, "", {
+            timeOut: 3000,
         });
     }
 }
 
-function editEvent(id){
-
-    let type = 'POST';
-    let url = '/getSpecificEvent';
-    let message = '';
-    let form = '';
+function editEvent(id) {
+    let type = "POST";
+    let url = "/getSpecificEvent";
+    let message = "";
+    let form = "";
     let data = new FormData();
-    data.append('event_id', id);
+    data.append("event_id", id);
     // PASSING DATA TO FUNCTION
-    SendAjaxRequestToServer(type, url, data, '', editGalleryResponse, '', '');
+    SendAjaxRequestToServer(type, url, data, "", editGalleryResponse, "", "");
 }
 
 function editGalleryResponse(response) {
@@ -353,6 +401,10 @@ function editGalleryResponse(response) {
             $("#country").val(eventDetail.country || '');
             $("#city").val(eventDetail.city || '');
             $("#event_type").val(eventDetail.type);
+
+            // DISABLE start_date in edit mode
+            $('#start_date').attr('readonly', true);
+            $('#start_date').css('background-color', '#e9ecef');
 
             if(eventDetail.type == 'Recurring'){
                 $("#recurring_type_div").show();
@@ -382,6 +434,40 @@ function editGalleryResponse(response) {
             $("#location").val(eventDetail.location);
             $("#status").val(eventDetail.status);
             
+            // NEW: Show and populate update information section
+            if(eventDetail.updated_by || eventDetail.updated_at) {
+                $("#update_info_section").show();
+                
+                // Populate updated by info
+                if(eventDetail.updated_by_name) {
+                    $("#updated_by_name").text(eventDetail.updated_by_name);
+                } else {
+                    $("#updated_by_name").text("Unknown User");
+                }
+                
+                if(eventDetail.updated_by) {
+                    $("#updated_by_id").text("ID: " + eventDetail.updated_by);
+                } else {
+                    $("#updated_by_id").text("ID: -");
+                }
+                
+                // Populate uploaded at info
+                if(eventDetail.updated_at) {
+                    // Format the date and time
+                    const updatedDate = new Date(eventDetail.updated_at);
+                    const dateOptions = { year: 'numeric', month: 'short', day: 'numeric' };
+                    const timeOptions = { hour: '2-digit', minute: '2-digit', hour12: true };
+                    
+                    $("#updated_at_date").text(updatedDate.toLocaleDateString('en-US', dateOptions));
+                    $("#updated_at_time").text(updatedDate.toLocaleTimeString('en-US', timeOptions));
+                } else {
+                    $("#updated_at_date").text("-");
+                    $("#updated_at_time").text("-");
+                }
+            } else {
+                $("#update_info_section").hide();
+            }
+            
             var html = '';
             var attachments = eventDetail.attachments;
             if (attachments.length > 0) {
@@ -400,119 +486,135 @@ function editGalleryResponse(response) {
     } 
 }
 
-var tempId = '';
-function deleteEventAttConfirm(id){
+var tempId = "";
+function deleteEventAttConfirm(id) {
     tempId = id;
-    $("#deleteConfirm_btn").attr('onclick', 'deleteEventAttConfirmed()');
-    $("#delete_confirm_modal").modal('show');
+    $("#deleteConfirm_btn").attr("onclick", "deleteEventAttConfirmed()");
+    $("#delete_confirm_modal").modal("show");
 }
 
-function deleteEventAttConfirmed(){
-
-    let type = 'POST';
-    let url = '/deleteEventAtt';
-    let message = '';
-    let form = '';
+function deleteEventAttConfirmed() {
+    let type = "POST";
+    let url = "/deleteEventAtt";
+    let message = "";
+    let form = "";
     let data = new FormData();
-    data.append('attachment_id', tempId);
+    data.append("attachment_id", tempId);
     // PASSING DATA TO FUNCTION
-    SendAjaxRequestToServer(type, url, data, '', deleteEventAttConfirmedResponse, '', '');
+    SendAjaxRequestToServer(
+        type,
+        url,
+        data,
+        "",
+        deleteEventAttConfirmedResponse,
+        "",
+        ""
+    );
 }
 
 function deleteEventAttConfirmedResponse(response) {
-
     // SHOWING MESSAGE ACCORDING TO RESPONSE
-    if (response.status == 200  || response.status == '200') {
+    if (response.status == 200 || response.status == "200") {
+        $("#att_" + tempId).remove();
 
-        $("#att_"+tempId).remove();
-        
-        $("#deleteConfirm_btn").attr('onclick', '');
-        $("#delete_confirm_modal").modal('hide');
-        tempId = '';
+        $("#deleteConfirm_btn").attr("onclick", "");
+        $("#delete_confirm_modal").modal("hide");
+        tempId = "";
 
-        toastr.success(response.message, '', {
-            timeOut: 3000
+        toastr.success(response.message, "", {
+            timeOut: 3000,
         });
-    } 
-}
-
-function deleteEventConfirm(id){
-    tempId = id;
-    $("#deleteConfirm_btn").attr('onclick', 'deleteEventConfirmed()');
-    $("#delete_confirm_modal").modal('show');
-}
-
-function deleteEventConfirmed(){
-
-    let type = 'POST';
-    let url = '/deleteEvent';
-    let message = '';
-    let form = '';
-    let data = new FormData();
-    data.append('event_id', tempId);
-    // PASSING DATA TO FUNCTION
-    SendAjaxRequestToServer(type, url, data, '', deleteEventConfirmedResponse, '', '');
-}
-
-function deleteEventConfirmedResponse(response) {
-
-    // SHOWING MESSAGE ACCORDING TO RESPONSE
-    if (response.status == 200  || response.status == '200') {
-
-        tempId = '';
-        $("#deleteConfirm_btn").attr('onclick', '');
-        $("#delete_confirm_modal").modal('hide');
-        
-        getNewsEventsPageData();
-        toastr.success(response.message, '', {
-            timeOut: 3000
-        });
-    } 
-}
-
-function displaySelectedFiles() {
-    const $imageContainer = $('#file_container');
-    $imageContainer.empty()
-    if (selectedFiles.length < 8) {
-        $imageContainer.empty() // Clear previous images
-        selectedFiles.forEach((file, index) => {
-            const reader = new FileReader()
-            reader.onload = function (e) {
-                const $imageDiv = $('<div>').addClass('col-3 my-3')
-                const $image = $('<img>').attr('src', e.target.result).addClass('img-prev')
-                $imageDiv.append($image)
-                const $cancelButton = $('<span>').html('&times;').addClass('cancel-icon')
-                $cancelButton.on('click', function () {
-                    selectedFiles.splice(index, 1)
-                    displaySelectedFiles()
-                })
-                $imageDiv.append($cancelButton)
-                $imageContainer.append($imageDiv)
-            }
-        reader.readAsDataURL(file)
-        })
     }
 }
 
-$(document).on('change', 'input, textarea, select', function (e) {
-	$(this).removeClass('is-invalid');
+function deleteEventConfirm(id) {
+    tempId = id;
+    $("#deleteConfirm_btn").attr("onclick", "deleteEventConfirmed()");
+    $("#delete_confirm_modal").modal("show");
+}
+
+function deleteEventConfirmed() {
+    let type = "POST";
+    let url = "/deleteEvent";
+    let message = "";
+    let form = "";
+    let data = new FormData();
+    data.append("event_id", tempId);
+    // PASSING DATA TO FUNCTION
+    SendAjaxRequestToServer(
+        type,
+        url,
+        data,
+        "",
+        deleteEventConfirmedResponse,
+        "",
+        ""
+    );
+}
+
+function deleteEventConfirmedResponse(response) {
+    // SHOWING MESSAGE ACCORDING TO RESPONSE
+    if (response.status == 200 || response.status == "200") {
+        tempId = "";
+        $("#deleteConfirm_btn").attr("onclick", "");
+        $("#delete_confirm_modal").modal("hide");
+
+        getNewsEventsPageData();
+        toastr.success(response.message, "", {
+            timeOut: 3000,
+        });
+    }
+}
+
+function displaySelectedFiles() {
+    const $imageContainer = $("#file_container");
+    $imageContainer.empty();
+    if (selectedFiles.length < 8) {
+        $imageContainer.empty(); // Clear previous images
+        selectedFiles.forEach((file, index) => {
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                const $imageDiv = $("<div>").addClass("col-3 my-3");
+                const $image = $("<img>")
+                    .attr("src", e.target.result)
+                    .addClass("img-prev");
+                $imageDiv.append($image);
+                const $cancelButton = $("<span>")
+                    .html("&times;")
+                    .addClass("cancel-icon");
+                $cancelButton.on("click", function () {
+                    selectedFiles.splice(index, 1);
+                    displaySelectedFiles();
+                });
+                $imageDiv.append($cancelButton);
+                $imageContainer.append($imageDiv);
+            };
+            reader.readAsDataURL(file);
+        });
+    }
+}
+
+$(document).on("change", "input, textarea, select", function (e) {
+    $(this).removeClass("is-invalid");
 });
 
 $(document).ready(function () {
+    const today = new Date().toISOString().split("T")[0];
+    $("#start_date").attr("min", today);
 
     getNewsEventsPageData();
 });
 
 $(document).ready(function () {
-    $('#search_filter').on('keyup', function () {
+    $("#search_filter").on("keyup", function () {
         $(".no_result_row").remove(); // Remove 'No result found' row
         var value = $(this).val().toLowerCase(); // Get the input value
-    
+
         // Iterate through each row
         $("#listing_table_body tr").each(function () {
             var row = $(this);
             var hasMatch = false;
-    
+
             // Iterate through each cell in the row
             row.find("td").each(function () {
                 var cell = $(this);
@@ -523,11 +625,11 @@ $(document).ready(function () {
                     cell.removeClass("table-highlight"); // Remove table-highlight from non-matching cells
                 }
             });
-    
+
             // Toggle the visibility of the row based on whether it has a match
             row.toggle(hasMatch);
         });
-    
+
         // Display 'No result found' if no rows are visible
         if ($("#listing_table_body tr:visible").length === 0) {
             var no_result_row = `
@@ -537,7 +639,7 @@ $(document).ready(function () {
             $("#listing_table_body").append(no_result_row);
         }
         // remove table-highlight class from all td when input is empty
-        if($(this).val()== ''){
+        if ($(this).val() == "") {
             $(".no_result_row").remove();
             // remove table-highlight class from all td
             $("#listing_table_body tr td").removeClass("table-highlight");
@@ -545,166 +647,267 @@ $(document).ready(function () {
     });
 });
 
-$(document).on('click', '#close_confirm', function (e) {
-    tempId = '';
-    $("#deleteConfirm_btn").attr('onclick', '');
-	$("#delete_confirm_modal").modal('hide');
+$(document).on("click", "#close_confirm", function (e) {
+    tempId = "";
+    $("#deleteConfirm_btn").attr("onclick", "");
+    $("#delete_confirm_modal").modal("hide");
 });
-
-
 
 // Add this function to calculate event_date automatically
 function calculateEventDate() {
-    const startDate = $('#start_date').val();
-    const endDate = $('#end_date').val();
-    const eventType = $('#event_type').val();
-    const recurringType = $('#recurring_type').val();
-    
+    const startDate = $("#start_date").val();
+    const endDate = $("#end_date").val();
+    const eventType = $("#event_type").val();
+    const recurringType = $("#recurring_type").val();
+
     // If not recurring or missing required fields, clear event_date
-    if (!startDate || !endDate || eventType !== 'Recurring' || !recurringType) {
-        $('#event_date').val('');
+    if (!startDate || !endDate || eventType !== "Recurring" || !recurringType) {
+        $("#event_date").val("");
         return;
     }
-    
+
     let calculatedDate = null;
-    
+
     try {
-        switch(recurringType) {
-            case 'Daily':
+        switch (recurringType) {
+            case "Daily":
                 // For daily, use start_date as event_date
                 calculatedDate = startDate;
                 break;
-                
-            case 'Weekly':
-            case 'Bi-Weekly':
-                const repeatDays = $('#repeat_on').val() || [];
+
+            case "Weekly":
+            case "Bi-Weekly":
+                const repeatDays = $("#repeat_on").val() || [];
                 if (repeatDays.length > 0) {
                     calculatedDate = getNextDayOfWeek(startDate, repeatDays[0]);
                 }
                 break;
-                
-            case 'Monthly':
-                const monthlyWeek = $('#monthly_week').val();
-                const monthlyDays = $('#monthly_repeat_on').val() || [];
+
+            case "Monthly":
+                const monthlyWeek = $("#monthly_week").val();
+                const monthlyDays = $("#monthly_repeat_on").val() || [];
                 if (monthlyWeek && monthlyDays.length > 0) {
-                    calculatedDate = calculateMonthlyDate(startDate, monthlyWeek, monthlyDays[0]);
+                    calculatedDate = calculateMonthlyDate(
+                        startDate,
+                        monthlyWeek,
+                        monthlyDays[0]
+                    );
                 }
                 break;
-                
-            case 'Yearly':
-                const yearlyWeek = $('#yearly_week').val();
-                const yearlyDays = $('#yearly_repeat_on').val() || [];
+
+            case "Yearly":
+                const yearlyWeek = $("#yearly_week").val();
+                const yearlyDays = $("#yearly_repeat_on").val() || [];
                 if (yearlyWeek && yearlyDays.length > 0) {
-                    calculatedDate = calculateYearlyDate(startDate, yearlyWeek, yearlyDays[0]);
+                    calculatedDate = calculateYearlyDate(
+                        startDate,
+                        yearlyWeek,
+                        yearlyDays[0]
+                    );
                 }
                 break;
         }
-        
+
         // Set the calculated date
         if (calculatedDate) {
-            $('#event_date').val(calculatedDate);
+            $("#event_date").val(calculatedDate);
             // Make readonly to show it's auto-calculated
-            $('#event_date').attr('readonly', true);
-            $('#event_date').css('background-color', '#e9ecef');
+            $("#event_date").attr("readonly", true);
+            $("#event_date").css("background-color", "#e9ecef");
         }
-    } catch(error) {
-        console.error('Error calculating event date:', error);
-        $('#event_date').val('');
+    } catch (error) {
+        console.error("Error calculating event date:", error);
+        $("#event_date").val("");
     }
 }
 
 // Helper function to get next occurrence of a specific day
 function getNextDayOfWeek(startDate, dayName) {
     const daysMap = {
-        'Sun': 0, 'Mon': 1, 'Tue': 2, 'Wed': 3, 
-        'Thu': 4, 'Fri': 5, 'Sat': 6
+        Sun: 0,
+        Mon: 1,
+        Tue: 2,
+        Wed: 3,
+        Thu: 4,
+        Fri: 5,
+        Sat: 6,
     };
-    
+
     const start = new Date(startDate);
     const targetDay = daysMap[dayName];
     const currentDay = start.getDay();
-    
+
     let daysToAdd = targetDay - currentDay;
     if (daysToAdd < 0) {
         daysToAdd += 7;
     }
-    
+
     const resultDate = new Date(start);
     resultDate.setDate(start.getDate() + daysToAdd);
-    
+
     return formatDate(resultDate);
 }
 
 // Helper function to calculate monthly date
 function calculateMonthlyDate(startDate, weekNumber, dayName) {
     const daysMap = {
-        'Sun': 0, 'Mon': 1, 'Tue': 2, 'Wed': 3, 
-        'Thu': 4, 'Fri': 5, 'Sat': 6
+        Sun: 0,
+        Mon: 1,
+        Tue: 2,
+        Wed: 3,
+        Thu: 4,
+        Fri: 5,
+        Sat: 6,
     };
-    
+
     const start = new Date(startDate);
-    const year = start.getFullYear();
-    const month = start.getMonth();
     const targetDay = daysMap[dayName];
-    
-    if (weekNumber === 'last') {
-        // Get last occurrence of the day in the month
+
+    // Try current month first
+    let calculatedDate = findDateInMonth(
+        start.getFullYear(),
+        start.getMonth(),
+        weekNumber,
+        targetDay
+    );
+
+    // If calculated date is before start date, move to next month
+    if (calculatedDate < start) {
+        const nextMonth = new Date(
+            start.getFullYear(),
+            start.getMonth() + 1,
+            1
+        );
+        calculatedDate = findDateInMonth(
+            nextMonth.getFullYear(),
+            nextMonth.getMonth(),
+            weekNumber,
+            targetDay
+        );
+    }
+
+    return formatDate(calculatedDate);
+}
+
+// Helper function to find a specific weekday occurrence in a month
+function findDateInMonth(year, month, weekNumber, targetDay) {
+    if (weekNumber === "last") {
+        // Find last occurrence of the day in the month
         const lastDayOfMonth = new Date(year, month + 1, 0);
         const lastDate = lastDayOfMonth.getDate();
-        
+
         for (let day = lastDate; day >= 1; day--) {
             const testDate = new Date(year, month, day);
             if (testDate.getDay() === targetDay) {
-                return formatDate(testDate);
+                return testDate;
             }
         }
     } else {
-        // Get nth occurrence of the day in the month
+        // Find nth occurrence of the day in the month
         let count = 0;
         const week = parseInt(weekNumber);
-        
+
         for (let day = 1; day <= 31; day++) {
             const testDate = new Date(year, month, day);
             if (testDate.getMonth() !== month) break;
-            
+
             if (testDate.getDay() === targetDay) {
                 count++;
                 if (count === week) {
-                    return formatDate(testDate);
+                    return testDate;
                 }
             }
         }
     }
-    
-    return startDate; // Fallback
+
+    // Fallback to first day of month
+    return new Date(year, month, 1);
 }
 
 // Helper function to calculate yearly date
 function calculateYearlyDate(startDate, weekNumber, dayName) {
+    const daysMap = {
+        Sun: 0,
+        Mon: 1,
+        Tue: 2,
+        Wed: 3,
+        Thu: 4,
+        Fri: 5,
+        Sat: 6,
+    };
     const start = new Date(startDate);
-    const year = start.getFullYear();
-    const month = start.getMonth(); // Keep the same month as start_date
-    
-    // Use the same logic as monthly, but for the current year
-    return calculateMonthlyDate(year + '-' + String(month + 1).padStart(2, '0') + '-01', weekNumber, dayName);
+    const currentMonth = start.getMonth();
+
+    // Try current year first
+    let calculatedDate = findDateInMonth(
+        start.getFullYear(),
+        currentMonth,
+        weekNumber,
+        daysMap[dayName]
+    );
+
+    // If calculated date is before start date, move to next year
+    if (calculatedDate < start) {
+        calculatedDate = findDateInMonth(
+            start.getFullYear() + 1,
+            currentMonth,
+            weekNumber,
+            daysMap[dayName]
+        );
+    }
+
+    return formatDate(calculatedDate);
 }
 
 // Helper function to format date as YYYY-MM-DD
 function formatDate(date) {
     const d = new Date(date);
     const year = d.getFullYear();
-    const month = String(d.getMonth() + 1).padStart(2, '0');
-    const day = String(d.getDate()).padStart(2, '0');
+    const month = String(d.getMonth() + 1).padStart(2, "0");
+    const day = String(d.getDate()).padStart(2, "0");
     return `${year}-${month}-${day}`;
 }
 
 // Attach event listeners to trigger auto-calculation
-$(document).on('change', '#start_date, #end_date, #event_type, #recurring_type, #repeat_on, #monthly_week, #monthly_repeat_on, #yearly_week, #yearly_repeat_on', function() {
+$(document).on(
+    "change",
+    "#end_date, #event_type, #recurring_type, #repeat_on, #monthly_week, #monthly_repeat_on, #yearly_week, #yearly_repeat_on",
+    function () {
+        calculateEventDate();
+    }
+);
+
+$(document).on("change", "#start_date", function () {
+    const startDate = new Date($(this).val());
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    if (startDate < today) {
+        toastr.error("Start date cannot be before today");
+        $(this).val("");
+        return;
+    }
+
+    // Update end_date min attribute
+    const startDateStr = $(this).val();
+    if (startDateStr) {
+        $("#end_date").attr("min", startDateStr);
+
+        // Clear end_date if it's now invalid
+        const endDate = $("#end_date").val();
+        if (endDate && endDate < startDateStr) {
+            $("#end_date").val("");
+            toastr.warning("End date must be after start date");
+        }
+    }
+
     calculateEventDate();
 });
 
 // For Select2 fields
-$('#repeat_on, #monthly_repeat_on, #yearly_repeat_on').on('select2:select select2:unselect', function() {
-    calculateEventDate();
-});
-
+$("#repeat_on, #monthly_repeat_on, #yearly_repeat_on").on(
+    "select2:select select2:unselect",
+    function () {
+        calculateEventDate();
+    }
+);

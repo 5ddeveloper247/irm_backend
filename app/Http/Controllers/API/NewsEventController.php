@@ -31,11 +31,21 @@ class NewsEventController extends Controller
             });
 
             if ($news_event->type == "Recurring") {
+                // Get the updated_at timestamp for this event
+                $updated_at_date = $news_event->updated_at ? date('Y-m-d', strtotime($news_event->updated_at)) : null;
+
                 if ($news_event->recurring_type == "Daily") {
                     $data['news_events'][$key]->date = date('d');
                     $data['news_events'][$key]->month = date('M');
                     $data['news_events'][$key]->year = date('Y');
                     $data['news_events'][$key]->new_event_date = date('Y-m-d');
+
+                    // Check if event was updated and if current date is before event date OR updated date
+                    if ($updated_at_date && strtotime(date('Y-m-d')) < strtotime($updated_at_date)) {
+                        // If today is before the update date, skip this occurrence
+                        unset($data['news_events'][$key]);
+                        continue;
+                    }
 
                     if (strtotime(date('Y-m-d')) < strtotime($news_event->event_date)) {
                         $data['news_events'][$key]->date = date('d', strtotime($news_event->event_date));
@@ -52,18 +62,24 @@ class NewsEventController extends Controller
                         $data['news_events'][$key]->year = date('Y', strtotime($news_event->event_date));
                         $data['news_events'][$key]->new_event_date = date('Y-m-d', strtotime($news_event->event_date));
                     } else {
+                        // Calculate next occurrence
                         if (!in_array(date('D'), $repeat_on_day)) {
                             $next_day = $this->getNextDayFromRepeatOn($repeat_on_day);
-                            $data['news_events'][$key]->date = date('d', strtotime('next ' . $next_day));
-                            $data['news_events'][$key]->month = date('M', strtotime('next ' . $next_day));
-                            $data['news_events'][$key]->year = date('Y', strtotime('next ' . $next_day));
-                            $data['news_events'][$key]->new_event_date = date('Y-m-d', strtotime('next ' . $next_day));
+                            $next_date = date('Y-m-d', strtotime('next ' . $next_day));
                         } else {
-                            $data['news_events'][$key]->date = date('d');
-                            $data['news_events'][$key]->month = date('M');
-                            $data['news_events'][$key]->year = date('Y');
-                            $data['news_events'][$key]->new_event_date = date('Y-m-d');
+                            $next_date = date('Y-m-d');
                         }
+
+                        // Apply updated_at filter: only show if next occurrence is after update date
+                        if ($updated_at_date && strtotime($next_date) < strtotime($updated_at_date)) {
+                            unset($data['news_events'][$key]);
+                            continue;
+                        }
+
+                        $data['news_events'][$key]->date = date('d', strtotime($next_date));
+                        $data['news_events'][$key]->month = date('M', strtotime($next_date));
+                        $data['news_events'][$key]->year = date('Y', strtotime($next_date));
+                        $data['news_events'][$key]->new_event_date = $next_date;
                     }
                 } elseif ($news_event->recurring_type == "Bi-Weekly") {
                     $repeat_on_day = $news_event->repeat_on ? json_decode($news_event->repeat_on, true) : [];
@@ -75,59 +91,65 @@ class NewsEventController extends Controller
                         $data['news_events'][$key]->new_event_date = date('Y-m-d', strtotime($news_event->event_date));
                     } else {
                         $next_day = $this->getNextBiWeeklyDay($news_event->event_date, $repeat_on_day);
+
+                        // Apply updated_at filter
+                        if ($updated_at_date && strtotime($next_day) < strtotime($updated_at_date)) {
+                            unset($data['news_events'][$key]);
+                            continue;
+                        }
+
                         $data['news_events'][$key]->date = date('d', strtotime($next_day));
                         $data['news_events'][$key]->month = date('M', strtotime($next_day));
                         $data['news_events'][$key]->year = date('Y', strtotime($next_day));
                         $data['news_events'][$key]->new_event_date = date('Y-m-d', strtotime($next_day));
                     }
-                } // REPLACE the Monthly recurring section in getNewsEvents method (around line 81-95)
-
-                elseif ($news_event->recurring_type == "Monthly") {
+                } elseif ($news_event->recurring_type == "Monthly") {
                     $current_date = date('Y-m-d');
                     $event_date = date('Y-m-d', strtotime($news_event->event_date));
 
-                    // If the original event_date hasn't passed yet, use it
                     if (strtotime($current_date) <= strtotime($event_date)) {
-                        $data['news_events'][$key]->date = date('d', strtotime($news_event->event_date));
-                        $data['news_events'][$key]->month = date('M', strtotime($news_event->event_date));
-                        $data['news_events'][$key]->year = date('Y', strtotime($news_event->event_date));
-                        $data['news_events'][$key]->new_event_date = date('Y-m-d', strtotime($news_event->event_date));
+                        $calculated_date = $event_date;
                     } else {
-                        // Original event_date has passed, calculate next month's occurrence
-                        $next_date = $this->calculateMonthlyRecurrence($news_event);
-
-                        $data['news_events'][$key]->date = date('d', strtotime($next_date));
-                        $data['news_events'][$key]->month = date('M', strtotime($next_date));
-                        $data['news_events'][$key]->year = date('Y', strtotime($next_date));
-                        $data['news_events'][$key]->new_event_date = date('Y-m-d', strtotime($next_date));
+                        $calculated_date = $this->calculateMonthlyRecurrence($news_event);
                     }
 
+                    // Apply updated_at filter
+                    if ($updated_at_date && strtotime($calculated_date) < strtotime($updated_at_date)) {
+                        // Calculate next occurrence after update date
+                        $calculated_date = $this->calculateMonthlyRecurrence($news_event);
+                    }
+
+                    $data['news_events'][$key]->date = date('d', strtotime($calculated_date));
+                    $data['news_events'][$key]->month = date('M', strtotime($calculated_date));
+                    $data['news_events'][$key]->year = date('Y', strtotime($calculated_date));
+                    $data['news_events'][$key]->new_event_date = $calculated_date;
+
                     // Check if calculated date exceeds end_date
-                    if (strtotime($data['news_events'][$key]->new_event_date) > strtotime($news_event->end_date)) {
+                    if (strtotime($calculated_date) > strtotime($news_event->end_date)) {
                         unset($data['news_events'][$key]);
                     }
                 } elseif ($news_event->recurring_type == "Yearly") {
                     $current_date = date('Y-m-d');
                     $event_date = date('Y-m-d', strtotime($news_event->event_date));
 
-                    // If the original event_date hasn't passed yet, use it
                     if (strtotime($current_date) <= strtotime($event_date)) {
-                        $data['news_events'][$key]->date = date('d', strtotime($news_event->event_date));
-                        $data['news_events'][$key]->month = date('M', strtotime($news_event->event_date));
-                        $data['news_events'][$key]->year = date('Y', strtotime($news_event->event_date));
-                        $data['news_events'][$key]->new_event_date = date('Y-m-d', strtotime($news_event->event_date));
+                        $calculated_date = $event_date;
                     } else {
-                        // Original event_date has passed, calculate next year's occurrence
-                        $next_date = $this->calculateYearlyRecurrence($news_event);
-
-                        $data['news_events'][$key]->date = date('d', strtotime($next_date));
-                        $data['news_events'][$key]->month = date('M', strtotime($next_date));
-                        $data['news_events'][$key]->year = date('Y', strtotime($next_date));
-                        $data['news_events'][$key]->new_event_date = date('Y-m-d', strtotime($next_date));
+                        $calculated_date = $this->calculateYearlyRecurrence($news_event);
                     }
 
+                    // Apply updated_at filter
+                    if ($updated_at_date && strtotime($calculated_date) < strtotime($updated_at_date)) {
+                        $calculated_date = $this->calculateYearlyRecurrence($news_event);
+                    }
+
+                    $data['news_events'][$key]->date = date('d', strtotime($calculated_date));
+                    $data['news_events'][$key]->month = date('M', strtotime($calculated_date));
+                    $data['news_events'][$key]->year = date('Y', strtotime($calculated_date));
+                    $data['news_events'][$key]->new_event_date = $calculated_date;
+
                     // Check if calculated date exceeds end_date
-                    if (strtotime($data['news_events'][$key]->new_event_date) > strtotime($news_event->end_date)) {
+                    if (strtotime($calculated_date) > strtotime($news_event->end_date)) {
                         unset($data['news_events'][$key]);
                     }
                 }

@@ -7,8 +7,8 @@
         }
 
         /* .collapse.show {
-                            background-color: #ecf4ff00 !important;
-                        } */
+                                            background-color: #ecf4ff00 !important;
+                                        } */
 
         .img-prev {
             width: 70px;
@@ -68,10 +68,10 @@
                         Events</button>
                 </li>
                 <!-- <li class="nav-item fs-3" role="presentation">
-                                    <button class="nav-link" id="listing-tab" data-bs-toggle="tab"
-                                        data-bs-target="#listing-tab-pane" type="button" role="tab" aria-controls="listing-tab-pane"
-                                        aria-selected="true">Gallery List</button>
-                                </li> -->
+                                                    <button class="nav-link" id="listing-tab" data-bs-toggle="tab"
+                                                        data-bs-target="#listing-tab-pane" type="button" role="tab" aria-controls="listing-tab-pane"
+                                                        aria-selected="true">Gallery List</button>
+                                                </li> -->
 
             </ul>
 
@@ -185,6 +185,8 @@
                                                                     <th class="text-start text-nowrap" scope="col">Start
                                                                         Date</th>
                                                                     <th class="text-start text-nowrap" scope="col">End
+                                                                        Date</th>
+                                                                    <th class="text-start text-nowrap" scope="col">Event
                                                                         Date</th>
                                                                     <th class="text-start text-nowrap" scope="col">Status
                                                                     </th>
@@ -300,20 +302,25 @@
 
                     <div class="col-6 form-floating">
                         <input type="date" class="form-control" id="start_date" name="start_date"
-                            placeholder="Start Date">
+                            placeholder="Start Date" min="{{ date('Y-m-d') }}">
                         <label class="ms-2" for="start_date">Start Date*</label>
                     </div>
 
+                    <!-- End Date -->
                     <div class="col-6 form-floating">
                         <input type="date" class="form-control" id="end_date" name="end_date"
                             placeholder="End Date">
                         <label class="ms-2" for="end_date">End Date*</label>
                     </div>
 
+                    <!-- Event Date (auto-calculated) -->
                     <div class="col-6 form-floating">
                         <input type="date" class="form-control" id="event_date" name="event_date"
-                            placeholder="Event Date">
-                        <label class="ms-2" for="event_date">Event Date <small class="text-muted">(Auto-calculated)</small></label>
+                            placeholder="Event Date" readonly>
+                        <label class="ms-2" for="event_date">
+                            Event Date
+                            <small class="text-muted">(Auto-calculated)</small>
+                        </label>
                     </div>
 
                     <div class="col-6 form-floating">
@@ -464,6 +471,28 @@
                             <option value="0">In-Active</option>
                         </select>
                         <label class="ms-2" for="status">Status*</label>
+                    </div>
+
+                    <div id="update_info_section" style="display:none;">
+                        <hr class="my-3">
+                        <div class="row g-3">
+                            <div class="col-12">
+                                <h6 class="text-muted mb-3">Update Information</h6>
+                            </div>
+
+                            <div class="col-6">
+                                <label class="form-label text-muted small">Updated By</label>
+                                <p class="mb-0 fw-semibold" id="updated_by_name">-</p>
+                                <small class="text-muted" id="updated_by_id">ID: -</small>
+                            </div>
+
+                            <div class="col-6">
+                                <label class="form-label text-muted small">Updated At</label>
+                                <p class="mb-0 fw-semibold" id="updated_at_date">-</p>
+                                <small class="text-muted" id="updated_at_time">-</small>
+                            </div>
+                        </div>
+                        <hr class="my-3">
                     </div>
 
                     <div class="row">

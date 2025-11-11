@@ -1743,7 +1743,7 @@ class AdminController extends Controller
             'description' => 'required|string',
             'start_date' => 'required|date|after_or_equal:today',
             'end_date' => 'required|date|after_or_equal:start_date',
-            'event_date' => 'nullable|date|after_or_equal:start_date|before_or_equal:end_date',  // CHANGED to nullable
+            'event_date' => 'nullable|date|after_or_equal:start_date|before_or_equal:end_date',
             'namaz_name' => 'required',
             'organizer_name' => 'required|string|max:100',
             'organization_no' => 'required|string|max:50',
@@ -1766,10 +1766,18 @@ class AdminController extends Controller
         }
 
         if ($request->event_id != '') {
+            // EDITING EXISTING EVENT
             $NewsEvent = NewsEvent::find($request->event_id);
+
+            // Store the updated_at timestamp for future event filtering
+            $NewsEvent->updated_at = Carbon::now();
+            $NewsEvent->updated_by = auth()->id(); // Assuming you have authentication
+
         } else {
+            // CREATING NEW EVENT
             $NewsEvent = new NewsEvent;
             $NewsEvent->date = Carbon::now()->format('Y-m-d');
+            $NewsEvent->created_by = auth()->id(); // Track who created it
         }
 
         $NewsEvent->title = $request->title;
@@ -1803,12 +1811,12 @@ class AdminController extends Controller
         // Handle monthly_week
         if ($request->recurring_type == 'Monthly') {
             $NewsEvent->monthly_week = $request->monthly_week;
-            $NewsEvent->yearly_week = null;  // Clear yearly_week if monthly is selected
+            $NewsEvent->yearly_week = null;
         }
         // Handle yearly_week
         elseif ($request->recurring_type == 'Yearly') {
             $NewsEvent->yearly_week = $request->yearly_week;
-            $NewsEvent->monthly_week = null;  // Clear monthly_week if yearly is selected
+            $NewsEvent->monthly_week = null;
         }
         // Clear both if other recurring types
         else {
@@ -1838,7 +1846,7 @@ class AdminController extends Controller
         }
 
         if ($request->event_id != '') {
-            return response()->json(['status' => 200, 'message' => "Event Updated Successfully."]);
+            return response()->json(['status' => 200, 'message' => "Event Updated Successfully. Changes will apply to future occurrences only."]);
         } else {
             return response()->json(['status' => 200, 'message' => "Event Saved Successfully."]);
         }
@@ -1898,19 +1906,31 @@ class AdminController extends Controller
         $month = date('m', $start);
         $targetDayNum = $daysMap[$dayName] ?? 1;
 
+        // Try to find date in current month
+        $resultDate = $this->findDateInMonth($year, $month, $weekNumber, $targetDayNum);
+
+        // If result is before start date, move to next month
+        if ($resultDate < $startDate) {
+            $nextMonthTimestamp = strtotime('+1 month', $start);
+            $nextYear = date('Y', $nextMonthTimestamp);
+            $nextMonth = date('m', $nextMonthTimestamp);
+            $resultDate = $this->findDateInMonth($nextYear, $nextMonth, $weekNumber, $targetDayNum);
+        }
+
+        return $resultDate;
+    }
+
+    // New helper method to find a date in a specific month
+    private function findDateInMonth($year, $month, $weekNumber, $targetDayNum)
+    {
         if ($weekNumber == 'last') {
             // Get last occurrence of the day in the month
-            $lastDayOfMonth = date('t', $start);
+            $lastDayOfMonth = date('t', strtotime("$year-$month-01"));
+
             for ($day = $lastDayOfMonth; $day >= 1; $day--) {
                 $testDate = strtotime("$year-$month-$day");
                 if (date('w', $testDate) == $targetDayNum) {
-                    $resultDate = date('Y-m-d', $testDate);
-                    // If this date is before start_date, move to next month
-                    if ($resultDate < $startDate) {
-                        $nextMonth = date('Y-m', strtotime('+1 month', $start));
-                        return $this->calculateMonthlyDateFromStart($nextMonth . '-01', $weekNumber, $dayName);
-                    }
-                    return $resultDate;
+                    return date('Y-m-d', $testDate);
                 }
             }
         } else {
@@ -1925,19 +1945,13 @@ class AdminController extends Controller
                 if (date('w', $testDate) == $targetDayNum) {
                     $count++;
                     if ($count == $week) {
-                        $resultDate = date('Y-m-d', $testDate);
-                        // If this date is before start_date, move to next month
-                        if ($resultDate < $startDate) {
-                            $nextMonth = date('Y-m', strtotime('+1 month', $start));
-                            return $this->calculateMonthlyDateFromStart($nextMonth . '-01', $weekNumber, $dayName);
-                        }
-                        return $resultDate;
+                        return date('Y-m-d', $testDate);
                     }
                 }
             }
         }
 
-        return $startDate; // Fallback
+        return "$year-$month-01"; // Fallback
     }
 
     // NEW HELPER METHOD: Calculate yearly date from start date
@@ -1947,13 +1961,16 @@ class AdminController extends Controller
         $year = date('Y', $start);
         $month = date('m', $start);
 
-        // Calculate for the current month and year
-        $calculatedDate = $this->calculateMonthlyDateFromStart($year . '-' . $month . '-01', $weekNumber, $dayName);
+        $daysMap = ['Sun' => 0, 'Mon' => 1, 'Tue' => 2, 'Wed' => 3, 'Thu' => 4, 'Fri' => 5, 'Sat' => 6];
+        $targetDayNum = $daysMap[$dayName] ?? 1;
+
+        // Calculate for current year
+        $calculatedDate = $this->findDateInMonth($year, $month, $weekNumber, $targetDayNum);
 
         // If the calculated date is before start_date, move to next year
         if ($calculatedDate < $startDate) {
             $nextYear = $year + 1;
-            return $this->calculateMonthlyDateFromStart($nextYear . '-' . $month . '-01', $weekNumber, $dayName);
+            $calculatedDate = $this->findDateInMonth($nextYear, $month, $weekNumber, $targetDayNum);
         }
 
         return $calculatedDate;
@@ -1962,7 +1979,11 @@ class AdminController extends Controller
     public function getSpecificEvent(Request $request)
     {
 
-        $data['event_detail'] = NewsEvent::where('id', $request->event_id)->with(['attachments'])->first();
+        $data['event_detail'] = NewsEvent::where('id', $request->event_id)->with(['attachments', 'updater'])->first();
+
+        if ($data['event_detail'] && $data['event_detail']->updater) {
+            $data['event_detail']->updated_by_name = $data['event_detail']->updater->name;
+        }
 
         return response()->json(['status' => 200, 'message' => "", 'data' => $data]);
     }
