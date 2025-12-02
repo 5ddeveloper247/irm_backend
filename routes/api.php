@@ -121,6 +121,11 @@ Route::get('/facebook-live/{pageId?}', [YoutubeController::class, 'getFacebookLi
 Route::get('/live-status', [YoutubeController::class, 'getLiveStatus']);
 
 
+Route::get('/facebook/test-api', [YoutubeController::class, 'testFacebookApi']);
+Route::get('/facebook/clear-cache', [YoutubeController::class, 'clearFacebookCache']);
+Route::get('/facebook/live-status', [YoutubeController::class, 'getFacebookLiveStatus']);
+
+
 Route::get('audio-source', [YoutubeController::class, 'getAudioSource']);
 Route::get('audio-status', [YoutubeController::class, 'getCurrentAudioStatus']);
 Route::get('audio-playlist', [YoutubeController::class, 'getAudioPlaylist']);

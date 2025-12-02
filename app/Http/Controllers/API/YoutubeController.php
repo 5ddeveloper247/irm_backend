@@ -706,112 +706,242 @@ class YoutubeController extends Controller
     /**
      * Updated Facebook Live Status with stored token
      */
-    public function getFacebookLiveStatus($pageId = null)
-    {
-        try {
-            $pageId = $pageId ?? config('services.facebook.page_id', 'irmglobe');
+    /**
+ * Updated Facebook Live Status with proper debugging
+ */
+public function getFacebookLiveStatus($pageId = null)
+{
+    try {
+        // Use numeric page ID from config, NOT username
+        $pageId = $pageId ?? config('services.facebook.page_id', '221289014578470');
+        
+        Log::info('Checking Facebook Live Status', ['pageId' => $pageId]);
+        
+        // Get stored long-lived token
+        $accessToken = $this->getFacebookAccessToken();
+
+        if (!$accessToken) {
+            Log::warning('No valid Facebook access token available');
             
-            // Get stored long-lived token
-            $accessToken = $this->getFacebookAccessToken();
+            return response()->json([
+                'isLive' => false,
+                'message' => 'Facebook access token not configured or expired',
+                'fallbackPlaylist' => $this->facebookFallbackPlaylist,
+                'fallbackEmbedUrl' => "https://www.youtube.com/embed/videoseries?list={$this->facebookFallbackPlaylist}&autoplay=1",
+                'action_required' => 'Generate a new long-lived token',
+                'debug' => [
+                    'pageId' => $pageId,
+                    'hasToken' => false
+                ]
+            ]);
+        }
 
-            if (!$accessToken) {
-                Log::warning('No valid Facebook access token available');
-                
-                return response()->json([
-                    'isLive' => false,
-                    'message' => 'Facebook access token not configured or expired',
-                    'fallbackPlaylist' => $this->facebookFallbackPlaylist,
-                    'fallbackEmbedUrl' => "https://www.youtube.com/embed/videoseries?list={$this->facebookFallbackPlaylist}&autoplay=1",
-                    'action_required' => 'Generate a new long-lived token',
-                    'token_status_url' => route('facebook.token-status') // Update with your route
+        $cacheKey = "facebook_live_status_{$pageId}";
+
+        // Reduce cache time to 30 seconds for more frequent checks
+        $result = Cache::remember($cacheKey, 30, function () use ($pageId, $accessToken) {
+            
+            // CRITICAL: Use numeric page ID in API call
+            $apiUrl = "https://graph.facebook.com/v18.0/{$pageId}/live_videos";
+            $params = [
+                'fields' => 'id,title,description,status,embed_html,secure_embed_html,permalink_url,video,creation_time,live_views',
+                'access_token' => $accessToken
+            ];
+            
+            Log::info('Facebook API Request', [
+                'url' => $apiUrl,
+                'pageId' => $pageId,
+                'tokenLength' => strlen($accessToken)
+            ]);
+            
+            $response = Http::timeout(30)->get($apiUrl, $params);
+
+            if (!$response->successful()) {
+                $errorBody = $response->json();
+                Log::error('Facebook API Error', [
+                    'status' => $response->status(),
+                    'body' => $errorBody,
+                    'url' => $apiUrl
                 ]);
-            }
-
-            Log::info('Checking Facebook Live Status', ['pageId' => $pageId]);
-
-            $cacheKey = "facebook_live_status_{$pageId}";
-
-            $result = Cache::remember($cacheKey, 60, function () use ($pageId, $accessToken) {
-                
-                // Get live videos from the Facebook page
-                $response = Http::timeout(30)->get("https://graph.facebook.com/v18.0/{$pageId}/live_videos", [
-                    'fields' => 'id,title,description,status,embed_html,permalink_url,creation_time,live_views',
-                    'access_token' => $accessToken
-                ]);
-
-                if (!$response->successful()) {
-                    Log::error('Facebook API Error', [
-                        'status' => $response->status(),
-                        'body' => $response->body()
-                    ]);
-
-                    return [
-                        'isLive' => false,
-                        'error' => 'Facebook API request failed',
-                        'fallbackPlaylist' => $this->facebookFallbackPlaylist,
-                        'fallbackEmbedUrl' => "https://www.youtube.com/embed/videoseries?list={$this->facebookFallbackPlaylist}&autoplay=1"
-                    ];
-                }
-
-                $data = $response->json();
-
-                // Check if there are any live videos
-                if (!empty($data['data'])) {
-                    foreach ($data['data'] as $video) {
-                        if ($video['status'] === 'LIVE') {
-                            Log::info('Found Facebook Live Video', [
-                                'videoId' => $video['id'],
-                                'title' => $video['title'] ?? 'Live Video'
-                            ]);
-
-                            return [
-                                'isLive' => true,
-                                'videoId' => $video['id'],
-                                'title' => $video['title'] ?? 'Live Video',
-                                'description' => $video['description'] ?? '',
-                                'embedHtml' => $video['embed_html'],
-                                'permalinkUrl' => $video['permalink_url'],
-                                'liveViews' => $video['live_views'] ?? 0,
-                                'embedUrl' => "https://www.facebook.com/plugins/video.php?height=314&href=" . urlencode($video['permalink_url']) . "&show_text=false&width=560",
-                                'pageId' => $pageId,
-                                'creationTime' => $video['creation_time'] ?? null
-                            ];
-                        }
-                    }
-                }
-
-                Log::info('No Facebook live video found, returning fallback');
 
                 return [
                     'isLive' => false,
-                    'message' => 'Facebook page is not currently live - showing recent videos',
-                    'pageId' => $pageId,
+                    'error' => 'Facebook API request failed',
+                    'errorDetails' => $errorBody,
                     'fallbackPlaylist' => $this->facebookFallbackPlaylist,
                     'fallbackEmbedUrl' => "https://www.youtube.com/embed/videoseries?list={$this->facebookFallbackPlaylist}&autoplay=1",
                     'debug' => [
-                        'source' => 'fallback_playlist',
-                        'timestamp' => now()->toISOString(),
-                        'checked_videos' => count($data['data'] ?? [])
+                        'httpStatus' => $response->status(),
+                        'apiUrl' => $apiUrl
                     ]
                 ];
-            });
+            }
 
-            return response()->json($result);
-
-        } catch (\Exception $e) {
-            Log::error('Facebook Live Status Error: ' . $e->getMessage(), [
-                'pageId' => $pageId,
-                'trace' => $e->getTraceAsString()
+            $data = $response->json();
+            
+            Log::info('Facebook API Response', [
+                'dataCount' => count($data['data'] ?? []),
+                'response' => $data
             ]);
 
-            return response()->json([
+            // Check if there are any live videos
+            if (!empty($data['data'])) {
+                foreach ($data['data'] as $video) {
+                    Log::info('Checking video status', [
+                        'videoId' => $video['id'],
+                        'status' => $video['status'] ?? 'unknown',
+                        'title' => $video['title'] ?? 'No title'
+                    ]);
+                    
+                    if (isset($video['status']) && $video['status'] === 'LIVE') {
+                        Log::info('✅ Found Facebook Live Video', [
+                            'videoId' => $video['id'],
+                            'title' => $video['title'] ?? 'Live Video'
+                        ]);
+
+                        // Get the embed URL - use secure_embed_html if available
+                        $embedHtml = $video['secure_embed_html'] ?? $video['embed_html'] ?? null;
+                        
+                        // Parse embed URL from HTML if needed
+                        $embedUrl = null;
+                        if ($embedHtml && preg_match('/src="([^"]+)"/', $embedHtml, $matches)) {
+                            $embedUrl = $matches[1];
+                        } else {
+                            // Fallback: construct embed URL
+                            $embedUrl = "https://www.facebook.com/plugins/video.php?height=314&href=" . 
+                                       urlencode($video['permalink_url']) . 
+                                       "&show_text=false&width=560&t=0";
+                        }
+
+                        return [
+                            'isLive' => true,
+                            'videoId' => $video['id'],
+                            'title' => $video['title'] ?? 'Live Video',
+                            'description' => $video['description'] ?? '',
+                            'embedHtml' => $embedHtml,
+                            'embedUrl' => $embedUrl,
+                            'permalinkUrl' => $video['permalink_url'],
+                            'liveViews' => $video['live_views'] ?? 0,
+                            'pageId' => $pageId,
+                            'creationTime' => $video['creation_time'] ?? null,
+                            'status' => $video['status'],
+                            'debug' => [
+                                'source' => 'facebook_live',
+                                'timestamp' => now()->toISOString()
+                            ]
+                        ];
+                    }
+                }
+            }
+
+            Log::info('No Facebook live video found', [
+                'checkedVideos' => count($data['data'] ?? []),
+                'pageId' => $pageId
+            ]);
+
+            return [
                 'isLive' => false,
-                'error' => 'An error occurred: ' . $e->getMessage(),
+                'message' => 'Facebook page is not currently live - showing recent videos',
+                'pageId' => $pageId,
                 'fallbackPlaylist' => $this->facebookFallbackPlaylist,
-                'fallbackEmbedUrl' => "https://www.youtube.com/embed/videoseries?list={$this->facebookFallbackPlaylist}&autoplay=1"
-            ], 500);
-        }
+                'fallbackEmbedUrl' => "https://www.youtube.com/embed/videoseries?list={$this->facebookFallbackPlaylist}&autoplay=1",
+                'debug' => [
+                    'source' => 'fallback_playlist',
+                    'timestamp' => now()->toISOString(),
+                    'checked_videos' => count($data['data'] ?? []),
+                    'pageId' => $pageId
+                ]
+            ];
+        });
+
+        return response()->json($result);
+
+    } catch (\Exception $e) {
+        Log::error('Facebook Live Status Error: ' . $e->getMessage(), [
+            'pageId' => $pageId,
+            'trace' => $e->getTraceAsString()
+        ]);
+
+        return response()->json([
+            'isLive' => false,
+            'error' => 'An error occurred: ' . $e->getMessage(),
+            'fallbackPlaylist' => $this->facebookFallbackPlaylist,
+            'fallbackEmbedUrl' => "https://www.youtube.com/embed/videoseries?list={$this->facebookFallbackPlaylist}&autoplay=1"
+        ], 500);
     }
+}
+
+/**
+ * Clear Facebook live status cache (useful for testing)
+ */
+public function clearFacebookCache()
+{
+    $pageId = config('services.facebook.page_id', '221289014578470');
+    Cache::forget("facebook_live_status_{$pageId}");
+    
+    return response()->json([
+        'success' => true,
+        'message' => 'Facebook cache cleared',
+        'pageId' => $pageId
+    ]);
+}
+
+/**
+ * Test Facebook API connection (for debugging)
+ */
+public function testFacebookApi()
+{
+    try {
+        $pageId = config('services.facebook.page_id', '221289014578470');
+        $accessToken = $this->getFacebookAccessToken();
+        
+        if (!$accessToken) {
+            return response()->json([
+                'success' => false,
+                'message' => 'No access token found',
+                'steps' => [
+                    '1. Check if token exists in database: SELECT * FROM facebook_tokens WHERE id = 1',
+                    '2. If no token, generate one using /api/facebook/generate-token endpoint',
+                    '3. Make sure token has not expired'
+                ]
+            ]);
+        }
+        
+        // Test 1: Verify token
+        $tokenDebug = Http::get('https://graph.facebook.com/debug_token', [
+            'input_token' => $accessToken,
+            'access_token' => $accessToken
+        ])->json();
+        
+        // Test 2: Get page info
+        $pageInfo = Http::get("https://graph.facebook.com/v18.0/{$pageId}", [
+            'fields' => 'id,name,username,link',
+            'access_token' => $accessToken
+        ])->json();
+        
+        // Test 3: Get live videos
+        $liveVideos = Http::get("https://graph.facebook.com/v18.0/{$pageId}/live_videos", [
+            'fields' => 'id,title,status,permalink_url,live_views',
+            'access_token' => $accessToken
+        ])->json();
+        
+        return response()->json([
+            'success' => true,
+            'pageId' => $pageId,
+            'tokenInfo' => $tokenDebug,
+            'pageInfo' => $pageInfo,
+            'liveVideos' => $liveVideos,
+            'timestamp' => now()->toISOString()
+        ]);
+        
+    } catch (\Exception $e) {
+        return response()->json([
+            'success' => false,
+            'error' => $e->getMessage(),
+            'trace' => $e->getTraceAsString()
+        ], 500);
+    }
+}
 
     /**
      * Get combined live status for both platforms
