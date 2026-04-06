@@ -266,3 +266,8 @@ Route::get('/make-storage-link', function () {
         return '❌ Error: ' . $e->getMessage();
     }
 });
+
+
+Route::get('/live_setting',        [AdminController::class, 'live_setting'])->name('live_setting');
+Route::post('/getLiveSettingData', [AdminController::class, 'getLiveSettingData'])->name('getLiveSettingData');
+Route::post('/saveLiveSetting',    [AdminController::class, 'saveLiveSetting'])->name('saveLiveSetting');

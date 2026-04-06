@@ -28,6 +28,7 @@ use App\Models\NewsEventAttachment;
 use App\Models\Payment;
 use App\Models\BookCategory;
 use App\Models\MenuControl;
+use App\Models\LiveSetting;
 
 
 
@@ -2020,4 +2021,94 @@ class AdminController extends Controller
 
 
     /* ******************** News & Events Page Code End Here ********************* */
+
+    public function live_setting(Request $request)
+    {
+        return view('admin/live_setting');
+    }
+ 
+    /**
+     * Return the current live setting record as JSON.
+     */
+    public function getLiveSettingData(Request $request)
+    {
+        $liveSetting = LiveSetting::first();
+ 
+        // If no row exists yet, return safe defaults
+        if (!$liveSetting) {
+            $liveSetting = new \stdClass();
+            $liveSetting->id        = null;
+            $liveSetting->platform  = 'youtube';
+            $liveSetting->live_url  = '';
+            $liveSetting->is_active = 0;
+        }
+ 
+        return response()->json([
+            'status'  => 200,
+            'message' => '',
+            'data'    => ['live_setting' => $liveSetting],
+        ]);
+    }
+ 
+    /**
+     * Save / update the live setting record.
+     */
+    public function saveLiveSetting(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'platform' => 'required|in:youtube,facebook',
+            'live_url' => [
+                'nullable',
+                'string',
+                'max:500',
+                function ($attribute, $value, $fail) use ($request) {
+                    if (empty($value)) {
+                        return; // allow empty — just means no manual URL is set
+                    }
+ 
+                    $platform = $request->platform;
+ 
+                    if ($platform === 'youtube') {
+                        $youtubePattern = '/^(https?\:\/\/)?(www\.)?(youtube\.com\/(watch\?v\=[\w\-]+|live\/[\w\-]+)|youtu\.be\/[\w\-]+)/';
+                        if (!preg_match($youtubePattern, $value)) {
+                            $fail('Please enter a valid YouTube video URL.');
+                        }
+                    }
+ 
+                    if ($platform === 'facebook') {
+                        $facebookPattern = '/^(https?\:\/\/)?(www\.|m\.)?facebook\.com\/.+/';
+                        if (!preg_match($facebookPattern, $value)) {
+                            $fail('Please enter a valid Facebook video URL.');
+                        }
+                    }
+                },
+            ],
+            'is_active' => 'required|in:0,1',
+        ]);
+ 
+        if ($validator->fails()) {
+            return response()->json([
+                'status'  => 400,
+                'message' => $validator->errors()->first(),
+            ]);
+        }
+ 
+        // Always update the single existing row (like Settings page pattern)
+        $liveSetting = LiveSetting::first();
+ 
+        if (!$liveSetting) {
+            $liveSetting = new LiveSetting();
+        }
+ 
+        $liveSetting->platform  = $request->platform;
+        $liveSetting->live_url  = $request->live_url ?? null;
+        $liveSetting->is_active = (int) $request->is_active;
+        $liveSetting->save();
+ 
+        return response()->json([
+            'status'  => 200,
+            'message' => 'Live Setting Saved Successfully.',
+        ]);
+    }
+
 }

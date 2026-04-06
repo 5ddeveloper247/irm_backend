@@ -1219,4 +1219,74 @@ public function testFacebookApi()
             ], 500);
         }
     }
+
+    public function getManualLiveUrl()
+    {
+        try {
+            $liveSetting = \App\Models\LiveSetting::first();
+ 
+            // No record, not active, or empty URL → tell frontend to use normal flow
+            if (
+                !$liveSetting ||
+                !$liveSetting->is_active ||
+                empty($liveSetting->live_url)
+            ) {
+                return response()->json([
+                    'is_active' => false,
+                    'message'   => 'No manual live URL is set.',
+                ]);
+            }
+ 
+            $url      = $liveSetting->live_url;
+            $platform = $liveSetting->platform; // 'youtube' or 'facebook'
+ 
+            // ── Build an embeddable URL from the saved watch/share URL ──────────
+ 
+            $embedUrl = null;
+ 
+            if ($platform === 'youtube') {
+                // Handle formats:
+                //   https://www.youtube.com/watch?v=VIDEO_ID
+                //   https://youtu.be/VIDEO_ID
+                //   https://www.youtube.com/live/VIDEO_ID
+                $videoId = null;
+ 
+                if (preg_match('/(?:v=|youtu\.be\/|\/live\/)([a-zA-Z0-9_\-]{11})/', $url, $m)) {
+                    $videoId = $m[1];
+                }
+ 
+                if ($videoId) {
+                    $embedUrl = "https://www.youtube.com/embed/{$videoId}?autoplay=1";
+                } else {
+                    // Fallback: just pass the raw URL and let the frontend handle it
+                    $embedUrl = $url;
+                }
+            } elseif ($platform === 'facebook') {
+                // For Facebook videos the iframe plugin URL is the safest embed approach.
+                // Handle formats:
+                //   https://www.facebook.com/PAGE/videos/VIDEO_ID
+                //   https://fb.watch/SHORTCODE
+                //   https://www.facebook.com/watch?v=VIDEO_ID
+                $encodedUrl = urlencode($url);
+                $embedUrl   = "https://www.facebook.com/plugins/video.php"
+                            . "?href={$encodedUrl}"
+                            . "&show_text=false&width=900&height=450&appId";
+            }
+ 
+            return response()->json([
+                'is_active'       => true,
+                'platform'        => $platform,
+                'original_url'    => $url,
+                'embed_url'       => $embedUrl,
+            ]);
+ 
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error('getManualLiveUrl error: ' . $e->getMessage());
+ 
+            return response()->json([
+                'is_active' => false,
+                'message'   => 'Error fetching manual live URL: ' . $e->getMessage(),
+            ]);
+        }
+    }
 }

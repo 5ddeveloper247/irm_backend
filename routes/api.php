@@ -162,3 +162,6 @@ Route::prefix('facebook')->group(function () {
     Route::get('/token-status', [YoutubeController::class, 'getFacebookTokenStatus'])->name('facebook.token-status');
     Route::get('/live-status', [YoutubeController::class, 'getFacebookLiveStatus']);
 });
+
+Route::get('manual-live', [YoutubeController::class, 'getManualLiveUrl']);
+ 
