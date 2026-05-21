@@ -13,6 +13,7 @@ class Menu extends Model
         'name',
         'route',
         'image',
+        'seq_no',
         'enable',
         'created_at',
         'updated_at'
