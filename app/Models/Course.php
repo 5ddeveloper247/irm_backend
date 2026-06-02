@@ -15,6 +15,7 @@ class Course extends Model
         'type_id',
         'instructor_name',
         'duration_minutes',
+        'total_course_duration',
         'total_lectures',
         'level',
         'language',
@@ -22,7 +23,10 @@ class Course extends Model
         'date',
         'thumbnail',
         'status',
-        'course_eligibility',
+        'eligibility',
+        'course_homepage',
+        'homepage_section_title',
+        'enroll_enabled',
     ];
      /**
      * Mutator & Accessor for `instructor_name`

@@ -23,6 +23,10 @@ use App\Models\CourseType;
 use App\Models\Course;
 use App\Models\Setting;
 use App\Models\CourseVideo;
+use App\Services\CourseService;
+use App\Services\BookService;
+use App\Services\AudioLectureService;
+use App\Services\CampaignService;
 use App\Models\NewsEvent;
 use App\Models\NewsEventAttachment;
 use App\Models\Payment;
@@ -78,6 +82,9 @@ class AdminController extends Controller
         if ($settings->company_logo != '') {
             $settings->company_logo = url($settings->company_logo);
         }
+
+        $settings->payment_accounts = app(CampaignService::class)->getPaymentAccounts();
+
         return response()->json(['status' => 200, 'message' => 'Settings Fetched Successfully.', 'data' => $settings]);
     }
     // settings
@@ -122,16 +129,16 @@ class AdminController extends Controller
         // save settings
         // $settings = \DB::table('settings')->first();
         $settings = Setting::first();
-        // image upload
+        $company_logo = '';
         if ($request->hasFile('company_logo')) {
             $company_logo = 'uploads/images/' . time() . '_' . $request->file('company_logo')->getClientOriginalName();
             $request->file('company_logo')->move(public_path('uploads/images'), $company_logo);
-            $settings->company_logo = $company_logo;
-        } else {
+        } elseif ($settings) {
             $company_logo = $settings->company_logo;
         }
         if ($settings == null) {
-            \DB::table('settings')->insert([
+            $paymentData = $this->buildSettingsPaymentData($request);
+            \DB::table('settings')->insert(array_merge([
                 'company_name' => $request->company_name,
                 'company_address' => $request->company_address,
                 'company_phone' => $request->company_phone,
@@ -145,10 +152,10 @@ class AdminController extends Controller
                 'youtube_link' => $request->youtube_link,
                 'created_at' => Carbon::now(),
                 'updated_at' => Carbon::now(),
-            ]);
+            ], $paymentData));
         } else {
-            // $company_logo = $settings->company_logo;
-            \DB::table('settings')->where('id', $settings->id)->update([
+            $paymentData = $this->buildSettingsPaymentData($request, $settings);
+            \DB::table('settings')->where('id', $settings->id)->update(array_merge([
                 'company_name' => $request->company_name,
                 'company_address' => $request->company_address,
                 'company_phone' => $request->company_phone,
@@ -161,9 +168,41 @@ class AdminController extends Controller
                 'linkedin_link' => $request->linkedin_link,
                 'youtube_link' => $request->youtube_link,
                 'updated_at' => Carbon::now(),
-            ]);
+            ], $paymentData));
         }
         return response()->json(['status' => 200, 'message' => 'Settings Updated Successfully.']);
+    }
+
+    private function buildSettingsPaymentData(Request $request, $existing = null): array
+    {
+        $data = [
+            'jazz_cash_account_title' => $request->jazz_cash_account_title,
+            'jazz_cash_account_number' => $request->jazz_cash_account_number,
+            'easypaisa_account_title' => $request->easypaisa_account_title,
+            'easypaisa_account_number' => $request->easypaisa_account_number,
+            'bank_account_title' => $request->bank_account_title,
+            'bank_account_number' => $request->bank_account_number,
+            'bank_name' => $request->bank_name,
+        ];
+
+        $qrFields = [
+            'jazz_cash_qr' => 'uploads/images',
+            'easypaisa_qr' => 'uploads/images',
+            'bank_qr' => 'uploads/images',
+        ];
+
+        foreach ($qrFields as $field => $path) {
+            if ($request->hasFile($field)) {
+                $file = $request->file($field);
+                $name = $field . '_' . time() . '_' . $file->getClientOriginalName();
+                $file->move(public_path($path), $name);
+                $data[$field] = $path . '/' . $name;
+            } elseif ($existing) {
+                $data[$field] = $existing->{$field};
+            }
+        }
+
+        return $data;
     }
 
     public function dashboard(Request $request)
@@ -671,28 +710,44 @@ class AdminController extends Controller
 
     public function saveAudioLecture(Request $request)
     {
-        // dd($request->all());
+        $audioService = app(AudioLectureService::class);
+        $sourceType = $audioService->normalizeSourceType($request->audio_source_type);
 
-        // dd($request->file('audio_files')[0]->getMimeType());
-        $validatedData = $request->validate([
+        $request->validate([
             'audio_category' => 'required',
             'audio_title' => 'required|max:50',
             'audio_description' => 'required',
             'audio_status' => 'required',
+            'speaker' => 'nullable|string|max:150',
+            'audio_source_type' => 'required|in:file,soundcloud,youtube,external',
+            'external_url' => 'nullable|string|max:500',
+            'embed_url' => 'nullable|string|max:1000',
         ]);
-        if ($request->audio_id == '') {
-            $validatedData = $request->validate([
-                'thumbnail' => 'required|image|mimes:jpeg,png,jpg,gif|max:20480', // Must be an image file
-                'audio_files' => 'required|array', // Ensure it's an array of files
-                'audio_files.*' => 'required|file', // Each file must be an MP3 and max 20MB |max:20480
 
+        if ($request->audio_id == '') {
+            $rules = [
+                'thumbnail' => 'required|image|mimes:jpeg,png,jpg,gif|max:20480',
+            ];
+
+            if ($sourceType === 'file') {
+                $rules['audio_files'] = 'required|array';
+                $rules['audio_files.*'] = 'required|file';
+            } else {
+                $rules['external_url'] = 'required|string|max:500';
+            }
+
+            $request->validate($rules);
+        } else {
+            $request->validate([
+                'thumbnail' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:20480',
+                'audio_files' => 'nullable|array',
+                'audio_files.*' => 'nullable|file',
             ]);
         }
 
-        $validatedData = $request->validate([
-            'audio_duration' => 'required',
-        ]);
-
+        if ($sourceType === 'file') {
+            $request->validate(['audio_duration' => 'required']);
+        }
 
         if ($request->audio_id != '') {
             $AudioLecture = AudioLecture::find($request->audio_id);
@@ -702,11 +757,17 @@ class AdminController extends Controller
 
         $AudioLecture->category_id = $request->audio_category;
         $AudioLecture->title = $request->audio_title;
+        $AudioLecture->speaker = $request->speaker;
         $AudioLecture->description = $request->audio_description;
         $AudioLecture->date = Carbon::now()->format('Y-m-d');
         $AudioLecture->status = $request->audio_status;
-        // audio_duration
-        $AudioLecture->duration = $request->audio_duration;
+        $AudioLecture->duration = $request->audio_duration ?? 0;
+        $AudioLecture->audio_source_type = $sourceType;
+        $AudioLecture->external_url = $request->external_url;
+        $AudioLecture->embed_url = $audioService->buildEmbedUrl(
+            $sourceType,
+            $request->embed_url ?: $request->external_url
+        );
 
         // Save the thumbnail file
         if ($request->hasFile('thumbnail')) {
@@ -887,6 +948,8 @@ class AdminController extends Controller
         $validatedData = $request->validate([
             'campaign_title' => 'required|max:50',
             'campaign_tags' => 'required|max:50',
+            'welfare_section' => 'required|in:general,education,water,medical',
+            'display_order' => 'nullable|integer|min:0',
             'campaign_description' => 'required|max:250',
             'campaign_target_amount' => 'required',
             'campaign_status' => 'required',
@@ -917,6 +980,8 @@ class AdminController extends Controller
 
         $Campaign->title = $request->campaign_title;
         $Campaign->tags = $request->campaign_tags;
+        $Campaign->welfare_section = $request->welfare_section ?: 'general';
+        $Campaign->display_order = (int) ($request->display_order ?? 0);
         $Campaign->description = $request->campaign_description;
         $Campaign->date = Carbon::now()->format('Y-m-d');
         $Campaign->target_amount = $request->campaign_target_amount;
@@ -1068,12 +1133,22 @@ class AdminController extends Controller
             $BookLibrary = new BookLibrary;
         }
 
+        $bookService = app(BookService::class);
+
         $BookLibrary->title = $request->book_title;
         $BookLibrary->description = $request->book_description;
         $BookLibrary->date = Carbon::now()->format('Y-m-d');
         $BookLibrary->price = $request->book_price;
+        $BookLibrary->currency = $request->book_currency ?: 'PKR';
+        $BookLibrary->delivery_charge_local = $request->delivery_charge_local ?? 0;
+        $BookLibrary->delivery_charge_international = $request->delivery_charge_international ?? 0;
         $BookLibrary->status = $request->book_status;
         $BookLibrary->book_category_id = $request->book_category_id;
+
+        $customSlug = trim((string) $request->book_slug);
+        $BookLibrary->slug = $customSlug !== ''
+            ? $bookService->generateSlug($customSlug, $BookLibrary->id ?? null)
+            : $bookService->generateSlug($request->book_title, $BookLibrary->id ?? null);
         // book_homepage
         if ($request->book_homepage == '1') {
             $BookLibrary->book_homepage = 1;
@@ -1617,6 +1692,10 @@ class AdminController extends Controller
         $Course->certificate = $request->course_certificate;
         $Course->status = $request->course_status;
 
+        $Course->course_homepage = $request->course_homepage == '1' ? 1 : 0;
+        $Course->homepage_section_title = $request->homepage_section_title ?: 'Fehm-e-Deen Course';
+        $Course->enroll_enabled = $request->enroll_enabled == '0' ? 0 : 1;
+
         // Save the thumbnail file
         if ($request->hasFile('thumbnail')) {
             $thumbnailFile = $request->file('thumbnail');
@@ -1627,6 +1706,10 @@ class AdminController extends Controller
         }
 
         $Course->save();
+
+        if ($Course->course_homepage == 1) {
+            app(CourseService::class)->syncHomepageFlag($Course->id, true);
+        }
 
         $videosArr = isset($request->videos) ? $request->videos : [];
 

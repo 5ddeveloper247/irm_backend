@@ -418,6 +418,8 @@ function editCampaignResponse(response) {
             $("#campaign_id").val(campaignDetail.id);
             $("#campaign_title").val(campaignDetail.title);
             $("#campaign_tags").val(campaignDetail.tags);
+            $("#welfare_section").val(campaignDetail.welfare_section || 'general');
+            $("#display_order").val(campaignDetail.display_order || 0);
             $("#campaign_description").val(campaignDetail.description);
             $("#campaign_target_amount").val(campaignDetail.target_amount);
             $("#campaign_status").val(campaignDetail.status);

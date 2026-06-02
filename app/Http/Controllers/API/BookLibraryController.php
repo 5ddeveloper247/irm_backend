@@ -3,88 +3,116 @@
 namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
-use App\Models\BookLibrary;
 use App\Models\BookCategory;
+use App\Models\BookLibrary;
+use App\Services\BookService;
+use Illuminate\Http\Request;
 
 class BookLibraryController extends Controller
 {
-    // getBooks
+    public function __construct(private BookService $bookService)
+    {
+    }
+
     public function getBooks(Request $request)
     {
-        // get query string
         $search = $request->query('search');
         $categoryId = $request->query('filter_category');
+        $isCheck = false;
 
-        // get books where status = 1
-        $query = BookLibrary::where('status', 1);
-        $is_check = false;
-        // filter by category if provided
+        $query = BookLibrary::with('bookcategory')->where('status', 1);
+
         if ($categoryId != 0) {
-            $is_check = true;
+            $isCheck = true;
             $query->where('book_category_id', $categoryId);
         }
 
-        // filter by search term if provided
         if (!empty($search)) {
             $query->where(function ($q) use ($search) {
-                $q->where('title', 'like', '%' . $search . '%');
+                $q->where('title', 'like', '%' . $search . '%')
+                    ->orWhere('slug', 'like', '%' . $search . '%');
             });
         }
 
-        // get filtered book list
-        $data['book_list'] = $query->get();
+        $bookList = $query->orderByDesc('id')
+            ->get()
+            ->map(fn ($book) => $this->bookService->formatForApi($book));
 
-        // set base url on image and pdf
-        foreach ($data['book_list'] as $key => $value) {
-            $data['book_list'][$key]->thumbnail = url('/' . $value->thumbnail);
-            $data['book_list'][$key]->pdf = url('/' . $value->book);
-        }
-
-        // get category_list with status = 1
-        $data['category_list'] = BookCategory::where('status', 1)->get();
-
-        return response()->json(['status' => 200, 'message' => "", 'data' => $data, "is_check"=> $is_check]);
+        return response()->json([
+            'status' => 200,
+            'message' => '',
+            'data' => [
+                'book_list' => $bookList,
+                'category_list' => BookCategory::where('status', 1)->orderByDesc('id')->get(),
+            ],
+            'is_check' => $isCheck,
+        ]);
     }
-    // get lastest four books
+
     public function getLastestBooks(Request $request)
     {
-        // get lastest four books
-        // $data['book_list'] = BookLibrary::where('status',1)->orderBy('id', 'desc')->limit(4)->get();
-        $data['book_list'] = BookLibrary::where('status',1)->orderBy('id', 'desc')->where('book_homepage',1)->get();
-        // set base url on image
-        foreach ($data['book_list'] as $key => $value) {
-            $data['book_list'][$key]->thumbnail = url('/' . $value->thumbnail);
-            // add base url pdf book
-            $data['book_list'][$key]->pdf = url('/' . $value->book);
-        }
-        return response()->json(['status' => 200, 'message' => "", 'data' => $data]);
+        $bookList = BookLibrary::with('bookcategory')
+            ->where('status', 1)
+            ->where('book_homepage', 1)
+            ->orderByDesc('id')
+            ->get()
+            ->map(fn ($book) => $this->bookService->formatForApi($book));
+
+        return response()->json([
+            'status' => 200,
+            'message' => '',
+            'data' => ['book_list' => $bookList],
+        ]);
     }
-    // get specific book
+
     public function getSpecificBook(Request $request, $id)
     {
-        $data['book_detail'] = BookLibrary::where('id', $id)->first();
-        // set base url on image
-        $data['book_detail']->thumbnail = url('/' . $data['book_detail']->thumbnail);
-        // add base url pdf book
-        $data['book_detail']->pdf = url('/' . $data['book_detail']->book);
-        return response()->json(['status' => 200, 'message' => "", 'data' => $data]);
+        $book = $this->bookService->resolveByIdOrSlug($id);
+
+        if (!$book) {
+            return response()->json(['status' => 404, 'message' => 'Book not found']);
+        }
+
+        return response()->json([
+            'status' => 200,
+            'message' => '',
+            'data' => [
+                'book_detail' => $this->bookService->formatForApi($book, true),
+            ],
+        ]);
     }
-    // download book pdf
+
     public function downloadBook(Request $request, $id)
     {
-        $book = BookLibrary::where('id', $id)->first();
+        $book = $this->bookService->resolveByIdOrSlugAnyStatus($id);
+
+        if (!$book || empty($book->book)) {
+            return response()->json(['status' => 404, 'message' => 'Book not found']);
+        }
+
         $path = public_path($book->book);
+
+        if (!file_exists($path)) {
+            return response()->json(['status' => 404, 'message' => 'Book file not found']);
+        }
+
         return response()->download($path);
     }
-    // view book pdf
+
     public function viewBook(Request $request, $id)
     {
-        $book = BookLibrary::where('id', $id)->first();
+        $book = $this->bookService->resolveByIdOrSlugAnyStatus($id);
+
+        if (!$book || empty($book->book)) {
+            return response()->json(['status' => 404, 'message' => 'Book not found']);
+        }
+
         $path = public_path($book->book);
+
+        if (!file_exists($path)) {
+            return response()->json(['status' => 404, 'message' => 'Book file not found']);
+        }
+
         return response()->file($path);
     }
-
-    
-
 }

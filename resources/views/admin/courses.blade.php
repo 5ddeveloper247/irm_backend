@@ -459,6 +459,27 @@
                         </select>
                         <label class="ms-2" for="course_status">Status</label>
                     </div>
+
+                    <div class="form-floating">
+                        <input type="text" class="form-control" id="homepage_section_title" name="homepage_section_title"
+                            placeholder="Fehm-e-Deen Course" maxlength="150" value="Fehm-e-Deen Course">
+                        <label class="ms-2" for="homepage_section_title">Homepage Section Title</label>
+                    </div>
+
+                    <div class="form-check my-2">
+                        <input class="form-check-input" type="checkbox" value="1" id="course_homepage" name="course_homepage">
+                        <label class="form-check-label" for="course_homepage">
+                            Show on Homepage (Fehm-e-Deen section)
+                        </label>
+                    </div>
+
+                    <div class="form-check my-2">
+                        <input class="form-check-input" type="checkbox" value="1" id="enroll_enabled" name="enroll_enabled" checked>
+                        <label class="form-check-label" for="enroll_enabled">
+                            Allow Enroll on Frontend
+                        </label>
+                    </div>
+
                     {{-- add instructor --}}
                     <div class="row">
                         <div class="col-4 my-2">

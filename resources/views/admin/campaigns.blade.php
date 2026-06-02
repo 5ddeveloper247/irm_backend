@@ -355,6 +355,22 @@
                             placeholder="Campaign Tags" maxlength="50">
                         <label class="ms-2" for="campaign_tags">Campaign Tags</label>
                     </div>
+
+                    <div class="form-floating">
+                        <select class="form-control" id="welfare_section" name="welfare_section">
+                            <option value="general">General</option>
+                            <option value="education">Education</option>
+                            <option value="water">Water Projects</option>
+                            <option value="medical">Medical</option>
+                        </select>
+                        <label class="ms-2" for="welfare_section">Welfare Section *</label>
+                    </div>
+
+                    <div class="form-floating">
+                        <input type="number" class="form-control" id="display_order" name="display_order"
+                            placeholder="0" min="0" value="0">
+                        <label class="ms-2" for="display_order">Display Order</label>
+                    </div>
                     <span class="mt-0"><small>Add comma seperated tags here...</small></span>
 
                     <div class="form-floating">

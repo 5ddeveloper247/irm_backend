@@ -497,6 +497,10 @@ function editBookResponse(response) {
             $("#book_title").val(bookDetail.title);
             $("#book_description").val(bookDetail.description);
             $("#book_price").val(bookDetail.price);
+            $("#book_slug").val(bookDetail.slug || '');
+            $("#book_currency").val(bookDetail.currency || 'PKR');
+            $("#delivery_charge_local").val(bookDetail.delivery_charge_local ?? 0);
+            $("#delivery_charge_international").val(bookDetail.delivery_charge_international ?? 0);
             $("#book_status").val(bookDetail.status);
             // book_category_id
             $("#book_category_id").val(bookDetail?.bookcategory?.id || "");

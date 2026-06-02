@@ -385,12 +385,34 @@
                     <div class="form-floating">
                         <input type="text" class="form-control" id="audio_title" name="audio_title"
                             placeholder="Audio Title" maxlength="50">
-                        <label class="ms-2" for="audio_title">Audio Title</label>
+                        <label class="ms-2" for="audio_title">Bayan Name *</label>
+                    </div>
+
+                    <div class="form-floating">
+                        <input type="text" class="form-control" id="speaker" name="speaker"
+                            placeholder="Speaker Name" maxlength="150">
+                        <label class="ms-2" for="speaker">Speaker</label>
+                    </div>
+
+                    <div class="form-floating">
+                        <select class="form-control" id="audio_source_type" name="audio_source_type">
+                            <option value="file" selected>Upload Audio File</option>
+                            <option value="soundcloud">SoundCloud URL</option>
+                            <option value="youtube">YouTube Audio URL</option>
+                            <option value="external">Other Embed URL</option>
+                        </select>
+                        <label class="ms-2" for="audio_source_type">Audio Source *</label>
+                    </div>
+
+                    <div class="form-floating" id="external_url_wrap" style="display:none;">
+                        <input type="url" class="form-control" id="external_url" name="external_url"
+                            placeholder="https://soundcloud.com/... or YouTube URL" maxlength="500">
+                        <label class="ms-2" for="external_url">External / Embed URL *</label>
                     </div>
 
                     <div class="form-floating">
                         <textarea class="form-control" id="audio_description" name="audio_description" placeholder="Audio Description" style="height:150px;"></textarea>
-                        <label class="ms-2" for="audio_description">Audio Description</label>
+                        <label class="ms-2" for="audio_description">Description (shown on click)</label>
                     </div>
 
                     <!-- Status -->
@@ -418,7 +440,7 @@
                         </div>
                     </div>
 
-                    <div class="row">
+                    <div class="row" id="upload_audio_wrap">
                         <div class="col-4">
                             <button class="col-6 py-1 px-2 w-100 mt-2 rounded-1" type="button" id="addAudio_btn">
                                 Upload Audio Files

@@ -5,6 +5,7 @@ namespace App\Http\Controllers\API;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Youtube;
+use App\Services\YoutubeVideoService;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
@@ -14,9 +15,12 @@ use Illuminate\Support\Facades\DB;
 
 class YoutubeController extends Controller
 {
-    // private $apiKey = env('youtube_apiKey');
-    // private $playlistId = env('youtube_playlistId');
-    private $apiKey = 'AIzaSyBk1z-xAVabyzCk4VJOCSDJh_i49MlMpPI';
+    private $apiKey;
+
+    public function __construct(private YoutubeVideoService $youtubeVideoService)
+    {
+        $this->apiKey = $this->youtubeVideoService->getApiKey();
+    }
     // private $playlistId = 'PLgohHfkVYNArdtwrYAw-F0QfHYe1u7IdU&si=cXp8QUBiDwZLOxYV';
     private $playlistId = 'PLnWyyZtBFGDVV3g7EQVjNlouzVZ9eSzcv';
     // Fallback playlist IDs
@@ -68,7 +72,7 @@ class YoutubeController extends Controller
     public function getPlaylists(Request $request, $playlistId = null)
     {
         // Get latest playlist or use requested one
-        $latestPlaylist = Youtube::where('status', 1)->latest()->first();
+        $latestPlaylist = Youtube::where('status', 1)->orderByDesc('id')->first();
         // return response()->json(['latestPlaylist',$latestPlaylist]);
         if (!$latestPlaylist) {
             return response()->json(['message' => 'Playlist not found', 'status' => 404]);
@@ -87,14 +91,7 @@ class YoutubeController extends Controller
                 }
             }
         } else {
-            // $playlist = $latestPlaylist;
-            $playlist = new \stdClass();
-            $playlist->created_at = "2025-04-17T09:50:28.000000Z";
-            $playlist->id = 5;
-            $playlist->playlist_id = "PLnWyyZtBFGDVRjIDcrha-IH_dyusWw8Ee";
-            $playlist->playlist_title = "International Annual";
-            $playlist->status = 1;
-            $playlist->updated_at = "2025-04-17T09:51:25.000000Z";
+            $playlist = $latestPlaylist;
         }
 
         if (!$playlist) {
@@ -102,7 +99,7 @@ class YoutubeController extends Controller
         }
 
         // Initialize collections and determine if we're dealing with a channel
-        $databaseChannels = Youtube::where('status', 1)->latest()->get();
+        $databaseChannels = Youtube::where('status', 1)->orderByDesc('id')->get();
         $youtubeChannelLists = collect([]);
         $isChannelId = strpos($playlist->playlist_id, 'UC') === 0;
         $selectedPlaylistId = $playlistId ?: $playlist->playlist_id;
@@ -178,8 +175,7 @@ class YoutubeController extends Controller
 
             // Get videos for target playlist
             if ($targetPlaylistId) {
-                $playlistItemsUrl = "https://www.googleapis.com/youtube/v3/playlistItems?part=snippet&maxResults=50&playlistId={$targetPlaylistId}&key={$this->apiKey}";
-                $playlist->videos = $this->fetchAllVideos($playlistItemsUrl);
+                $playlist->videos = $this->youtubeVideoService->fetchAllPlaylistVideos($targetPlaylistId);
                 $playlist->selected_playlist_title = $targetPlaylistTitle;
                 $playlist->selected_playlist_id = $targetPlaylistId;
             } else {
@@ -204,8 +200,7 @@ class YoutubeController extends Controller
             $playlist->selected_playlist_id = $currentPlaylistId;
 
             // Get videos for this playlist
-            $playlistItemsUrl = "https://www.googleapis.com/youtube/v3/playlistItems?part=snippet&maxResults=50&playlistId={$currentPlaylistId}&key={$this->apiKey}";
-            $playlist->videos = $this->fetchAllVideos($playlistItemsUrl);
+            $playlist->videos = $this->youtubeVideoService->fetchAllPlaylistVideos($currentPlaylistId);
 
             // Handle sidebar content - add channel and sibling playlists
             if (isset($playlistDetails['items'][0]['snippet']['channelId'])) {
@@ -251,32 +246,40 @@ class YoutubeController extends Controller
         });
 
 
-        $responsePlaylist = new \stdClass();
-        // $responsePlaylist->id = !$youtubeChannelLists->isEmpty() ? $youtubeChannelLists->first()->id : null;
-        // Find the specific record with the desired ID
-        $specificRecord = $youtubeChannelLists->firstWhere('id', 'PLnWyyZtBFGDVRjIDcrha-IH_dyusWw8Ee');
-
-        // Set the ID from the specific record, or null if not found
-        $responsePlaylist->id = $specificRecord ? $specificRecord->id : null;
-        // Copy other needed properties
-        $responsePlaylist->playlist_id = $latestPlaylist->playlist_id;
-        $responsePlaylist->playlist_title = $latestPlaylist->playlist_title;
-        $responsePlaylist->created_at = $latestPlaylist->created_at;
-        $responsePlaylist->details = $latestPlaylist->details;
-        $responsePlaylist->playlist_list = $latestPlaylist->playlist_list;
-        $responsePlaylist->selected_playlist_id = $latestPlaylist->selected_playlist_id;
-        $responsePlaylist->updated_at = $latestPlaylist->updated_at;
-        $responsePlaylist->status = $latestPlaylist->status;
-        $responsePlaylist->videos = $latestPlaylist->videos;
+        $sortedVideos = $playlist->videos ?? [];
+        $responsePlaylist = $this->youtubeVideoService->buildPlaylistMeta($playlist, $sortedVideos);
+        $playlist->latest_videos = $responsePlaylist->latest_videos;
 
         return response()->json([
-
+            'status' => 200,
+            'message' => '',
+            'youtube_channel_url' => $this->youtubeVideoService->getYoutubeChannelUrl(),
+            'latest_videos' => $responsePlaylist->latest_videos,
             'playlist' => $playlist,
             'lastestPlaylists' => $responsePlaylist,
             'youtubeChannelLists' => $youtubeChannelLists,
             'responsePlaylist' => $responsePlaylist,
-            // 'test' => $youtubeChannelLists->first()->id,
-            'status' => 200
+        ]);
+    }
+
+    public function loadMoreVideos(Request $request, $playlistId)
+    {
+        if (empty($playlistId)) {
+            return response()->json(['status' => 400, 'message' => 'Playlist ID is required']);
+        }
+
+        $pageToken = $request->query('page_token');
+        $result = $this->youtubeVideoService->fetchPlaylistVideosPage($playlistId, $pageToken);
+
+        return response()->json([
+            'status' => 200,
+            'message' => '',
+            'playlist_id' => $playlistId,
+            'videos' => $result['videos'],
+            'latest_videos' => $this->youtubeVideoService->formatVideos($result['videos']),
+            'next_page_token' => $result['next_page_token'],
+            'total_results' => $result['total_results'],
+            'youtube_channel_url' => $this->youtubeVideoService->getYoutubeChannelUrl(),
         ]);
     }
 
@@ -338,11 +341,14 @@ class YoutubeController extends Controller
     // get playlist videos
     public function getPlaylistVideos($playlistId)
     {
-        $playlistItemsUrl = "https://www.googleapis.com/youtube/v3/playlistItems?part=snippet&maxResults=50&playlistId={$playlistId}&key={$this->apiKey}";
-        $videos = $this->fetchAllVideos($playlistItemsUrl);
+        $videos = $this->youtubeVideoService->fetchAllPlaylistVideos($playlistId);
+
         return response()->json([
+            'status' => 200,
+            'message' => '',
             'videos' => $videos,
-            'status' => 200
+            'latest_videos' => $this->youtubeVideoService->formatVideos(array_slice($videos, 0, 12)),
+            'youtube_channel_url' => $this->youtubeVideoService->getYoutubeChannelUrl(),
         ]);
     }
     private function fetchData($url)
@@ -363,7 +369,8 @@ class YoutubeController extends Controller
             $allVideos = array_merge($allVideos, $data['items']);
             $url = isset($data['nextPageToken']) ? $url . '&pageToken=' . $data['nextPageToken'] : null;
         } while ($url);
-        return $allVideos;
+
+        return $this->youtubeVideoService->sortVideosByLatest($allVideos);
     }
 
 

@@ -61,6 +61,49 @@
                                 <input type="text" name="linkedin_link" class="form-control" id="validationServer10" value="{{$settings->linkedin_link}}" required>
                             </div>
                         </div>
+                        <div class="row mt-3">
+                            <div class="col-12 mb-2"><h5>Payment Accounts (Donations)</h5></div>
+                            <div class="col-md-4 mb-3">
+                                <label>JazzCash Account Title</label>
+                                <input type="text" name="jazz_cash_account_title" class="form-control" value="{{ $settings->jazz_cash_account_title ?? '' }}">
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label>JazzCash Account Number</label>
+                                <input type="text" name="jazz_cash_account_number" class="form-control" value="{{ $settings->jazz_cash_account_number ?? '' }}">
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label>JazzCash QR Image</label>
+                                <input type="file" name="jazz_cash_qr" class="form-control" accept="image/*">
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label>Easypaisa Account Title</label>
+                                <input type="text" name="easypaisa_account_title" class="form-control" value="{{ $settings->easypaisa_account_title ?? '' }}">
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label>Easypaisa Account Number</label>
+                                <input type="text" name="easypaisa_account_number" class="form-control" value="{{ $settings->easypaisa_account_number ?? '' }}">
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label>Easypaisa QR Image</label>
+                                <input type="file" name="easypaisa_qr" class="form-control" accept="image/*">
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label>Bank Account Title</label>
+                                <input type="text" name="bank_account_title" class="form-control" value="{{ $settings->bank_account_title ?? '' }}">
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label>Bank Account Number</label>
+                                <input type="text" name="bank_account_number" class="form-control" value="{{ $settings->bank_account_number ?? '' }}">
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label>Bank Name</label>
+                                <input type="text" name="bank_name" class="form-control" value="{{ $settings->bank_name ?? '' }}">
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label>Bank QR Image</label>
+                                <input type="file" name="bank_qr" class="form-control" accept="image/*">
+                            </div>
+                        </div>
                         <div class="row">
                             <div class="col-md-6 mb-3">
                                 <label for="validationServer11">Youtube Link</label>

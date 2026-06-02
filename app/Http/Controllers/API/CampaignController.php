@@ -16,10 +16,15 @@ use App\Models\Setting;
 use App\Models\User;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
+use App\Services\CampaignService;
 
 class CampaignController extends Controller
 
 {
+    public function __construct(private CampaignService $campaignService)
+    {
+    }
+
     public function calculateProgress($current, $target)
     {
         if ($target == 0) {
@@ -32,31 +37,62 @@ class CampaignController extends Controller
     //
     public function getCampaigns(Request $request)
     {
+        $section = $request->query('section') ?? $request->query('welfare_section');
 
-        // get all campaigns and total amount sum from payments table
-        $data['campaign_list'] = Campaign::leftJoin('payments', function ($join) {
+        $query = Campaign::leftJoin('payments', function ($join) {
             $join->on('campaigns.id', '=', 'payments.compaign_id')
-                ->where('payments.module_code', '=', 'CAMPAIGN');
+                ->whereIn('payments.module_code', ['CAMPAIGN', 'DONATION']);
         })
-            ->select('campaigns.*', DB::raw('SUM(payments.amount) as total_amount'))
-            ->groupBy('campaigns.id')
-            ->where('campaigns.status', '1')
-            ->get();
+            ->select('campaigns.*', DB::raw('COALESCE(SUM(payments.amount), 0) as total_amount'))
+            ->where('campaigns.status', 1)
+            ->groupBy('campaigns.id');
 
-        // set base url on image
-        foreach ($data['campaign_list'] as $key => $value) {
-            // progress percentage
-            $data['campaign_list'][$key]->progress = $this->calculateProgress($value->total_amount, $value->target_amount);
-            $data['campaign_list'][$key]->image = url('/' . $value->thumbnail);
+        if (!empty($section) && $section !== 'all') {
+            $query->where('campaigns.welfare_section', $section);
         }
-        return response()->json(['status' => 200, 'message' => "", 'data' => $data]);
+
+        $campaignList = $query
+            ->orderByDesc('campaigns.display_order')
+            ->orderByDesc('campaigns.id')
+            ->get()
+            ->map(fn ($campaign) => $this->campaignService->formatCampaignForApi(
+                $campaign,
+                (float) ($campaign->total_amount ?? 0)
+            ));
+
+        return response()->json([
+            'status' => 200,
+            'message' => '',
+            'data' => [
+                'campaign_list' => $campaignList,
+                'payment_accounts' => $this->campaignService->getPaymentAccounts(),
+                'currency' => 'PKR',
+                'currency_symbol' => 'Rs',
+            ],
+        ]);
     }
+
     public function getSpecificCampaign(Request $request, $id)
     {
+        $campaign = Campaign::where('id', $id)->where('status', 1)->with(['tasks'])->first();
 
-        $data['campaign_detail'] = Campaign::where('id', $id)->with(['tasks'])->first();
+        if (!$campaign) {
+            return response()->json(['status' => 404, 'message' => 'Campaign not found']);
+        }
 
-        return response()->json(['status' => 200, 'message' => "", 'data' => $data]);
+        $totalAmount = (float) DB::table('payments')
+            ->where('compaign_id', $id)
+            ->whereIn('module_code', ['CAMPAIGN', 'DONATION'])
+            ->sum('amount');
+
+        return response()->json([
+            'status' => 200,
+            'message' => '',
+            'data' => [
+                'campaign_detail' => $this->campaignService->formatCampaignForApi($campaign, $totalAmount),
+                'payment_accounts' => $this->campaignService->getPaymentAccounts(),
+            ],
+        ]);
     }
 
     // public function stripePayment(Request $request)
@@ -280,6 +316,7 @@ class CampaignController extends Controller
             'donatation_submit.module_code' => 'required|in:DONATION,CAMPAIGN,BOOK',
             'donatation_submit.task_id' => 'nullable|array',
             'donatation_submit.campaign_id' => 'nullable|integer',
+            'donatation_submit.course_id' => 'nullable|integer',
             'donatation_submit.custom_task_name' => 'nullable|string|max:255',
             'donatation_submit.custom_task_amount' => 'nullable|numeric|min:0',
             'donatation_submit.total_amount' => 'nullable|numeric|min:0',
@@ -304,21 +341,43 @@ class CampaignController extends Controller
         }
 
         try {
-            // Remove extra ".00" from the amount string
+            $data = $request->all();
+            $submit = $data['donatation_submit'] ?? [];
+
+            if (empty($submit['campaign_id']) && !empty($submit['course_id'])) {
+                $data['donatation_submit']['campaign_id'] = $submit['course_id'];
+            }
+
+            if (in_array($data['donatation_submit']['module_code'] ?? '', ['DONATION', 'CAMPAIGN'], true)) {
+                $donationError = $this->campaignService->validateDonationCampaign(
+                    $this->campaignService->resolveCampaignId($data['donatation_submit'])
+                );
+
+                if ($donationError) {
+                    return response()->json(['status' => 400, 'message' => $donationError], 400);
+                }
+            }
+
+            if (($data['donatation_submit']['module_code'] ?? '') === 'BOOK') {
+                $bookError = app(\App\Services\BookService::class)->validateBookOrder(
+                    $data['donatation_submit'],
+                    (float) preg_replace('/\.00$/', '', (string) $request->input('amount'))
+                );
+
+                if ($bookError) {
+                    return response()->json(['status' => 400, 'message' => $bookError], 400);
+                }
+            }
+
             $amountString = $request->input('amount');
             $amountString = preg_replace('/\.00$/', '', $amountString);
             $amount = floatval($amountString);
 
-            // Generate a manual transaction ID
             $transactionId = 'MANUAL_' . time() . '_' . rand(1000, 9999);
 
-            // Get form data from request (NOT hardcoded)
-            $data = $request->all();
-
-            // Add manual payment specific fields
             $data['transaction_id'] = $transactionId;
-            $data['payment_status'] = 'pending'; // Manual payments start as pending
-            $data['currency'] = 'pkr'; // Add currency if not present
+            $data['payment_status'] = 'pending';
+            $data['currency'] = 'PKR';
 
             // Set default values for missing personal information fields
             if (!isset($data['donatation_submit']['category']) || empty($data['donatation_submit']['category'])) {
@@ -353,10 +412,19 @@ class CampaignController extends Controller
                 $data['receipt_path'] = $receiptPath;
             }
 
-            // Prepare payment data
-            $compaign_id = isset($data['donatation_submit']['campaign_id']) ? $data['donatation_submit']['campaign_id'] : 0;
-            if (is_null($compaign_id)) {
-                $compaign_id = 0;
+            $compaign_id = $this->campaignService->resolveCampaignId($data['donatation_submit']) ?? 0;
+
+            if ($data['donatation_submit']['module_code'] === 'BOOK') {
+                $compaign_id = $data['donatation_submit']['book_id']
+                    ?? $data['donatation_submit']['campaign_id']
+                    ?? 0;
+                $data['donatation_submit']['book_id'] = $compaign_id;
+                $data['donatation_submit']['payment_type'] = 'book_order';
+                $data['donatation_submit']['is_donation'] = false;
+            } elseif (in_array($data['donatation_submit']['module_code'], ['DONATION', 'CAMPAIGN'], true)) {
+                $data['donatation_submit']['payment_type'] = 'donation';
+                $data['donatation_submit']['is_donation'] = true;
+                $data['donatation_submit']['campaign_id'] = $compaign_id;
             }
 
             $task_id = isset($data['donatation_submit']['task_id']) ? $data['donatation_submit']['task_id'] : [];
@@ -428,6 +496,12 @@ class CampaignController extends Controller
                     'payment_method' => $request->input('payment_method'),
                     'receipt_uploaded' => !is_null($receiptPath),
                     'module_code' => $data['donatation_submit']['module_code'],
+                    'currency' => 'PKR',
+                    'currency_symbol' => 'Rs',
+                    'payment_type' => $data['donatation_submit']['payment_type'] ?? $data['donatation_submit']['module_code'],
+                    'is_donation' => $data['donatation_submit']['is_donation'] ?? ($data['donatation_submit']['module_code'] !== 'BOOK'),
+                    'campaign_id' => $data['donatation_submit']['campaign_id'] ?? null,
+                    'book_id' => $data['donatation_submit']['book_id'] ?? null,
                     'custom_task_name' => $data['donatation_submit']['custom_task_name'] ?? 'N/A',
                     'category' => $data['donatation_submit']['category'] ?? 'N/A',
                     'billing_info' => [

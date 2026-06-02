@@ -3,7 +3,19 @@ $(document).ready(function () {
         $.fn.dataTable.tables({ visible: true, api: true }).columns.adjust();
         getAudioLecturesPageData();
     });
+
+    $('#audio_source_type').on('change', toggleAudioSourceFields);
+    toggleAudioSourceFields();
 });
+
+function toggleAudioSourceFields() {
+    const sourceType = $('#audio_source_type').val();
+    const isFile = sourceType === 'file';
+
+    $('#upload_audio_wrap').toggle(isFile);
+    $('#external_url_wrap').toggle(!isFile);
+    $('.audio_duration').toggle(isFile);
+}
 function getAudioLecturesPageData(formValues = {}) {
     let type = "POST";
     let url = "/getAudioLecturesPageData";
@@ -590,8 +602,12 @@ function editAudioLectureResponse(response) {
             $("#audio_id").val(lectureDetail.id);
             $("#audio_category").val(lectureDetail.category_id);
             $("#audio_title").val(lectureDetail.title);
+            $("#speaker").val(lectureDetail.speaker || '');
+            $("#audio_source_type").val(lectureDetail.audio_source_type || 'file');
+            $("#external_url").val(lectureDetail.external_url || '');
             $("#audio_description").val(lectureDetail.description);
             $("#audio_status").val(lectureDetail.status);
+            toggleAudioSourceFields();
             // duration
             $("#audio_duration").val(lectureDetail.duration);
             // show it

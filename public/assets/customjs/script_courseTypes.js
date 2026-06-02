@@ -420,6 +420,9 @@ function resetCourseForm(){
     
     editorInstance.course_description.setData('');
     editorInstance.course_eligibility.setData('');
+    $("#homepage_section_title").val('Fehm-e-Deen Course');
+    $("#course_homepage").prop("checked", false);
+    $("#enroll_enabled").prop("checked", true);
 }
 
 $(document).on('click', '.closeCanvas1', function (e) {
@@ -531,6 +534,17 @@ function editCourseResponse(response) {
             $("#course_language").val(courseDetail.language);
             $("#course_certificate").val(courseDetail.certificate);
             $("#course_status").val(courseDetail.status);
+            $("#homepage_section_title").val(courseDetail.homepage_section_title || 'Fehm-e-Deen Course');
+            if (courseDetail.course_homepage == 1) {
+                $("#course_homepage").prop("checked", true);
+            } else {
+                $("#course_homepage").prop("checked", false);
+            }
+            if (courseDetail.enroll_enabled == 0) {
+                $("#enroll_enabled").prop("checked", false);
+            } else {
+                $("#enroll_enabled").prop("checked", true);
+            }
             // course_eligibility
             $("#course_eligibility").val(courseDetail.eligibility);
             // ckeditor

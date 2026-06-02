@@ -9,20 +9,37 @@ class BookLibrary extends Model
 {
     use HasFactory;
 
-    protected $table="books_library";
-    // get book orders list with payment and book name and get total payemnt sum and count
+    protected $table = 'books_library';
+
+    protected $fillable = [
+        'title',
+        'slug',
+        'description',
+        'thumbnail',
+        'book',
+        'book_name',
+        'price',
+        'currency',
+        'delivery_charge_local',
+        'delivery_charge_international',
+        'date',
+        'status',
+        'book_category_id',
+        'book_homepage',
+    ];
+
     public function bookorders()
     {
-        return $this->hasMany('App\Models\BookOrder','book_id');
+        return $this->hasMany(BookOrder::class, 'book_id');
     }
+
     public function getTitleAttribute($value)
     {
         return ucwords($value);
     }
-    // book category
+
     public function bookcategory()
     {
-        return $this->belongsTo('App\Models\BookCategory','book_category_id');
+        return $this->belongsTo(BookCategory::class, 'book_category_id');
     }
-    
 }

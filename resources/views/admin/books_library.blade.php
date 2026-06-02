@@ -481,9 +481,34 @@
                     </div>
 
                     <div class="form-floating">
+                        <input type="text" class="form-control" id="book_slug" name="book_slug"
+                            placeholder="muharram-kaise-guzarain" maxlength="200">
+                        <label class="ms-2" for="book_slug">URL Slug (leave empty to auto-generate)</label>
+                    </div>
+
+                    <div class="form-floating">
                         <input type="number" class="form-control" id="book_price" name="book_price"
-                            placeholder="Book Price">
-                        <label class="ms-2" for="book_price">Book Price (PKR)</label>
+                            placeholder="Book Price" min="0" step="0.01">
+                        <label class="ms-2" for="book_price">Book Price</label>
+                    </div>
+
+                    <div class="form-floating">
+                        <select class="form-control" id="book_currency" name="book_currency">
+                            <option value="PKR" selected>PKR (Rs)</option>
+                        </select>
+                        <label class="ms-2" for="book_currency">Currency</label>
+                    </div>
+
+                    <div class="form-floating">
+                        <input type="number" class="form-control" id="delivery_charge_local" name="delivery_charge_local"
+                            placeholder="0" min="0" step="0.01" value="0">
+                        <label class="ms-2" for="delivery_charge_local">Delivery Charge (Pakistan)</label>
+                    </div>
+
+                    <div class="form-floating">
+                        <input type="number" class="form-control" id="delivery_charge_international" name="delivery_charge_international"
+                            placeholder="0" min="0" step="0.01" value="0">
+                        <label class="ms-2" for="delivery_charge_international">Delivery Charge (International)</label>
                     </div>
 
                     <!-- Status -->

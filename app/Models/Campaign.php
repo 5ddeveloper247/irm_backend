@@ -8,23 +8,37 @@ use Illuminate\Database\Eloquent\Model;
 class Campaign extends Model
 {
     use HasFactory;
-    protected $appends = ['all_task_amount']; // Ensure attribute is included in JSON output
+
+    protected $fillable = [
+        'title',
+        'tags',
+        'welfare_section',
+        'display_order',
+        'description',
+        'thumbnail',
+        'target_amount',
+        'date',
+        'status',
+    ];
+
+    protected $appends = ['all_task_amount'];
 
     public function tasks()
     {
         return $this->hasMany(CampaignTask::class, 'campaign_id');
     }
-    // get comapaign total amount in payments table
+
     public function totalAmount()
     {
-        return $this->hasMany('App\Models\Payment', 'campaign_id')->sum('amount');
+        return $this->hasMany('App\Models\Payment', 'compaign_id')->sum('amount');
     }
-    // Accessor to get all task_amount values as a comma-separated string
+
     public function getAllTaskAmountAttribute()
     {
         if (!$this->relationLoaded('tasks')) {
-            $this->load('tasks'); // Ensure tasks are loaded
+            $this->load('tasks');
         }
+
         return $this->tasks->pluck('task_amount')->implode(', ');
     }
 }
